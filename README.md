@@ -1,23 +1,26 @@
-# Human or Not? — The Islington AI Challenge
+# Who Am I? — The Islington AI Challenge
 
-A kiosk voice game for public events. Residents put on a headset and play five
-short games against Gemini's realtime voice AI, which is doing its very best
-to sound human — coughs, "erm"s, north-London charm and all. Score and total
-time go on a leaderboard; winners are crowned at the end of the day.
+A kiosk voice game for public events. Residents put on a headset and talk to
+Gemini's realtime voice AI, which plays a **mystery guest**: a famous person
+from Islington, in first person, warm and cheeky, dropping clues but never its
+own name. The player interrogates the voice and guesses who it is. Score and
+total time go on a leaderboard; winners are crowned at the end of the day.
 
 Staff-operated, zero sign-up: one screen, big buttons, first names only.
 
-## The five rounds
+## How a game works
 
-| # | Round | Win condition |
-|---|-------|---------------|
-| 1 | Two Truths and a Lie | Spot which of 3 statements is the lie |
-| 2 | Spot the Lie (The Interview) | Ask 3 fixed questions, spot the lying answer |
-| 3 | Quick-Fire Quiz | The AI quizzes *you* — get 3 of 5 right |
-| 4 | Catch the Slip | Hear the one inhuman detail in a human story |
-| 5 | The Final Verdict | Hidden coin flip: is the voice claiming to be human, or not? |
-
-1 point per round won; ties broken by total time (lower is better).
+- **5 rounds**, each a different mystery guest drawn from a pool of Islington
+  legends (Orwell, Thierry Henry, Little Simz, Douglas Adams, Johnny Rotten,
+  Tony Blair, Charlie George, Nick Hornby — edit the pool in `src/prompts.ts`).
+- The player chats freely; saying **"give me a clue"** unlocks the next of 4
+  scripted clues (cryptic → giveaway), which also appear as cards on screen.
+- To answer, the player **says the name out loud** — the AI judges it
+  (surnames and nicknames count) and reports the result via function call.
+- **3 wrong guesses or 2½ minutes** ends the round; the guest reveals itself
+  either way.
+- 1 point per guest unmasked; ties broken by total time (lower is better) —
+  so leaning on clues costs you leaderboard position naturally.
 
 ## Setup
 

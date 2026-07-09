@@ -11,7 +11,7 @@ import {
   WelcomeScreen,
 } from './components/Screens'
 import { saveEntry } from './game/leaderboard'
-import { createGameSetup, ROUNDS, TOTAL_ROUNDS } from './game/rounds'
+import { createGameSetup, TOTAL_ROUNDS } from './game/rounds'
 import type { AppConfig, GameSetup, LeaderboardEntry, Phase, RoundResult } from './types'
 
 export default function App() {
@@ -35,7 +35,7 @@ export default function App() {
   }, [])
 
   const baseMs = useMemo(() => results.reduce((sum, r) => sum + r.ms, 0), [results])
-  const round = ROUNDS[roundIndex]
+  const person = setup?.people[roundIndex]
 
   const startGame = useCallback(() => {
     setSetup(createGameSetup())
@@ -136,35 +136,35 @@ export default function App() {
       )}
       {phase === 'roundIntro' && setup && (
         <RoundIntroScreen
-          round={round}
+          roundNumber={roundIndex + 1}
           playerName={playerName}
           results={results}
           baseMs={baseMs}
           onStart={() => setPhase('roundLive')}
         />
       )}
-      {phase === 'roundLive' && setup && (
+      {phase === 'roundLive' && person && (
         <RoundLive
           key={roundIndex} // fresh mount (and fresh connection) per round
-          round={round}
-          setup={setup}
+          person={person}
+          roundNumber={roundIndex + 1}
           config={config}
           baseMs={baseMs}
           onFinish={finishRound}
         />
       )}
-      {phase === 'reveal' && setup && results.length > 0 && (
+      {phase === 'reveal' && person && results.length > 0 && (
         <RevealScreen
-          round={round}
-          setup={setup}
+          person={person}
           result={results[results.length - 1]}
           isLast={roundIndex + 1 >= TOTAL_ROUNDS}
           onNext={afterReveal}
         />
       )}
-      {phase === 'results' && savedEntry && (
+      {phase === 'results' && savedEntry && setup && (
         <ResultsScreen
           entry={savedEntry}
+          people={setup.people}
           rank={savedRank}
           onLeaderboard={() => setPhase('leaderboard')}
         />

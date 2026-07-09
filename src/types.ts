@@ -16,37 +16,33 @@ export interface AppConfig {
   hasKey: boolean
 }
 
-/** Everything randomised once per game, before round 1 starts. */
+/** A famous Islington figure the AI plays as the mystery guest. */
+export interface PersonCard {
+  id: string
+  /** Canonical display name, shown at reveal. */
+  name: string
+  /** Other names/nicknames that count as a correct guess. */
+  aka: string[]
+  /** Short label shown at reveal, e.g. "Writer · 1903–1950". */
+  era: string
+  /** One-sentence reveal blurb tying them to Islington. */
+  blurb: string
+  /** Grounding facts the AI improvises around (never contradicted). */
+  facts: string[]
+  /** Exactly four scripted clues, cryptic → giveaway. Shown on screen as given. */
+  clues: string[]
+}
+
+/** Everything randomised once per game: the five mystery guests, in order. */
 export interface GameSetup {
-  /** Round 1: which statement (1-3) is the lie. */
-  r1LieSlot: 1 | 2 | 3
-  /** Round 2: which of the three fixed questions (1-3) gets the lying answer. */
-  r2LieSlot: 1 | 2 | 3
-  /** Round 3: the five quiz questions chosen from the pool. */
-  r3Questions: QuizQuestion[]
-  /** Round 4: the inhuman slip injected into the story. */
-  r4Slip: SlipCard
-  /** Round 5: the coin flip. true = "Alex", committed human persona. */
-  r5IsHuman: boolean
-}
-
-export interface QuizQuestion {
-  question: string
-  answer: string
-}
-
-export interface SlipCard {
-  /** Instruction injected into the AI's story prompt. */
-  instruction: string
-  /** Short description shown to the player at reveal. */
-  reveal: string
+  people: PersonCard[]
 }
 
 export interface RoundResult {
   won: boolean
   ms: number
   skipped?: boolean
-  /** Human-readable detail for the results breakdown, e.g. "4/5 questions". */
+  /** Human-readable detail for the results breakdown, e.g. "Got it, 2 clues in". */
   detail: string
 }
 

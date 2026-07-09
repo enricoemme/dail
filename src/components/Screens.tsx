@@ -3,9 +3,9 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { formatMs, downloadCsv, sortEntries, loadLeaderboard } from '../game/leaderboard'
-import { ROUNDS, TOTAL_ROUNDS, type RoundDef } from '../game/rounds'
+import { ROUND_INSTRUCTIONS, TOTAL_ROUNDS } from '../game/rounds'
 import { requestMic, startMicCapture, type MicCapture } from '../lib/audio/micCapture'
-import type { GameSetup, LeaderboardEntry, RoundResult } from '../types'
+import type { LeaderboardEntry, PersonCard, RoundResult } from '../types'
 import { Confetti } from './Confetti'
 import { MicMeter } from './MicMeter'
 import { ProgressDots } from './ProgressDots'
@@ -19,10 +19,10 @@ export function WelcomeScreen({ onNewPlayer, onLeaderboard }: {
     <div className="screen welcome">
       <div className="welcome-badge">The Islington AI Challenge</div>
       <h1 className="welcome-title">
-        Human <span className="title-or">or</span> Not?
+        Who <span className="title-or">am</span> I?
       </h1>
       <p className="welcome-sub">
-        Five rounds. One voice. Can you tell what's real?
+        Five mystery voices. Five Islington legends. Can you unmask them all?
       </p>
       <button className="btn-primary btn-huge" onClick={onNewPlayer}>
         ▶ New Player
@@ -126,8 +126,8 @@ export function MicCheckScreen({ onReady }: { onReady: () => void }) {
 }
 
 // ---------------------------------------------------------------------------
-export function RoundIntroScreen({ round, playerName, results, baseMs, onStart }: {
-  round: RoundDef
+export function RoundIntroScreen({ roundNumber, playerName, results, baseMs, onStart }: {
+  roundNumber: number
   playerName: string
   results: RoundResult[]
   baseMs: number
@@ -135,12 +135,12 @@ export function RoundIntroScreen({ round, playerName, results, baseMs, onStart }
 }) {
   return (
     <div className="screen round-intro">
-      <ProgressDots currentRound={round.number - 1} results={results} />
-      <div className="intro-round-number">Round {round.number} of {TOTAL_ROUNDS}</div>
-      <h2 className="intro-title">{round.title}</h2>
-      <p className="intro-tagline">{round.tagline}</p>
+      <ProgressDots currentRound={roundNumber - 1} results={results} />
+      <div className="intro-round-number">Round {roundNumber} of {TOTAL_ROUNDS}</div>
+      <h2 className="intro-title">Mystery Guest #{roundNumber}</h2>
+      <p className="intro-tagline">Someone famous from Islington is on the line…</p>
       <ul className="intro-instructions">
-        {round.instructions.map((line) => <li key={line}>{line}</li>)}
+        {ROUND_INSTRUCTIONS.map((line) => <li key={line}>{line}</li>)}
       </ul>
       <div className="intro-footer">
         <div className="intro-player">
@@ -155,9 +155,8 @@ export function RoundIntroScreen({ round, playerName, results, baseMs, onStart }
 }
 
 // ---------------------------------------------------------------------------
-export function RevealScreen({ round, setup, result, isLast, onNext }: {
-  round: RoundDef
-  setup: GameSetup
+export function RevealScreen({ person, result, isLast, onNext }: {
+  person: PersonCard
   result: RoundResult
   isLast: boolean
   onNext: () => void
@@ -165,9 +164,12 @@ export function RevealScreen({ round, setup, result, isLast, onNext }: {
   return (
     <div className={'screen reveal ' + (result.won ? 'reveal-won' : 'reveal-lost')}>
       {result.won && <Confetti />}
-      <div className="reveal-stamp">{result.won ? 'CORRECT!' : 'NOT QUITE!'}</div>
-      <div className="reveal-emoji">{result.won ? '🎉' : '🤖'}</div>
-      <p className="reveal-explain">{round.revealText(setup)}</p>
+      <div className="reveal-stamp">{result.won ? 'YOU GOT IT!' : 'STUMPED!'}</div>
+      <div className="reveal-person">
+        <div className="reveal-name">{person.name}</div>
+        <div className="reveal-era">{person.era}</div>
+      </div>
+      <p className="reveal-explain">{person.blurb}</p>
       <p className="reveal-detail">
         {result.detail} · round time {formatMs(result.ms)}
       </p>
@@ -179,8 +181,9 @@ export function RevealScreen({ round, setup, result, isLast, onNext }: {
 }
 
 // ---------------------------------------------------------------------------
-export function ResultsScreen({ entry, rank, onLeaderboard }: {
+export function ResultsScreen({ entry, people, rank, onLeaderboard }: {
   entry: LeaderboardEntry
+  people: PersonCard[]
   rank: number
   onLeaderboard: () => void
 }) {
@@ -199,7 +202,7 @@ export function ResultsScreen({ entry, rank, onLeaderboard }: {
         {entry.perRound.map((r, i) => (
           <div key={i} className={'breakdown-row ' + (r.won ? 'row-won' : 'row-lost')}>
             <span className="breakdown-icon">{r.skipped ? '⏭' : r.won ? '✓' : '✕'}</span>
-            <span className="breakdown-title">{ROUNDS[i].title}</span>
+            <span className="breakdown-title">{people[i]?.name ?? `Round ${i + 1}`}</span>
             <span className="breakdown-detail">{r.detail}</span>
             <span className="breakdown-time">{formatMs(r.ms)}</span>
           </div>

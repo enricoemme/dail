@@ -1,38 +1,42 @@
 // The live round screen: owns one fresh Live API connection, the mic stream,
 // the playback queue, the stall watchdog, and the round timer. Unmounting
 // tears everything down.
+//
+// Every round is a "Who Am I?" mystery guest. The model reports game state
+// via function calls: clue_given(n) puts the scripted clue on screen;
+// guess_result(correct, guess) scores the round. The app enforces the wrong-
+// guess limit and the time cap, telling the model via stage directions
+// ("[OUT OF GUESSES]" / "[TIME'S UP]") so it can reveal itself out loud.
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { LiveSession } from '../lib/liveClient'
 import { startMicCapture, type MicCapture } from '../lib/audio/micCapture'
 import { PcmPlayer } from '../lib/audio/pcmPlayer'
 import { formatMs } from '../game/leaderboard'
-import type { RoundDef } from '../game/rounds'
-import type { AppConfig, GameSetup, LiveToolCall, RoundResult } from '../types'
+import { buildMysteryPrompt } from '../prompts'
+import { MAX_WRONG_GUESSES, MYSTERY_TOOLS, ROUND_TIME_LIMIT_MS } from '../game/rounds'
+import type { AppConfig, LiveToolCall, PersonCard, RoundResult } from '../types'
 import { VoiceOrb } from './VoiceOrb'
 import { MicMeter } from './MicMeter'
 
 const WATCHDOG_MS = 5000
-const ROUND5_SECONDS = 60
+/** Grace so the model's spoken celebration/reveal isn't cut mid-word. */
+const OUTRO_GRACE_MS = 6000
 
 interface Props {
-  round: RoundDef
-  setup: GameSetup
+  person: PersonCard
+  roundNumber: number
   config: AppConfig
   /** Sum of previous rounds' times — the always-visible total keeps ticking. */
   baseMs: number
   onFinish: (result: RoundResult) => void
 }
 
-interface QuizMark {
-  n: number
-  correct: boolean
-}
-
-export function RoundLive({ round, setup, config, baseMs, onFinish }: Props) {
+export function RoundLive({ person, roundNumber, config, baseMs, onFinish }: Props) {
   const [status, setStatus] = useState<'connecting' | 'live' | 'error'>('connecting')
   const [elapsed, setElapsed] = useState(0)
-  const [quizMarks, setQuizMarks] = useState<QuizMark[]>([])
+  const [cluesRevealed, setCluesRevealed] = useState<number[]>([])
+  const [strikes, setStrikes] = useState(0)
   const [captions, setCaptions] = useState<string[]>([])
   const [showCaptions, setShowCaptions] = useState(false)
 
@@ -42,20 +46,13 @@ export function RoundLive({ round, setup, config, baseMs, onFinish }: Props) {
   const micLevelRef = useRef(0)
   const startRef = useRef(performance.now())
   const finishedRef = useRef(false)
+  const endingRef = useRef(false) // outro grace period in progress
+  const clockStoppedRef = useRef(false)
   const watchdogRef = useRef<number | null>(null)
   const nudgesRef = useRef(0)
-  const quizMarksRef = useRef<QuizMark[]>([])
+  const strikesRef = useRef(0)
+  const cluesRef = useRef<number[]>([])
   const reconnectsRef = useRef(0)
-
-  // ---- round timer -------------------------------------------------------
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      if (!finishedRef.current && !clockStoppedRef.current) {
-        setElapsed(performance.now() - startRef.current)
-      }
-    }, 100)
-    return () => window.clearInterval(id)
-  }, [])
 
   const lockIn = useCallback(
     (result: Omit<RoundResult, 'ms'>, msOverride?: number) => {
@@ -66,6 +63,32 @@ export function RoundLive({ round, setup, config, baseMs, onFinish }: Props) {
     },
     [onFinish],
   )
+
+  /** Freeze the score clock now; end the round after the model's outro. */
+  const endRound = (result: Omit<RoundResult, 'ms'>, stageDirection?: string) => {
+    if (endingRef.current || finishedRef.current) return
+    endingRef.current = true
+    clockStoppedRef.current = true
+    const ms = performance.now() - startRef.current
+    if (stageDirection) sessionRef.current?.sendText(stageDirection)
+    window.setTimeout(() => lockIn(result, ms), OUTRO_GRACE_MS)
+  }
+
+  // ---- round timer + time cap ---------------------------------------------
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      if (finishedRef.current || clockStoppedRef.current) return
+      const now = performance.now() - startRef.current
+      setElapsed(now)
+      if (now >= ROUND_TIME_LIMIT_MS) {
+        endRound(
+          { won: false, detail: `Time's up — it was ${person.name}` },
+          "[TIME'S UP]",
+        )
+      }
+    }, 100)
+    return () => window.clearInterval(id)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- stall watchdog ----------------------------------------------------
   const clearWatchdog = () => {
@@ -91,50 +114,36 @@ export function RoundLive({ round, setup, config, baseMs, onFinish }: Props) {
     }, WATCHDOG_MS)
   }
 
-  // ---- tool calls (rounds 3 & 4 report results this way) ------------------
+  // ---- tool calls ----------------------------------------------------------
   const handleToolCalls = (calls: LiveToolCall[]) => {
     for (const call of calls) {
-      if (call.name === 'mark_quiz_answer') {
-        const n = Number(call.args.question_number)
-        const correct = Boolean(call.args.correct)
-        if (n >= 1 && n <= 5 && !quizMarksRef.current.some((m) => m.n === n)) {
-          quizMarksRef.current = [...quizMarksRef.current, { n, correct }]
-          setQuizMarks(quizMarksRef.current)
-          // Belt and braces: end the round on the 5th mark even if the model
-          // forgets to call round_finished.
-          if (quizMarksRef.current.length === 5) finishQuiz()
+      if (call.name === 'clue_given') {
+        const n = Number(call.args.clue_number)
+        if (n >= 1 && n <= person.clues.length && !cluesRef.current.includes(n)) {
+          cluesRef.current = [...cluesRef.current, n].sort((a, b) => a - b)
+          setCluesRevealed(cluesRef.current)
         }
-      } else if (call.name === 'round_finished') {
-        finishQuiz()
-      } else if (call.name === 'slip_result') {
-        const caught = Boolean(call.args.caught)
-        // The timer stops NOW (the answer is in), but we let the model's
-        // one-line reveal play out before cutting the audio.
-        const ms = performance.now() - startRef.current
-        stopClock()
-        window.setTimeout(() => {
-          lockIn({ won: caught, detail: caught ? 'Caught the slip' : 'Missed the slip' }, ms)
-        }, 5000)
+      } else if (call.name === 'guess_result') {
+        if (endingRef.current) continue
+        const correct = Boolean(call.args.correct)
+        if (correct) {
+          const clueCount = Math.max(1, cluesRef.current.length)
+          endRound({
+            won: true,
+            detail: `Got it — ${clueCount} clue${clueCount === 1 ? '' : 's'} in`,
+          })
+        } else {
+          strikesRef.current += 1
+          setStrikes(strikesRef.current)
+          if (strikesRef.current >= MAX_WRONG_GUESSES) {
+            endRound(
+              { won: false, detail: `Out of guesses — it was ${person.name}` },
+              '[OUT OF GUESSES]',
+            )
+          }
+        }
       }
     }
-  }
-
-  const finishQuiz = () => {
-    const marks = quizMarksRef.current
-    if (marks.length === 0) return
-    const correct = marks.filter((m) => m.correct).length
-    // Timer stops at the final judgement; the quizmaster gets a beat to
-    // sign off before we cut the connection.
-    const ms = performance.now() - startRef.current
-    stopClock()
-    window.setTimeout(() => {
-      lockIn({ won: correct >= 3, detail: `${correct}/5 questions right` }, ms)
-    }, 4000)
-  }
-
-  const clockStoppedRef = useRef(false)
-  const stopClock = () => {
-    clockStoppedRef.current = true
   }
 
   // ---- connection lifecycle ----------------------------------------------
@@ -144,8 +153,8 @@ export function RoundLive({ round, setup, config, baseMs, onFinish }: Props) {
       {
         model: config.model,
         voice: config.voice,
-        systemInstruction: round.buildPrompt(setup),
-        tools: round.tools,
+        systemInstruction: buildMysteryPrompt(person),
+        tools: MYSTERY_TOOLS,
       },
       {
         onReady: () => setStatus('live'),
@@ -159,7 +168,7 @@ export function RoundLive({ round, setup, config, baseMs, onFinish }: Props) {
           armWatchdog() // player spoke — expect a response within 5s
           appendCaption('You', text)
         },
-        onOutputTranscript: (text) => appendCaption('AI', text),
+        onOutputTranscript: (text) => appendCaption('Guest', text),
         onToolCall: handleToolCalls,
         onTurnComplete: () => clearWatchdog(),
         onClose: () => {
@@ -170,7 +179,7 @@ export function RoundLive({ round, setup, config, baseMs, onFinish }: Props) {
     )
     sessionRef.current = session
     session.connect()
-  }, [round, setup, config]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [person, config]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const reconnect = () => {
     if (finishedRef.current || reconnectsRef.current >= 3) {
@@ -231,86 +240,54 @@ export function RoundLive({ round, setup, config, baseMs, onFinish }: Props) {
   const getOrbLevel = useCallback(() => playerRef.current?.getLevel() ?? 0, [])
   const getMicLevel = useCallback(() => micLevelRef.current, [])
 
-  // ---- per-round auxiliary UI ---------------------------------------------
-  const isQuiz = round.number === 3
-  const isSlip = round.number === 4
-  const isVerdict = round.number === 5
-  const verdictSecondsLeft = Math.max(0, ROUND5_SECONDS - Math.floor(elapsed / 1000))
+  const remainingMs = Math.max(0, ROUND_TIME_LIMIT_MS - elapsed)
+  const lowTime = remainingMs <= 30_000 && !endingRef.current
 
   return (
     <div className="screen round-live">
       <header className="live-header">
         <div className="live-round-label">
-          Round {round.number} · {round.title}
+          Round {roundNumber} · Mystery Guest
         </div>
         <div className="live-timers">
-          <div className="timer timer-round">{formatMs(elapsed)}</div>
+          <div className={'timer timer-round' + (lowTime ? ' timer-low' : '')}>
+            {formatMs(remainingMs)}
+          </div>
           <div className="timer timer-total">Total {formatMs(baseMs + elapsed)}</div>
         </div>
       </header>
 
       <VoiceOrb getLevel={getOrbLevel} state={status} />
 
-      {round.liveHint && (
-        <div className="live-hint">
-          {round.liveHint.map((line) => (
-            <div key={line} className="live-hint-line">{line}</div>
+      <div className="clue-board">
+        {person.clues.map((clue, i) =>
+          cluesRevealed.includes(i + 1) ? (
+            <div key={i} className="clue-card clue-card-revealed">
+              <span className="clue-num">Clue {i + 1}</span>
+              <span className="clue-text">{clue}</span>
+            </div>
+          ) : (
+            <div key={i} className="clue-card">
+              <span className="clue-num">Clue {i + 1}</span>
+              <span className="clue-text clue-locked">Say “give me a clue”</span>
+            </div>
+          ),
+        )}
+      </div>
+
+      <div className="guess-status">
+        <span className="guess-hint">
+          Know it? Just say the name — <em>“Are you…?”</em>
+        </span>
+        <span className="strikes">
+          {Array.from({ length: MAX_WRONG_GUESSES }, (_, i) => (
+            <span key={i} className={'strike' + (i < strikes ? ' strike-used' : '')}>
+              {i < strikes ? '✕' : '●'}
+            </span>
           ))}
-        </div>
-      )}
-
-      {isQuiz && (
-        <div className="quiz-marks">
-          {Array.from({ length: 5 }, (_, i) => {
-            const mark = quizMarks.find((m) => m.n === i + 1)
-            return (
-              <div
-                key={i}
-                className={
-                  'quiz-mark' +
-                  (mark ? (mark.correct ? ' quiz-mark-right' : ' quiz-mark-wrong') : '')
-                }
-              >
-                {mark ? (mark.correct ? '✓' : '✕') : i + 1}
-              </div>
-            )
-          })}
-        </div>
-      )}
-
-      {isSlip && (
-        <div className="slip-prompt">
-          Listen for the slip… then <strong>say it out loud</strong>.
-        </div>
-      )}
-
-      {isVerdict && (
-        <div className={'verdict-countdown' + (verdictSecondsLeft === 0 ? ' verdict-zero' : '')}>
-          {verdictSecondsLeft > 0
-            ? `${verdictSecondsLeft}s of questioning left`
-            : 'Time! Lock in your verdict ↓'}
-        </div>
-      )}
-
-      {round.answers && (
-        <div className={`answers answers-${round.answers.length}`}>
-          {round.answers.map((a) => (
-            <button
-              key={a.id}
-              className="btn-answer"
-              onClick={() =>
-                lockIn({
-                  won: round.judge!(setup, a.id),
-                  detail: `Picked: ${a.label}`,
-                })
-              }
-            >
-              <span className="btn-answer-label">{a.label}</span>
-              {a.sublabel && <span className="btn-answer-sub">{a.sublabel}</span>}
-            </button>
-          ))}
-        </div>
-      )}
+          <span className="strikes-label">guesses</span>
+        </span>
+      </div>
 
       <footer className="live-footer">
         <MicMeter getLevel={getMicLevel} />
