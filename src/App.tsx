@@ -12,7 +12,7 @@ import {
 } from './components/Screens'
 import { saveEntry } from './game/leaderboard'
 import { createGameSetup, TOTAL_ROUNDS } from './game/rounds'
-import type { AppConfig, GameSetup, LeaderboardEntry, Phase, RoundResult } from './types'
+import type { AppConfig, GameSetup, LeaderboardEntry, Phase, RoundResult, VoiceChoice } from './types'
 
 export default function App() {
   const [config, setConfig] = useState<AppConfig | null>(null)
@@ -20,6 +20,7 @@ export default function App() {
 
   const [phase, setPhase] = useState<Phase>('welcome')
   const [playerName, setPlayerName] = useState('')
+  const [voiceChoice, setVoiceChoice] = useState<VoiceChoice>('female')
   const [micDone, setMicDone] = useState(false)
   const [setup, setSetup] = useState<GameSetup | null>(null)
   const [roundIndex, setRoundIndex] = useState(0)
@@ -129,7 +130,12 @@ export default function App() {
         />
       )}
       {phase === 'name' && (
-        <NameScreen onConfirm={confirmName} onBack={() => setPhase('welcome')} />
+        <NameScreen
+          voiceChoice={voiceChoice}
+          onVoiceChoice={setVoiceChoice}
+          onConfirm={confirmName}
+          onBack={() => setPhase('welcome')}
+        />
       )}
       {phase === 'micCheck' && (
         <MicCheckScreen onReady={() => { setMicDone(true); startGame() }} />
@@ -148,7 +154,8 @@ export default function App() {
           key={roundIndex} // fresh mount (and fresh connection) per round
           person={person}
           roundNumber={roundIndex + 1}
-          config={config}
+          model={config.model}
+          voice={voiceChoice === 'female' ? config.voiceFemale : config.voiceMale}
           baseMs={baseMs}
           onFinish={finishRound}
         />

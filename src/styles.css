@@ -122,6 +122,30 @@ button {
 }
 .name-input:focus { border-color: var(--accent); }
 
+.voice-picker { display: flex; flex-direction: column; gap: 0.7rem; align-items: center; }
+.voice-picker-label {
+  font-size: 0.95rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-dim); font-weight: 700;
+}
+.voice-options { display: flex; gap: 1rem; }
+.btn-voice {
+  background: var(--card);
+  border: 2px solid var(--card-border);
+  color: var(--ink-dim);
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 0.9rem 2.2rem;
+  border-radius: 999px;
+  transition: transform 0.08s ease;
+}
+.btn-voice:active { transform: scale(0.96); }
+.btn-voice-on {
+  color: var(--ink);
+  border-color: var(--accent);
+  background: rgba(34, 211, 238, 0.12);
+  box-shadow: 0 0 24px rgba(34, 211, 238, 0.25);
+}
+
 /* ---- round intro ------------------------------------------------------------ */
 .intro-round-number {
   letter-spacing: 0.2em;
@@ -272,6 +296,19 @@ button {
 .strike { font-size: 1.4rem; color: var(--good); }
 .strike-used { color: var(--bad); }
 .strikes-label { font-size: 0.95rem; color: var(--ink-dim); margin-left: 0.3rem; }
+
+.btn-pass {
+  background: transparent;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  color: var(--bad);
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.btn-pass:active { background: rgba(248, 113, 113, 0.12); }
+.btn-pass:disabled { opacity: 0.5; }
 
 /* ---- live footer / captions ------------------------------------------------------------ */
 .live-footer {

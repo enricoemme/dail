@@ -18,7 +18,8 @@ const rawKey = process.env.GEMINI_API_KEY
 // The .env.example placeholder doesn't count as a configured key.
 const API_KEY = rawKey && rawKey !== 'your-key-here' ? rawKey : undefined
 const MODEL = process.env.GEMINI_LIVE_MODEL || 'gemini-3.1-flash-live-preview'
-const VOICE = process.env.GEMINI_VOICE || 'Charon'
+const VOICE_FEMALE = process.env.GEMINI_VOICE_FEMALE || 'Aoede'
+const VOICE_MALE = process.env.GEMINI_VOICE_MALE || 'Charon'
 
 const UPSTREAM_URL =
   'wss://generativelanguage.googleapis.com/ws/' +
@@ -33,7 +34,12 @@ const app = express()
 
 // Non-secret config the frontend needs to build its Live setup message.
 app.get('/api/config', (_req, res) => {
-  res.json({ model: MODEL, voice: VOICE, hasKey: Boolean(API_KEY) })
+  res.json({
+    model: MODEL,
+    voiceFemale: VOICE_FEMALE,
+    voiceMale: VOICE_MALE,
+    hasKey: Boolean(API_KEY),
+  })
 })
 
 // If the frontend has been built, host it too — one process runs the whole
@@ -83,5 +89,5 @@ wss.on('connection', (client) => {
 })
 
 server.listen(PORT, () => {
-  console.log(`Relay listening on http://localhost:${PORT}  (model: ${MODEL}, voice: ${VOICE})`)
+  console.log(`Relay listening on http://localhost:${PORT}  (model: ${MODEL}, voices: ${VOICE_FEMALE}/${VOICE_MALE})`)
 })

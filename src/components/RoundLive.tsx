@@ -15,7 +15,7 @@ import { PcmPlayer } from '../lib/audio/pcmPlayer'
 import { formatMs } from '../game/leaderboard'
 import { buildMysteryPrompt } from '../prompts'
 import { MAX_WRONG_GUESSES, MYSTERY_TOOLS, ROUND_TIME_LIMIT_MS } from '../game/rounds'
-import type { AppConfig, LiveToolCall, PersonCard, RoundResult } from '../types'
+import type { LiveToolCall, PersonCard, RoundResult } from '../types'
 import { VoiceOrb } from './VoiceOrb'
 import { MicMeter } from './MicMeter'
 
@@ -26,19 +26,21 @@ const OUTRO_GRACE_MS = 6000
 interface Props {
   person: PersonCard
   roundNumber: number
-  config: AppConfig
+  model: string
+  voice: string
   /** Sum of previous rounds' times — the always-visible total keeps ticking. */
   baseMs: number
   onFinish: (result: RoundResult) => void
 }
 
-export function RoundLive({ person, roundNumber, config, baseMs, onFinish }: Props) {
+export function RoundLive({ person, roundNumber, model, voice, baseMs, onFinish }: Props) {
   const [status, setStatus] = useState<'connecting' | 'live' | 'error'>('connecting')
   const [elapsed, setElapsed] = useState(0)
   const [cluesRevealed, setCluesRevealed] = useState<number[]>([])
   const [strikes, setStrikes] = useState(0)
   const [captions, setCaptions] = useState<string[]>([])
   const [showCaptions, setShowCaptions] = useState(false)
+  const [ending, setEnding] = useState(false)
 
   const sessionRef = useRef<LiveSession | null>(null)
   const playerRef = useRef<PcmPlayer | null>(null)
@@ -65,13 +67,28 @@ export function RoundLive({ person, roundNumber, config, baseMs, onFinish }: Pro
   )
 
   /** Freeze the score clock now; end the round after the model's outro. */
-  const endRound = (result: Omit<RoundResult, 'ms'>, stageDirection?: string) => {
+  const endRound = (
+    result: Omit<RoundResult, 'ms'>,
+    stageDirection?: string,
+    msOverride?: number,
+  ) => {
     if (endingRef.current || finishedRef.current) return
     endingRef.current = true
+    setEnding(true)
     clockStoppedRef.current = true
-    const ms = performance.now() - startRef.current
+    const ms = msOverride ?? performance.now() - startRef.current
     if (stageDirection) sessionRef.current?.sendText(stageDirection)
     window.setTimeout(() => lockIn(result, ms), OUTRO_GRACE_MS)
+  }
+
+  /** Player gives up: instant next round, but it costs the full time cap. */
+  const passRound = () => {
+    playerRef.current?.flush()
+    endRound(
+      { won: false, detail: `Passed — it was ${person.name}` },
+      '[PLAYER PASSES]',
+      ROUND_TIME_LIMIT_MS,
+    )
   }
 
   // ---- round timer + time cap ---------------------------------------------
@@ -151,8 +168,8 @@ export function RoundLive({ person, roundNumber, config, baseMs, onFinish }: Pro
     setStatus('connecting')
     const session = new LiveSession(
       {
-        model: config.model,
-        voice: config.voice,
+        model,
+        voice,
         systemInstruction: buildMysteryPrompt(person),
         tools: MYSTERY_TOOLS,
       },
@@ -179,7 +196,7 @@ export function RoundLive({ person, roundNumber, config, baseMs, onFinish }: Pro
     )
     sessionRef.current = session
     session.connect()
-  }, [person, config]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [person, model, voice]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const reconnect = () => {
     if (finishedRef.current || reconnectsRef.current >= 3) {
@@ -287,6 +304,9 @@ export function RoundLive({ person, roundNumber, config, baseMs, onFinish }: Pro
           ))}
           <span className="strikes-label">guesses</span>
         </span>
+        <button className="btn-pass" onClick={passRound} disabled={ending}>
+          {ending ? 'Revealing…' : `🏳 Pass (costs ${formatMs(ROUND_TIME_LIMIT_MS)})`}
+        </button>
       </div>
 
       <footer className="live-footer">

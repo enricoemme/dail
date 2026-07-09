@@ -49,7 +49,8 @@ export const ROUND_INSTRUCTIONS = [
   'Chat to them — ask about their life, their work, their manor.',
   'Stuck? Say "give me a clue". Clues appear on screen too.',
   'Think you know? Just say the name out loud — e.g. "Are you …?"',
-  `${MAX_WRONG_GUESSES} wrong guesses or ${Math.round(ROUND_TIME_LIMIT_MS / 60000 * 10) / 10} minutes and the round is lost. Quick guesses climb the leaderboard!`,
+  `${MAX_WRONG_GUESSES} wrong guesses or 2½ minutes and the round is lost.`,
+  'Totally stumped? Tap Pass — but it costs the full 2½ minutes on the clock.',
 ]
 
 function randInt(maxExclusive: number): number {

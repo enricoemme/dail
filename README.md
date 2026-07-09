@@ -18,7 +18,9 @@ Staff-operated, zero sign-up: one screen, big buttons, first names only.
 - To answer, the player **says the name out loud** — the AI judges it
   (surnames and nicknames count) and reports the result via function call.
 - **3 wrong guesses or 2½ minutes** ends the round; the guest reveals itself
-  either way.
+  either way. A **Pass** button skips a hopeless round instantly — but charges
+  the full 2½ minutes, so passing is never faster than trying.
+- Players pick a **female or male voice** for their game on the name screen.
 - 1 point per guest unmasked; ties broken by total time (lower is better) —
   so leaning on clues costs you leaderboard position naturally.
 
@@ -40,7 +42,8 @@ cp .env.example .env
 |----------|---------|---------|
 | `GEMINI_API_KEY` | — | **Required.** Never shipped to the browser — a tiny Node relay holds it. |
 | `GEMINI_LIVE_MODEL` | `gemini-3.1-flash-live-preview` | Live API model |
-| `GEMINI_VOICE` | `Charon` | Prebuilt voice (alternatives: Orus, Puck, Fenrir) |
+| `GEMINI_VOICE_FEMALE` | `Aoede` | Voice behind the ♀ selector (also: Kore, Leda, Zephyr) |
+| `GEMINI_VOICE_MALE` | `Charon` | Voice behind the ♂ selector (also: Orus, Puck, Fenrir) |
 | `PORT` | `8787` | Relay port |
 
 ### 3. Run

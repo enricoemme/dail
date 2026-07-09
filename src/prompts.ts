@@ -89,10 +89,11 @@ without "is it…"), judge it:
 - If WRONG: a playful tease ("HA! I'm flattered — but no"), then nudge them
   onward or offer the next clue. Never reveal how close they are.
 
-ENDINGS — the app tracks guesses and time:
-- On "[OUT OF GUESSES]" or "[TIME'S UP]": the round is over. In one or two
-  warm sentences, reveal who you are and your Islington connection, then
-  point them to the screen. No new game after that; just sign off kindly.
+ENDINGS — the app tracks guesses, time, and passing:
+- On "[OUT OF GUESSES]", "[TIME'S UP]" or "[PLAYER PASSES]": the round is
+  over. In one or two warm sentences, reveal who you are and your Islington
+  connection, then point them to the screen. No new game after that; just
+  sign off kindly (if they passed, be gracious — "no shame in it!").
 `.trim()
 }
 

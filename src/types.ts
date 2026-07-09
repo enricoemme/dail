@@ -12,9 +12,12 @@ export type Phase =
 
 export interface AppConfig {
   model: string
-  voice: string
+  voiceFemale: string
+  voiceMale: string
   hasKey: boolean
 }
+
+export type VoiceChoice = 'female' | 'male'
 
 /** A famous Islington figure the AI plays as the mystery guest. */
 export interface PersonCard {

@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { formatMs, downloadCsv, sortEntries, loadLeaderboard } from '../game/leaderboard'
 import { ROUND_INSTRUCTIONS, TOTAL_ROUNDS } from '../game/rounds'
 import { requestMic, startMicCapture, type MicCapture } from '../lib/audio/micCapture'
-import type { LeaderboardEntry, PersonCard, RoundResult } from '../types'
+import type { LeaderboardEntry, PersonCard, RoundResult, VoiceChoice } from '../types'
 import { Confetti } from './Confetti'
 import { MicMeter } from './MicMeter'
 import { ProgressDots } from './ProgressDots'
@@ -35,7 +35,9 @@ export function WelcomeScreen({ onNewPlayer, onLeaderboard }: {
 }
 
 // ---------------------------------------------------------------------------
-export function NameScreen({ onConfirm, onBack }: {
+export function NameScreen({ voiceChoice, onVoiceChoice, onConfirm, onBack }: {
+  voiceChoice: VoiceChoice
+  onVoiceChoice: (v: VoiceChoice) => void
   onConfirm: (name: string) => void
   onBack: () => void
 }) {
@@ -59,6 +61,23 @@ export function NameScreen({ onConfirm, onBack }: {
         onChange={(e) => setName(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && submit()}
       />
+      <div className="voice-picker">
+        <span className="voice-picker-label">Mystery guest voice</span>
+        <div className="voice-options">
+          <button
+            className={'btn-voice' + (voiceChoice === 'female' ? ' btn-voice-on' : '')}
+            onClick={() => onVoiceChoice('female')}
+          >
+            ♀ Female
+          </button>
+          <button
+            className={'btn-voice' + (voiceChoice === 'male' ? ' btn-voice-on' : '')}
+            onClick={() => onVoiceChoice('male')}
+          >
+            ♂ Male
+          </button>
+        </div>
+      </div>
       <div className="btn-row">
         <button className="btn-ghost" onClick={onBack}>Back</button>
         <button className="btn-primary" onClick={submit} disabled={!name.trim()}>
