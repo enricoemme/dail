@@ -1,120 +1,85 @@
-# Who Am I? — The Islington AI Challenge
+# VictorAI — The Islington AI Challenge
 
-A kiosk voice game for public events. Residents put on a headset and talk to
-Gemini's realtime voice AI, which plays a **mystery guest**: a famous person
-from Islington, in first person, warm and cheeky, dropping clues but never its
-own name. The player interrogates the voice and guesses who it is. Score and
-total time go on a leaderboard; winners are crowned at the end of the day.
+An escape-room voice puzzle. The Chief Exec, "Victoria", has been hacked:
+ten short audio clips, **five genuinely hers and five AI voice-clones**. The
+player listens, marks each real-or-AI, and scores. The five *real* clips are
+clues that spell a hidden message; the five fakes are red herrings (and double
+as textbook voice-scam scripts). Solving the riddle reveals the escape-room
+letter, then a short debrief teaches how to defend against voice-cloning fraud.
 
-Staff-operated, zero sign-up: one screen, big buttons, first names only.
+Modern, luxurious UI — glassmorphism on a deep ground, Tiffany-blue + rose-gold
+metallics, editorial serif display, and **live audio-reactive waveforms** that
+light up and pulse to the real signal while a clip plays.
 
-## How a game works
+## Game flow
 
-- **5 rounds**, each a different mystery guest drawn from a pool of Islington
-  legends (Orwell, Thierry Henry, Little Simz, Douglas Adams, Johnny Rotten,
-  Tony Blair, Charlie George, Nick Hornby — edit the pool in `src/prompts.ts`).
-- The player chats freely; saying **"give me a clue"** unlocks the next of 4
-  scripted clues (cryptic → giveaway), which also appear as cards on screen.
-- To answer, the player **says the name out loud** — the AI judges it
-  (surnames and nicknames count) and reports the result via function call.
-- **3 wrong guesses or 2½ minutes** ends the round; the guest reveals itself
-  either way. A **Pass** button skips a hopeless round instantly — but charges
-  the full 2½ minutes, so passing is never faster than trying.
-- Players pick a **female or male voice** for their game on the name screen.
-- 1 point per guest unmasked; ties broken by total time (lower is better) —
-  so leaning on clues costs you leaderboard position naturally.
+1. **The grid** — 10 clips (click to play/stop; only one plays at a time).
+   Mark each `yes` (real) / `no` (AI). All ten must be marked to continue.
+2. **Score** — "You correctly selected X of 5 real clips."
+3. **The riddle** — replay just the 5 real clips; answer what message they
+   spell (placeholder acrostic: **T-R-U-S-T**).
+4. **Escape reveal** — the code word + this room's escape letter.
+5. **Debrief** — "Could you tell the difference?" · Stop. Check. Confirm.
 
-## Setup
+## ⭐ Swapping in Dale's real audio later
 
-### 1. Get a Gemini API key
+Everything is prepared so the real recordings are a drop-in replacement.
+The 10 clips currently in `public/clips/` are AI placeholders (all one voice)
+so the mechanic can be demoed today.
 
-Create a key at <https://aistudio.google.com/apikey> (Google AI Studio — the
-app uses the Generative Language API endpoint, not Vertex).
+1. Drop the 5 genuine recordings into `public/clips/` as
+   `real-1.wav … real-5.wav`, and the 5 cloned red herrings as
+   `fake-1.wav … fake-5.wav`. (Any web audio format works — `.mp3`/`.m4a`
+   too; just match the extension in the `file` fields.)
+2. Open **`src/game/content.ts`** — the single content file — and update each
+   clip's `transcript`, plus the `RIDDLE` options and `ESCAPE` letter/codeword
+   so the puzzle resolves to the real script.
+3. `npm run build` and reload. Nothing else changes.
 
-### 2. Configure
+The grid shuffles clip positions on every play, so real/fake placement is never
+predictable.
 
-```bash
-cp .env.example .env
-# then edit .env and paste your key
-```
-
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `GEMINI_API_KEY` | — | **Required.** Never shipped to the browser — a tiny Node relay holds it. |
-| `GEMINI_LIVE_MODEL` | `gemini-3.1-flash-live-preview` | Live API model |
-| `GEMINI_VOICE_FEMALE` | `Aoede` | Voice behind the ♀ selector (also: Kore, Leda, Zephyr) |
-| `GEMINI_VOICE_MALE` | `Charon` | Voice behind the ♂ selector (also: Orus, Puck, Fenrir) |
-| `PORT` | `8787` | Relay port |
-
-### 3. Run
-
-**Hosting the kiosk (recommended for the event):** one process serves
-everything — UI, config, and the Live API relay:
+## Setup & running
 
 ```bash
 npm install
 npm run build
-npm start
+npm start          # hosts everything on http://localhost:8787
 ```
 
-Open <http://localhost:8787>. Restart `npm start` after changing `.env`.
-
-**Developing (hot reload):**
+The game itself is **fully static at runtime** — no API key needed to play,
+since the clips are files. A Gemini key is only required to (re)generate the
+placeholder clips:
 
 ```bash
-npm run dev
+cp .env.example .env         # add GEMINI_API_KEY
+npm start                    # in one terminal (relay must be up)
+node scripts/generate-clips.mjs   # regenerates public/clips/*.wav
 ```
 
-Open <http://localhost:5173> (or the URL Vite prints if 5173 is taken). This
-starts two processes:
+`GEMINI_VOICE_FEMALE` (default `Aoede`) is the placeholder voice; `en-GB`.
 
-- **Relay** (`server/index.mjs`, port 8787) — holds the API key and pipes the
-  Live API websocket; also serves `/api/config`.
-- **Vite dev server** (port 5173) — the kiosk UI, proxying `/api` and `/live`
-  to the relay.
+### Dev mode (hot reload)
 
-After editing `src/prompts.ts` for the hosted kiosk, run `npm run build`
-again and reload the page.
+```bash
+npm run dev        # Vite on http://localhost:5173 (or next free port)
+```
 
-## Running the kiosk on event day
+## Event-day notes
 
-1. Use Chrome. Open the app, tap ⚙ (bottom-right) → **Enter fullscreen** — or
-   launch in kiosk mode:
-   ```bash
-   open -a "Google Chrome" --args --kiosk http://localhost:5173   # macOS
-   ```
-2. Plug in the headset **before** starting, and pick it as the system
-   mic/output device.
-3. First game of the day: the app asks once to enable the microphone, with a
-   level meter so you can confirm the headset works. Permission persists.
-4. The small mic meter at the bottom of every live round tells you at a glance
-   the mic is alive.
-5. **⚙ staff menu**: Skip this round · Restart game · Clear leaderboard ·
-   Enter fullscreen. Destructive buttons need a second confirming tap.
-6. End of day: Leaderboard screen → **Download CSV** to announce winners.
-   Scores persist in the browser's localStorage, so use the same browser
-   profile all day and don't clear site data.
+- Chrome, fullscreen (⚙ bottom-left → Enter fullscreen), landscape display.
+- The ⚙ staff menu also has **Skip to next screen** and **Restart game**.
+- First interaction unlocks browser audio automatically (clicking a clip
+  counts), so there's no separate "enable audio" step.
 
-## Tuning the personas
+## Architecture
 
-All five system prompts (plus the shared "sound human" direction, the quiz
-question pool and the Round-4 slip pool) live in **`src/prompts.ts`**. Edit,
-save, and the dev server hot-reloads — no other code changes needed.
-
-## Architecture notes
-
-- **Fresh connection per round** — each round has its own system prompt;
-  reconnecting takes well under a second.
-- **Audio in**: mic → AudioWorklet → 16 kHz PCM16 → base64 `realtimeInput`.
-  **Audio out**: 24 kHz PCM16 chunks queued gaplessly through Web Audio (the
-  same node feeds the voice orb's analyser).
-- **Turn-taking**: Gemini's native automatic VAD; on `serverContent.interrupted`
-  (barge-in) the local playback queue is flushed instantly.
-- **Scoring calls**: rounds 3 & 4 report results via function calls
-  (`mark_quiz_answer`, `round_finished`, `slip_result`). Declarations contain
-  no `additionalProperties` (Gemini rejects it) and tool responses are sent
-  back instantly.
-- **Watchdog**: if the player spoke and no audio arrives within 5 s, the app
-  nudges the model with a text "continue"; a second stall reconnects (up to 3
-  times per round).
-- **No database**: leaderboard is localStorage + CSV export.
+- **Vite + React + TS**, single page. `src/App.tsx` is the screen state machine.
+- **Audio**: one shared `ClipPlayer` (`src/lib/audio/clipPlayer.ts`) — decodes
+  and caches clips, plays one at a time, and exposes an `AnalyserNode` + play
+  progress. `AudioWaveform.tsx` draws the reactive canvas: a deterministic
+  per-clip silhouette at rest, live frequency bars while playing, with a
+  metallic gradient, glow, and played-progress fill.
+- **Server** (`server/index.mjs`): static host for `dist/`, plus the Gemini
+  relay used only by the clip generator.
+- No database, no accounts.

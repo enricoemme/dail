@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-const COLORS = ['#22d3ee', '#a78bfa', '#f472b6', '#fbbf24', '#34d399', '#f87171']
+const COLORS = ['#7fe7e0', '#0abab5', '#e8b4a0', '#c98a76', '#f3d9c6', '#f7f4ef']
 
 /** Lightweight canvas confetti burst, plays once on mount (~2.5s). */
 export function Confetti() {

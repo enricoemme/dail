@@ -2,3 +2,5 @@ node_modules/
 dist/
 .env
 .DS_Store
+
+# Playwright browser binaries are large and machine-specific

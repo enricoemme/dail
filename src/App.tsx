@@ -1,193 +1,87 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FacilitatorMenu } from './components/FacilitatorMenu'
-import { RoundLive } from './components/RoundLive'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ClipPlayer } from './lib/audio/clipPlayer'
+import { ALL_CLIPS } from './game/content'
 import {
-  LeaderboardScreen,
-  MicCheckScreen,
-  NameScreen,
-  ResultsScreen,
-  RevealScreen,
-  RoundIntroScreen,
-  WelcomeScreen,
+  DebriefScreen,
+  EscapeScreen,
+  GridScreen,
+  RiddleScreen,
+  ScoreScreen,
 } from './components/Screens'
-import { saveEntry } from './game/leaderboard'
-import { createGameSetup, TOTAL_ROUNDS } from './game/rounds'
-import type { AppConfig, GameSetup, LeaderboardEntry, Phase, RoundResult, VoiceChoice } from './types'
+import { FacilitatorMenu } from './components/FacilitatorMenu'
+import type { GridClip, Phase } from './types'
+
+const REAL_TOTAL = ALL_CLIPS.filter((c) => c.isReal).length
+
+function shuffledGrid(): GridClip[] {
+  const clips = ALL_CLIPS.map((c) => ({
+    id: c.id,
+    file: c.file,
+    isReal: c.isReal,
+    transcript: c.transcript,
+    mark: null as boolean | null,
+  }))
+  for (let i = clips.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[clips[i], clips[j]] = [clips[j], clips[i]]
+  }
+  return clips
+}
 
 export default function App() {
-  const [config, setConfig] = useState<AppConfig | null>(null)
-  const [configError, setConfigError] = useState(false)
+  const [phase, setPhase] = useState<Phase>('grid')
+  const [clips, setClips] = useState<GridClip[]>(() => shuffledGrid())
+  const playerRef = useRef<ClipPlayer | null>(null)
+  if (!playerRef.current) playerRef.current = new ClipPlayer()
+  const player = playerRef.current
 
-  const [phase, setPhase] = useState<Phase>('welcome')
-  const [playerName, setPlayerName] = useState('')
-  const [voiceChoice, setVoiceChoice] = useState<VoiceChoice>('female')
-  const [micDone, setMicDone] = useState(false)
-  const [setup, setSetup] = useState<GameSetup | null>(null)
-  const [roundIndex, setRoundIndex] = useState(0)
-  const [results, setResults] = useState<RoundResult[]>([])
-  const [savedEntry, setSavedEntry] = useState<LeaderboardEntry | null>(null)
-  const [savedRank, setSavedRank] = useState(0)
-
+  // Warm the audio cache in the background so first play is instant.
   useEffect(() => {
-    fetch('/api/config')
-      .then((r) => r.json())
-      .then(setConfig)
-      .catch(() => setConfigError(true))
-  }, [])
+    ALL_CLIPS.forEach((c) => void player.preload(c.file).catch(() => {}))
+    return () => player.destroy()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const baseMs = useMemo(() => results.reduce((sum, r) => sum + r.ms, 0), [results])
-  const person = setup?.people[roundIndex]
+  const correct = useMemo(
+    () => clips.filter((c) => c.isReal && c.mark === true).length,
+    [clips],
+  )
+  const realClips = useMemo(() => clips.filter((c) => c.isReal), [clips])
 
-  const startGame = useCallback(() => {
-    setSetup(createGameSetup())
-    setResults([])
-    setRoundIndex(0)
-    setSavedEntry(null)
-    setPhase('roundIntro')
-  }, [])
+  const mark = (id: string, m: boolean) =>
+    setClips((prev) => prev.map((c) => (c.id === id ? { ...c, mark: m } : c)))
 
-  const confirmName = (name: string) => {
-    setPlayerName(name)
-    if (micDone) startGame()
-    else setPhase('micCheck')
+  const restart = () => {
+    player.stop()
+    setClips(shuffledGrid())
+    setPhase('grid')
   }
 
-  const finishRound = useCallback((result: RoundResult) => {
-    setResults((prev) => [...prev, result])
-    setPhase('reveal')
-  }, [])
-
-  const afterReveal = () => {
-    if (roundIndex + 1 < TOTAL_ROUNDS) {
-      setRoundIndex((i) => i + 1)
-      setPhase('roundIntro')
-    } else {
-      finishGame()
-    }
+  const go = (p: Phase) => {
+    player.stop()
+    setPhase(p)
   }
-
-  const finishGame = (finalResults: RoundResult[] = results) => {
-    const entry: LeaderboardEntry = {
-      name: playerName,
-      score: finalResults.filter((r) => r.won).length,
-      totalMs: finalResults.reduce((sum, r) => sum + r.ms, 0),
-      perRound: finalResults,
-      playedAt: new Date().toISOString(),
-    }
-    const rank = saveEntry(entry)
-    setSavedEntry(entry)
-    setSavedRank(rank)
-    setPhase('results')
-  }
-
-  // -- facilitator escape hatches ------------------------------------------
-  const skipRound = () => {
-    const skipped: RoundResult = { won: false, ms: 0, skipped: true, detail: 'Skipped by staff' }
-    const next = [...results, skipped]
-    setResults(next)
-    if (roundIndex + 1 < TOTAL_ROUNDS) {
-      setRoundIndex((i) => i + 1)
-      setPhase('roundIntro')
-    } else {
-      finishGame(next)
-    }
-  }
-
-  const restartGame = () => {
-    setPlayerName('')
-    setSetup(null)
-    setResults([])
-    setRoundIndex(0)
-    setSavedEntry(null)
-    setPhase('welcome')
-  }
-
-  // -- render ----------------------------------------------------------------
-  if (configError || (config && !config.hasKey)) {
-    return (
-      <div className="screen setup-error">
-        <h2 className="screen-title">Setup needed</h2>
-        <p className="screen-sub">
-          {configError
-            ? 'Cannot reach the local server. Run `npm run dev` and reload.'
-            : 'The server has no GEMINI_API_KEY. Copy .env.example to .env, add your key, and restart.'}
-        </p>
-      </div>
-    )
-  }
-  if (!config) {
-    return <div className="screen"><p className="screen-sub">Loading…</p></div>
-  }
-
-  const inRound = phase === 'roundLive' || phase === 'roundIntro'
 
   return (
-    <div className="app">
-      {phase === 'welcome' && (
-        <WelcomeScreen
-          onNewPlayer={() => setPhase('name')}
-          onLeaderboard={() => setPhase('leaderboard')}
-        />
+    <div className="v-app">
+      {phase === 'grid' && (
+        <GridScreen player={player} clips={clips} onMark={mark} onNext={() => go('score')} />
       )}
-      {phase === 'name' && (
-        <NameScreen
-          voiceChoice={voiceChoice}
-          onVoiceChoice={setVoiceChoice}
-          onConfirm={confirmName}
-          onBack={() => setPhase('welcome')}
-        />
+      {phase === 'score' && (
+        <ScoreScreen correct={correct} total={REAL_TOTAL} onNext={() => go('riddle')} />
       )}
-      {phase === 'micCheck' && (
-        <MicCheckScreen onReady={() => { setMicDone(true); startGame() }} />
+      {phase === 'riddle' && (
+        <RiddleScreen player={player} realClips={realClips} onSolved={() => go('escape')} />
       )}
-      {phase === 'roundIntro' && setup && (
-        <RoundIntroScreen
-          roundNumber={roundIndex + 1}
-          playerName={playerName}
-          results={results}
-          baseMs={baseMs}
-          onStart={() => setPhase('roundLive')}
-        />
-      )}
-      {phase === 'roundLive' && person && (
-        <RoundLive
-          key={roundIndex} // fresh mount (and fresh connection) per round
-          person={person}
-          roundNumber={roundIndex + 1}
-          model={config.model}
-          voice={voiceChoice === 'female' ? config.voiceFemale : config.voiceMale}
-          baseMs={baseMs}
-          onFinish={finishRound}
-        />
-      )}
-      {phase === 'reveal' && person && results.length > 0 && (
-        <RevealScreen
-          person={person}
-          result={results[results.length - 1]}
-          isLast={roundIndex + 1 >= TOTAL_ROUNDS}
-          onNext={afterReveal}
-        />
-      )}
-      {phase === 'results' && savedEntry && setup && (
-        <ResultsScreen
-          entry={savedEntry}
-          people={setup.people}
-          rank={savedRank}
-          onLeaderboard={() => setPhase('leaderboard')}
-        />
-      )}
-      {phase === 'leaderboard' && (
-        <LeaderboardScreen
-          highlightPlayedAt={savedEntry?.playedAt}
-          onDone={restartGame}
-        />
-      )}
+      {phase === 'escape' && <EscapeScreen onNext={() => go('debrief')} />}
+      {phase === 'debrief' && <DebriefScreen onRestart={restart} />}
 
-      <FacilitatorMenu
-        canSkipRound={inRound}
-        onSkipRound={skipRound}
-        onRestartGame={restartGame}
-      />
+      <FacilitatorMenu onRestart={restart} onSkip={() => go(nextPhase(phase))} />
     </div>
   )
+}
+
+function nextPhase(p: Phase): Phase {
+  const order: Phase[] = ['grid', 'score', 'riddle', 'escape', 'debrief']
+  const i = order.indexOf(p)
+  return order[Math.min(order.length - 1, i + 1)]
 }
