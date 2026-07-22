@@ -1,6 +1,6 @@
 // Shared types for VictorAI.
 
-export type Phase = 'intro' | 'grid' | 'score' | 'riddle' | 'escape' | 'debrief'
+export type Phase = 'intro' | 'name' | 'clip' | 'score' | 'riddle' | 'escape' | 'debrief'
 
 export interface AppConfig {
   model: string

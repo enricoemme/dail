@@ -120,22 +120,22 @@ export function AudioWaveform({ player, clipId, seed, bins = 56, height = 96 }: 
 
         if (active) {
           if (played) {
-            // Tiffany-blue core melting into rose-gold at the tips.
+            // Coral tips warming into a pink-coral core.
             const grad = ctx.createLinearGradient(0, mid - barH, 0, mid + barH)
-            grad.addColorStop(0, '#f3d9c6')
-            grad.addColorStop(0.28, '#e8b4a0')
-            grad.addColorStop(0.5, '#7fe7e0')
-            grad.addColorStop(0.72, '#e8b4a0')
-            grad.addColorStop(1, '#f3d9c6')
+            grad.addColorStop(0, '#ffd0ad')
+            grad.addColorStop(0.26, '#ff9a6b')
+            grad.addColorStop(0.5, '#ff5e86')
+            grad.addColorStop(0.74, '#ff9a6b')
+            grad.addColorStop(1, '#ffd0ad')
             ctx.fillStyle = grad
-            ctx.shadowColor = 'rgba(127,231,224,0.75)'
+            ctx.shadowColor = 'rgba(255,110,120,0.7)'
             ctx.shadowBlur = 10 + target[i] * 26
           } else {
-            ctx.fillStyle = 'rgba(235,244,242,0.30)'
+            ctx.fillStyle = 'rgba(255,255,255,0.32)'
             ctx.shadowBlur = 0
           }
         } else {
-          ctx.fillStyle = 'rgba(214,231,227,0.34)'
+          ctx.fillStyle = 'rgba(255,255,255,0.36)'
           ctx.shadowBlur = 0
         }
 
