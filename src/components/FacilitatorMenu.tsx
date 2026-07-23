@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { sfx } from '../lib/audio/sfx'
 
 interface Props {
   onRestart: () => void
@@ -8,6 +9,7 @@ interface Props {
 /** Discreet staff controls behind a small gear icon (bottom-right). */
 export function FacilitatorMenu({ onRestart, onSkip }: Props) {
   const [open, setOpen] = useState(false)
+  const [muted, setMuted] = useState(sfx.muted)
 
   return (
     <div className="facilitator">
@@ -25,6 +27,12 @@ export function FacilitatorMenu({ onRestart, onSkip }: Props) {
           </button>
           <button className="fac-btn" onClick={() => document.documentElement.requestFullscreen?.()}>
             Enter fullscreen
+          </button>
+          <button
+            className="fac-btn"
+            onClick={() => { sfx.setMuted(!muted); setMuted(!muted); if (muted) sfx.tap() }}
+          >
+            {muted ? 'UI sounds: off' : 'UI sounds: on'}
           </button>
           <button className="fac-btn fac-close" onClick={() => setOpen(false)}>Close</button>
         </div>

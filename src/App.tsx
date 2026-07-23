@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ClipPlayer } from './lib/audio/clipPlayer'
+import { sfx } from './lib/audio/sfx'
 import { ALL_CLIPS } from './game/content'
+import { Backdrop } from './components/Backdrop'
 import { Bubbles } from './components/Bubbles'
 import { Stage } from './components/Stage'
 import { TopBar } from './components/TopBar'
@@ -51,7 +53,7 @@ export default function App() {
   const mark = (id: string, m: boolean) =>
     setClips((prev) => prev.map((c) => (c.id === id ? { ...c, mark: m } : c)))
 
-  const go = (p: Phase) => { player.stop(); setPhase(p) }
+  const go = (p: Phase) => { player.stop(); sfx.whoosh(); setPhase(p) }
 
   const restart = () => {
     player.stop()
@@ -63,6 +65,7 @@ export default function App() {
 
   const nextClip = () => {
     player.stop()
+    sfx.whoosh()
     if (clipIndex + 1 < TOTAL_CLIPS) setClipIndex((i) => i + 1)
     else setPhase('score')
   }
@@ -97,15 +100,16 @@ export default function App() {
 
   return (
     <div className="v-app">
+      <Backdrop depth={progress} />
       <Bubbles />
       <TopBar progress={progress} teamName={teamName || undefined} />
 
       <Stage stepKey={stepKey}>
-        {phase === 'intro' && <IntroScreen onNext={() => setPhase('name')} />}
+        {phase === 'intro' && <IntroScreen onNext={() => go('name')} />}
         {phase === 'name' && (
           <TeamNameScreen
-            onStart={(n) => { setTeamName(n); setPhase('clip') }}
-            onBack={() => setPhase('intro')}
+            onStart={(n) => { setTeamName(n); sfx.whoosh(); setPhase('clip') }}
+            onBack={() => go('intro')}
           />
         )}
         {phase === 'clip' && (
@@ -114,6 +118,7 @@ export default function App() {
             clip={clips[clipIndex]}
             index={clipIndex}
             total={TOTAL_CLIPS}
+            marks={clips.map((c) => c.mark)}
             onMark={(m) => mark(clips[clipIndex].id, m)}
             onNext={nextClip}
           />

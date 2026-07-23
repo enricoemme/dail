@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ClipPlayer } from '../lib/audio/clipPlayer'
 import type { GridClip } from '../types'
 import { RIDDLE, ESCAPE } from '../game/content'
+import { sfx } from '../lib/audio/sfx'
 import { ClipCard } from './ClipCard'
 import { AudioWaveform } from './AudioWaveform'
 import { Confetti } from './Confetti'
@@ -72,16 +73,40 @@ export function TeamNameScreen({ onStart, onBack }: {
 }
 
 // ---------------------------------------------------------------------------
-export function ClipScreen({ player, clip, index, total, onMark, onNext }: {
+export function ClipScreen({ player, clip, index, total, marks, onMark, onNext }: {
   player: ClipPlayer
   clip: GridClip
   index: number
   total: number
+  /** All clips' marks, for the pearl progress strand. */
+  marks: (boolean | null)[]
   onMark: (mark: boolean) => void
   onNext: () => void
 }) {
   const [playing, setPlaying] = useState(player.currentId === clip.id)
   useEffect(() => player.onChange(() => setPlaying(player.currentId === clip.id)), [player, clip.id])
+
+  // Live level → CSS var, so the play button glows & swells with the voice.
+  const panelRef = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    let raf = 0
+    let smoothed = 0
+    const tick = () => {
+      const el = panelRef.current
+      if (el) {
+        let level = 0
+        if (player.currentId === clip.id) {
+          const s = player.spectrum(12)
+          level = s.reduce((a, b) => a + b, 0) / s.length
+        }
+        smoothed += (level - smoothed) * 0.3
+        el.style.setProperty('--glow', smoothed.toFixed(3))
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [player, clip.id])
 
   const isLast = index === total - 1
   return (
@@ -90,7 +115,21 @@ export function ClipScreen({ player, clip, index, total, onMark, onNext }: {
         Clip <span className="clip-step-n">{index + 1}</span> of {total}
       </div>
 
+      <div className="pearl-row" aria-hidden="true">
+        {marks.map((m, i) => (
+          <span
+            key={i}
+            className={
+              'pearl' +
+              (m === true ? ' pearl-real' : m === false ? ' pearl-ai' : '') +
+              (i === index ? ' pearl-current' : '')
+            }
+          />
+        ))}
+      </div>
+
       <button
+        ref={panelRef}
         className={'clip-stage-panel' + (playing ? ' is-playing' : '')}
         onClick={() => player.toggle(clip.id, clip.file)}
         aria-label={playing ? 'Pause clip' : 'Play clip'}
@@ -104,14 +143,14 @@ export function ClipScreen({ player, clip, index, total, onMark, onNext }: {
       <div className="choice-row">
         <button
           className={'choice choice-real' + (clip.mark === true ? ' choice-on' : '')}
-          onClick={() => onMark(true)}
+          onClick={() => { sfx.chooseReal(); onMark(true) }}
         >
           <span className="choice-key">Real</span>
           <span className="choice-sub">It's really Victoria</span>
         </button>
         <button
           className={'choice choice-ai' + (clip.mark === false ? ' choice-on' : '')}
-          onClick={() => onMark(false)}
+          onClick={() => { sfx.chooseAI(); onMark(false) }}
         >
           <span className="choice-key">AI clone</span>
           <span className="choice-sub">Generated fake</span>
@@ -132,6 +171,28 @@ export function ScoreScreen({ teamName, correct, total, onNext }: {
   total: number
   onNext: () => void
 }) {
+  const [shown, setShown] = useState(0)
+  const [armed, setArmed] = useState(false)
+
+  useEffect(() => {
+    if (correct === total) sfx.win()
+    else sfx.tap()
+    const armT = window.setTimeout(() => setArmed(true), 120)
+    const start = performance.now()
+    let raf = 0
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / 1300)
+      setShown(Math.round((1 - Math.pow(1 - p, 3)) * correct))
+      if (p < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => { cancelAnimationFrame(raf); window.clearTimeout(armT) }
+  }, [correct, total])
+
+  const R = 96
+  const C = 2 * Math.PI * R
+  const frac = total > 0 ? correct / total : 0
+
   return (
     <div className="v-screen score-screen">
       {correct === total && <Confetti />}
@@ -140,7 +201,24 @@ export function ScoreScreen({ teamName, correct, total, onNext }: {
         You spotted <span className="score-hl">{correct}</span> of {total}
       </h2>
       <div className="score-ring">
-        <div className="score-ring-num">{correct}<span>/{total}</span></div>
+        <svg className="score-svg" viewBox="0 0 220 220">
+          <defs>
+            <linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#ffb98a" />
+              <stop offset="0.5" stopColor="#ff7a6b" />
+              <stop offset="1" stopColor="#ff5e8a" />
+            </linearGradient>
+          </defs>
+          <circle cx="110" cy="110" r={R} className="score-track" />
+          <circle
+            cx="110" cy="110" r={R}
+            className="score-arc"
+            stroke="url(#scoreGrad)"
+            strokeDasharray={C}
+            strokeDashoffset={armed ? C * (1 - frac) : C}
+          />
+        </svg>
+        <div className="score-ring-num">{shown}<span>/{total}</span></div>
       </div>
       <p className="v-lead">
         real clips from Victoria. The genuine ones aren't random — listen again
@@ -164,9 +242,11 @@ export function RiddleScreen({ player, realClips, onSolved }: {
     setPicked(id)
     const opt = RIDDLE.options.find((o) => o.id === id)
     if (opt?.correct) {
+      sfx.tap()
       player.stop()
       window.setTimeout(onSolved, 550)
     } else {
+      sfx.deny()
       setWrong(true)
     }
   }
@@ -204,14 +284,32 @@ export function RiddleScreen({ player, realClips, onSolved }: {
 
 // ---------------------------------------------------------------------------
 export function EscapeScreen({ onNext }: { onNext: () => void }) {
+  useEffect(() => {
+    sfx.sonar()
+    const t = window.setTimeout(() => sfx.win(), 750)
+    return () => window.clearTimeout(t)
+  }, [])
+
   return (
     <div className="v-screen escape-screen">
       <Confetti />
       <div className="intro-kicker">Case cracked</div>
       <p className="v-lead">Victoria's hidden message was</p>
-      <div className="codeword">{ESCAPE.codeword}</div>
+      <div className="codeword">
+        {ESCAPE.codeword.split('').map((ch, i) => (
+          <span key={i} className="codeword-ch" style={{ animationDelay: `${0.15 + i * 0.09}s` }}>
+            {ch}
+          </span>
+        ))}
+      </div>
       <p className="v-lead escape-letter-label">Your escape-room letter</p>
-      <div className="escape-letter">{ESCAPE.letter}</div>
+      <div className="letter-stage">
+        <span className="sonar-ring" />
+        <span className="sonar-ring" />
+        <span className="sonar-ring" />
+        <div className="escape-halo" />
+        <div className="escape-letter">{ESCAPE.letter}</div>
+      </div>
       <p className="v-lead v-flavour">{ESCAPE.flavour}</p>
       <button className="btn-primary btn-lg" onClick={onNext}>What just happened?</button>
     </div>
