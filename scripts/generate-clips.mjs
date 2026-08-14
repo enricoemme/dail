@@ -1,5 +1,5 @@
 // Generate the 10 placeholder audio clips through the Gemini Live relay.
-// Every clip uses the SAME voice (a stand-in for Victoria) — Dale will later
+// Every clip uses the SAME voice (a stand-in for Dale) — Dale will later
 // replace these files with his real recordings and his cloned red herrings.
 //
 // Usage:  node scripts/generate-clips.mjs        (relay must be running)

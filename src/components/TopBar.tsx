@@ -15,7 +15,7 @@ export function TopBar({ progress, teamName }: Props) {
           <span className="brand-wave" />
           <span className="brand-wave" />
         </span>
-        <span className="brand-word">VictorAI</span>
+        <span className="brand-word">D<span className="name-ai">AI</span>L</span>
       </div>
       <div className="topbar-progress">
         <div className="topbar-progress-fill" style={{ width: `${Math.round(progress * 100)}%` }} />

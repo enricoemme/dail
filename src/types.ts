@@ -1,4 +1,4 @@
-// Shared types for VictorAI.
+// Shared types for DAIL.
 
 export type Phase = 'intro' | 'name' | 'clip' | 'score' | 'riddle' | 'escape' | 'debrief'
 

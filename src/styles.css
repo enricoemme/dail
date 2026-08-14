@@ -1,5 +1,5 @@
 /* ==========================================================================
-   VictorAI — ocean & coral theme.
+   DAIL — ocean & coral theme.
    Deep blue gradient sea, coral/salmon/pink accents, clean geometric sans,
    frosted glass, ambient bubbles, animated screen transitions. Centered.
    ========================================================================== */
@@ -201,6 +201,13 @@ body {
 @keyframes title-sheen {
   0%, 38% { background-position: 175% 0; }
   62%, 100% { background-position: -75% 0; }
+}
+/* The "AI" hiding inside DAIL — always coral, in the title and the brand. */
+.name-ai {
+  background: var(--coral-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .v-h1 {
   font-size: clamp(2rem, 5vw, 3.4rem);

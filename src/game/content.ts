@@ -1,5 +1,5 @@
 // ============================================================================
-// VictorAI — GAME CONTENT. This is the single file to edit when Dale's real
+// DAIL — GAME CONTENT. This is the single file to edit when Dale's real
 // script and recordings arrive.
 //
 // HOW TO SWAP IN THE REAL AUDIO LATER:
@@ -17,7 +17,7 @@ export interface ClipContent {
   id: string
   /** Public path to the audio file (served from public/clips). */
   file: string
-  /** Whether this is a genuine recording of Victoria (true) or an AI clone. */
+  /** Whether this is a genuine recording of Dale (true) or an AI clone. */
   isReal: boolean
   /** What is said in the clip — shown as an optional caption / swap reference. */
   transcript: string
@@ -28,7 +28,7 @@ export interface ClipContent {
   clueFragment?: string
 }
 
-// --- The 5 GENUINE clips (Victoria's real security advice) ------------------
+// --- The 5 GENUINE clips (Dale's real security advice) ------------------
 // Placeholder acrostic: first letters spell TRUST.
 export const REAL_CLIPS: ClipContent[] = [
   {
@@ -112,8 +112,8 @@ export interface RiddleOption {
 }
 
 export const RIDDLE = {
-  intro: 'The five genuine clips from Victoria hide a message.',
-  question: "Read the first letter of each real clue, in order. What's Victoria telling you?",
+  intro: 'The five genuine clips from Dale hide a message.',
+  question: "Read the first letter of each real clue, in order. What's Dale telling you?",
   options: [
     { id: 'A', label: 'TRUST — always verify who you are really talking to.', correct: true },
     { id: 'B', label: 'Transfer the funds before the end of the day.', correct: false },

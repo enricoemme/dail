@@ -1,4 +1,4 @@
-// VictorAI screens — ocean & coral theme, centered layouts, one clip per
+// DAIL screens — ocean & coral theme, centered layouts, one clip per
 // screen. The Stage component handles the animated transitions between them.
 
 import { useEffect, useRef, useState } from 'react'
@@ -14,16 +14,16 @@ import { Confetti } from './Confetti'
 export function IntroScreen({ onNext }: { onNext: () => void }) {
   const steps = [
     { n: 1, t: 'Listen', d: 'Play each of the 10 short voice clips.' },
-    { n: 2, t: 'Judge', d: 'Decide if each one is really Victoria — or an AI clone.' },
+    { n: 2, t: 'Judge', d: 'Decide if each one is really Dale — or an AI clone.' },
     { n: 3, t: 'Crack it', d: "The real clips hide a message. Find it to solve the case." },
   ]
   return (
     <div className="v-screen intro-screen">
       <div className="intro-kicker">The Islington AI Challenge</div>
-      <h1 className="v-title">VictorAI</h1>
+      <h1 className="v-title">D<span className="name-ai">AI</span>L</h1>
       <p className="v-lead">
-        Our Chief Exec, <strong>Victoria</strong>, has been hacked. Ten voice
-        messages have surfaced — five are genuinely hers, five are AI
+        Our Chief Exec, <strong>Dale</strong>, has been hacked. Ten voice
+        messages have surfaced — five are genuinely Dale's, five are AI
         voice-clones built to deceive. Can your team tell real from fake?
       </p>
       <div className="howto">
@@ -146,7 +146,7 @@ export function ClipScreen({ player, clip, index, total, marks, onMark, onNext }
           onClick={() => { sfx.chooseReal(); onMark(true) }}
         >
           <span className="choice-key">Real</span>
-          <span className="choice-sub">It's really Victoria</span>
+          <span className="choice-sub">It's really Dale</span>
         </button>
         <button
           className={'choice choice-ai' + (clip.mark === false ? ' choice-on' : '')}
@@ -221,7 +221,7 @@ export function ScoreScreen({ teamName, correct, total, onNext }: {
         <div className="score-ring-num">{shown}<span>/{total}</span></div>
       </div>
       <p className="v-lead">
-        real clips from Victoria. The genuine ones aren't random — listen again
+        real clips from Dale. The genuine ones aren't random — listen again
         and they lead somewhere. The fakes were only ever trying to mislead you.
       </p>
       <button className="btn-primary btn-lg" onClick={onNext}>Investigate the real clips</button>
@@ -253,8 +253,8 @@ export function RiddleScreen({ player, realClips, onSolved }: {
 
   return (
     <div className="v-screen riddle-screen">
-      <h2 className="v-h1">What is Victoria telling you?</h2>
-      <p className="v-lead">Replay her five genuine clips and read the first letter of each, in order.</p>
+      <h2 className="v-h1">What is Dale telling you?</h2>
+      <p className="v-lead">Replay Dale's five genuine clips and read the first letter of each, in order.</p>
       <div className="riddle-layout">
         <div className="riddle-clips">
           {realClips.map((c, i) => (
@@ -294,7 +294,7 @@ export function EscapeScreen({ onNext }: { onNext: () => void }) {
     <div className="v-screen escape-screen">
       <Confetti />
       <div className="intro-kicker">Case cracked</div>
-      <p className="v-lead">Victoria's hidden message was</p>
+      <p className="v-lead">Dale's hidden message was</p>
       <div className="codeword">
         {ESCAPE.codeword.split('').map((ch, i) => (
           <span key={i} className="codeword-ch" style={{ animationDelay: `${0.15 + i * 0.09}s` }}>

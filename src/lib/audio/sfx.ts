@@ -83,7 +83,7 @@ export const sfx = {
     src.start(now)
   },
 
-  /** Bright rising pair — "it's really Victoria". */
+  /** Bright rising pair — "it's really Dale". */
   chooseReal(): void {
     tone(659, { dur: 0.12, vol: 0.3 })
     tone(988, { t: 0.07, dur: 0.16, vol: 0.26 })
