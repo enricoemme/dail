@@ -1,7 +1,7 @@
 # DAIL — The Islington AI Challenge
 
-An escape-room voice puzzle. The Chief Exec, "Dale", has been hacked:
-ten short audio clips, **five genuinely Dale's and five AI voice-clones**. The
+An escape-room voice puzzle. The Chief Exec, "Victoria", has been hacked:
+ten short audio clips, **five genuinely hers and five AI voice-clones**. The
 player listens, marks each real-or-AI, and scores. The five *real* clips are
 clues that spell a hidden message; the five fakes are red herrings (and double
 as textbook voice-scam scripts). Solving the riddle reveals the escape-room
