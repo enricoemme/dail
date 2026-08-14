@@ -8,18 +8,16 @@ import { Stage } from './components/Stage'
 import { TopBar } from './components/TopBar'
 import { FacilitatorMenu } from './components/FacilitatorMenu'
 import {
-  ClipScreen,
+  BriefScreen,
   DebriefScreen,
-  EscapeScreen,
-  IntroScreen,
+  OverrideScreen,
   RiddleScreen,
-  ScoreScreen,
-  TeamNameScreen,
+  riddleOrder,
+  TestScreen,
 } from './components/Screens'
 import type { GridClip, Phase } from './types'
 
-const REAL_TOTAL = ALL_CLIPS.filter((c) => c.isReal).length
-const TOTAL_CLIPS = ALL_CLIPS.length
+const PHASE_ORDER: Phase[] = ['brief', 'test', 'riddle', 'override', 'debrief']
 
 function shuffledGrid(): GridClip[] {
   const clips = ALL_CLIPS.map((c) => ({
@@ -33,8 +31,7 @@ function shuffledGrid(): GridClip[] {
 }
 
 export default function App() {
-  const [phase, setPhase] = useState<Phase>('intro')
-  const [clipIndex, setClipIndex] = useState(0)
+  const [phase, setPhase] = useState<Phase>('brief')
   const [clips, setClips] = useState<GridClip[]>(() => shuffledGrid())
   const [teamName, setTeamName] = useState('')
 
@@ -47,8 +44,7 @@ export default function App() {
     return () => player.destroy()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const correct = useMemo(() => clips.filter((c) => c.isReal && c.mark === true).length, [clips])
-  const realClips = useMemo(() => clips.filter((c) => c.isReal), [clips])
+  const realClips = useMemo(() => riddleOrder(clips), [clips])
 
   const mark = (id: string, m: boolean) =>
     setClips((prev) => prev.map((c) => (c.id === id ? { ...c, mark: m } : c)))
@@ -58,45 +54,16 @@ export default function App() {
   const restart = () => {
     player.stop()
     setClips(shuffledGrid())
-    setClipIndex(0)
     setTeamName('')
-    setPhase('intro')
+    setPhase('brief')
   }
-
-  const nextClip = () => {
-    player.stop()
-    sfx.whoosh()
-    if (clipIndex + 1 < TOTAL_CLIPS) setClipIndex((i) => i + 1)
-    else setPhase('score')
-  }
-
-  // Overall progress (0..1) across the whole journey, for the top bar.
-  const stepKey =
-    phase === 'clip' ? `clip-${clipIndex}` : phase
-  const progress = useMemo(() => {
-    const order = ['intro', 'name']
-    let done: number
-    if (phase === 'intro') done = 0
-    else if (phase === 'name') done = 1
-    else if (phase === 'clip') done = 2 + clipIndex
-    else {
-      const after: Record<string, number> = {
-        score: 2 + TOTAL_CLIPS,
-        riddle: 3 + TOTAL_CLIPS,
-        escape: 4 + TOTAL_CLIPS,
-        debrief: 5 + TOTAL_CLIPS,
-      }
-      done = after[phase] ?? 0
-    }
-    const totalSteps = order.length + TOTAL_CLIPS + 4 // score,riddle,escape,debrief
-    return Math.min(1, done / totalSteps)
-  }, [phase, clipIndex])
 
   const skip = () => {
-    if (phase === 'clip' && clipIndex + 1 < TOTAL_CLIPS) { setClipIndex((i) => i + 1); player.stop(); return }
-    const order: Phase[] = ['intro', 'name', 'clip', 'score', 'riddle', 'escape', 'debrief']
-    go(order[Math.min(order.length - 1, order.indexOf(phase) + 1)])
+    const idx = PHASE_ORDER.indexOf(phase)
+    go(PHASE_ORDER[Math.min(PHASE_ORDER.length - 1, idx + 1)])
   }
+
+  const progress = PHASE_ORDER.indexOf(phase) / (PHASE_ORDER.length - 1)
 
   return (
     <div className="v-app">
@@ -104,32 +71,19 @@ export default function App() {
       <Bubbles />
       <TopBar progress={progress} teamName={teamName || undefined} />
 
-      <Stage stepKey={stepKey}>
-        {phase === 'intro' && <IntroScreen onNext={() => go('name')} />}
-        {phase === 'name' && (
-          <TeamNameScreen
-            onStart={(n) => { setTeamName(n); sfx.whoosh(); setPhase('clip') }}
-            onBack={() => go('intro')}
-          />
+      <Stage stepKey={phase}>
+        {phase === 'brief' && (
+          <BriefScreen onStart={(n) => { setTeamName(n); go('test') }} />
         )}
-        {phase === 'clip' && (
-          <ClipScreen
-            player={player}
-            clip={clips[clipIndex]}
-            index={clipIndex}
-            total={TOTAL_CLIPS}
-            marks={clips.map((c) => c.mark)}
-            onMark={(m) => mark(clips[clipIndex].id, m)}
-            onNext={nextClip}
-          />
-        )}
-        {phase === 'score' && (
-          <ScoreScreen teamName={teamName} correct={correct} total={REAL_TOTAL} onNext={() => go('riddle')} />
+        {phase === 'test' && (
+          <TestScreen player={player} clips={clips} onMark={mark} onPass={() => go('riddle')} />
         )}
         {phase === 'riddle' && (
-          <RiddleScreen player={player} realClips={realClips} onSolved={() => go('escape')} />
+          <RiddleScreen player={player} realClips={realClips} onSolved={() => go('override')} />
         )}
-        {phase === 'escape' && <EscapeScreen onNext={() => go('debrief')} />}
+        {phase === 'override' && (
+          <OverrideScreen teamName={teamName} onNext={() => go('debrief')} />
+        )}
         {phase === 'debrief' && <DebriefScreen onRestart={restart} />}
       </Stage>
 

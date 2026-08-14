@@ -1,6 +1,6 @@
 // Shared types for DAIL.
 
-export type Phase = 'intro' | 'name' | 'clip' | 'score' | 'riddle' | 'escape' | 'debrief'
+export type Phase = 'brief' | 'test' | 'riddle' | 'override' | 'debrief'
 
 export interface AppConfig {
   model: string

@@ -1,230 +1,136 @@
-// DAIL screens — ocean & coral theme, centered layouts, one clip per
-// screen. The Stage component handles the animated transitions between them.
+// DAIL screens — the four-screen flow from Dale's storyboard:
+//   1. BriefScreen    — transmission from Central Operations + team name
+//   2. TestScreen     — the Turing test: all 10 clips, lock in, retry until perfect
+//   3. RiddleScreen   — replay the 5 genuine clips, decode the hidden message
+//   4. OverrideScreen — the override digit ceremony
+// (+ DebriefScreen — the voice-cloning safety takeaway.)
 
 import { useEffect, useRef, useState } from 'react'
 import type { ClipPlayer } from '../lib/audio/clipPlayer'
 import type { GridClip } from '../types'
-import { RIDDLE, ESCAPE } from '../game/content'
+import { RIDDLE, ESCAPE, REAL_CLIPS } from '../game/content'
 import { sfx } from '../lib/audio/sfx'
 import { ClipCard } from './ClipCard'
-import { AudioWaveform } from './AudioWaveform'
 import { Confetti } from './Confetti'
 
 // ---------------------------------------------------------------------------
-export function IntroScreen({ onNext }: { onNext: () => void }) {
-  const steps = [
-    { n: 1, t: 'Listen', d: 'Play each of the 10 short voice clips.' },
-    { n: 2, t: 'Judge', d: 'Decide if each one is really Victoria — or an AI clone.' },
-    { n: 3, t: 'Crack it', d: "The real clips hide a message. Find it to solve the case." },
-  ]
+const TRANSMISSION = [
+  '>> CENTRAL OPERATIONS — PRIORITY TRANSMISSION',
+  '>> Chief Exec Victoria has been hacked. Her voice has been cloned.',
+  '>> We intercepted ten voice messages. Five are genuine. Five are synthetic.',
+  '>> Identify the five genuine voices to recover the override digit.',
+  '>> Trust nothing you cannot verify. Good luck, team.',
+].join('\n')
+
+export function BriefScreen({ onStart }: { onStart: (teamName: string) => void }) {
+  const [chars, setChars] = useState(0)
+  const [name, setName] = useState('')
+  const done = chars >= TRANSMISSION.length
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setChars((c) => {
+        if (c + 2 >= TRANSMISSION.length) { window.clearInterval(id); return TRANSMISSION.length }
+        return c + 2
+      })
+    }, 24)
+    return () => window.clearInterval(id)
+  }, [])
+
+  useEffect(() => { if (done) inputRef.current?.focus() }, [done])
+
+  const submit = () => { const t = name.trim(); if (t && done) onStart(t) }
+
   return (
-    <div className="v-screen intro-screen">
+    <div className="v-screen brief-screen">
       <div className="intro-kicker">The Islington AI Challenge</div>
       <h1 className="v-title">D<span className="name-ai">AI</span>L</h1>
-      <p className="v-lead">
-        Our Chief Exec, <strong>Victoria</strong>, has been hacked. Ten voice
-        messages have surfaced — five are genuinely hers, five are AI
-        voice-clones built to deceive. Can your team tell real from fake?
-      </p>
-      <div className="howto">
-        {steps.map((s) => (
-          <div className="howto-card" key={s.n}>
-            <div className="howto-num">{s.n}</div>
-            <div className="howto-title">{s.t}</div>
-            <div className="howto-desc">{s.d}</div>
-          </div>
-        ))}
-      </div>
-      <button className="btn-primary btn-lg" onClick={onNext}>Continue</button>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-export function TeamNameScreen({ onStart, onBack }: {
-  onStart: (name: string) => void
-  onBack: () => void
-}) {
-  const [name, setName] = useState('')
-  const inputRef = useRef<HTMLInputElement>(null)
-  useEffect(() => inputRef.current?.focus(), [])
-  const submit = () => { const t = name.trim(); if (t) onStart(t) }
-  return (
-    <div className="v-screen team-screen">
-      <h2 className="v-h1">Name your team</h2>
-      <p className="v-lead">It goes on the case file. Make it a good one.</p>
-      <input
-        ref={inputRef}
-        className="team-input"
-        value={name}
-        maxLength={22}
-        placeholder="e.g. The Codebreakers"
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && submit()}
-      />
-      <div className="btn-row">
-        <button className="btn-ghost" onClick={onBack}>Back</button>
-        <button className="btn-primary btn-lg" onClick={submit} disabled={!name.trim()}>
-          Start the investigation
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-export function ClipScreen({ player, clip, index, total, marks, onMark, onNext }: {
-  player: ClipPlayer
-  clip: GridClip
-  index: number
-  total: number
-  /** All clips' marks, for the pearl progress strand. */
-  marks: (boolean | null)[]
-  onMark: (mark: boolean) => void
-  onNext: () => void
-}) {
-  const [playing, setPlaying] = useState(player.currentId === clip.id)
-  useEffect(() => player.onChange(() => setPlaying(player.currentId === clip.id)), [player, clip.id])
-
-  // Live level → CSS var, so the play button glows & swells with the voice.
-  const panelRef = useRef<HTMLButtonElement>(null)
-  useEffect(() => {
-    let raf = 0
-    let smoothed = 0
-    const tick = () => {
-      const el = panelRef.current
-      if (el) {
-        let level = 0
-        if (player.currentId === clip.id) {
-          const s = player.spectrum(12)
-          level = s.reduce((a, b) => a + b, 0) / s.length
-        }
-        smoothed += (level - smoothed) * 0.3
-        el.style.setProperty('--glow', smoothed.toFixed(3))
-      }
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [player, clip.id])
-
-  const isLast = index === total - 1
-  return (
-    <div className="v-screen clip-screen">
-      <div className="clip-step">
-        Clip <span className="clip-step-n">{index + 1}</span> of {total}
-      </div>
-
-      <div className="pearl-row" aria-hidden="true">
-        {marks.map((m, i) => (
-          <span
-            key={i}
-            className={
-              'pearl' +
-              (m === true ? ' pearl-real' : m === false ? ' pearl-ai' : '') +
-              (i === index ? ' pearl-current' : '')
-            }
-          />
-        ))}
-      </div>
-
-      <button
-        ref={panelRef}
-        className={'clip-stage-panel' + (playing ? ' is-playing' : '')}
-        onClick={() => player.toggle(clip.id, clip.file)}
-        aria-label={playing ? 'Pause clip' : 'Play clip'}
+      <div
+        className="transmission"
+        onClick={() => setChars(TRANSMISSION.length)}
+        title={done ? undefined : 'Tap to skip'}
       >
-        <span className="big-play">{playing ? '❚❚' : '▶'}</span>
-        <AudioWaveform player={player} clipId={clip.id} seed={clip.id + index} bins={72} height={150} />
-      </button>
-      <div className="clip-play-hint">{playing ? 'Playing…' : 'Tap to listen'}</div>
-
-      <h2 className="clip-question">Real, or an AI clone?</h2>
-      <div className="choice-row">
-        <button
-          className={'choice choice-real' + (clip.mark === true ? ' choice-on' : '')}
-          onClick={() => { sfx.chooseReal(); onMark(true) }}
-        >
-          <span className="choice-key">Real</span>
-          <span className="choice-sub">It's really Victoria</span>
-        </button>
-        <button
-          className={'choice choice-ai' + (clip.mark === false ? ' choice-on' : '')}
-          onClick={() => { sfx.chooseAI(); onMark(false) }}
-        >
-          <span className="choice-key">AI clone</span>
-          <span className="choice-sub">Generated fake</span>
+        <pre className="transmission-text">
+          {TRANSMISSION.slice(0, chars)}
+          <span className="cursor" />
+        </pre>
+      </div>
+      <div className={'brief-join' + (done ? ' brief-join-ready' : '')}>
+        <input
+          ref={inputRef}
+          className="team-input"
+          value={name}
+          maxLength={22}
+          placeholder="Team name"
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && submit()}
+        />
+        <button className="btn-primary btn-lg" onClick={submit} disabled={!name.trim() || !done}>
+          Begin the test
         </button>
       </div>
-
-      <button className="btn-primary btn-lg" onClick={onNext} disabled={clip.mark === null}>
-        {isLast ? 'See the results' : 'Next clip'}
-      </button>
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------
-export function ScoreScreen({ teamName, correct, total, onNext }: {
-  teamName: string
-  correct: number
-  total: number
-  onNext: () => void
+export function TestScreen({ player, clips, onMark, onPass }: {
+  player: ClipPlayer
+  clips: GridClip[]
+  onMark: (id: string, mark: boolean) => void
+  onPass: () => void
 }) {
-  const [shown, setShown] = useState(0)
-  const [armed, setArmed] = useState(false)
+  const [attempts, setAttempts] = useState(0)
+  const [feedback, setFeedback] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (correct === total) sfx.win()
-    else sfx.tap()
-    const armT = window.setTimeout(() => setArmed(true), 120)
-    const start = performance.now()
-    let raf = 0
-    const tick = (now: number) => {
-      const p = Math.min(1, (now - start) / 1300)
-      setShown(Math.round((1 - Math.pow(1 - p, 3)) * correct))
-      if (p < 1) raf = requestAnimationFrame(tick)
+  const allMarked = clips.every((c) => c.mark !== null)
+  const realMarked = clips.filter((c) => c.mark === true).length
+  const realTotal = clips.filter((c) => c.isReal).length
+
+  const submit = () => {
+    if (!allMarked) return
+    if (realMarked !== realTotal) {
+      sfx.deny()
+      setAttempts((a) => a + 1)
+      setFeedback(`There are exactly ${realTotal} genuine clips — you've marked ${realMarked} as real.`)
+      return
     }
-    raf = requestAnimationFrame(tick)
-    return () => { cancelAnimationFrame(raf); window.clearTimeout(armT) }
-  }, [correct, total])
-
-  const R = 96
-  const C = 2 * Math.PI * R
-  const frac = total > 0 ? correct / total : 0
+    const hits = clips.filter((c) => c.isReal && c.mark === true).length
+    if (hits === realTotal) {
+      sfx.win()
+      player.stop()
+      onPass()
+    } else {
+      sfx.deny()
+      setAttempts((a) => a + 1)
+      setFeedback(`Analysis: you identified ${hits} of the ${realTotal} genuine voices. Listen again and adjust.`)
+    }
+  }
 
   return (
-    <div className="v-screen score-screen">
-      {correct === total && <Confetti />}
-      <div className="intro-kicker">Case file · Team {teamName}</div>
-      <h2 className="v-h1">
-        You spotted <span className="score-hl">{correct}</span> of {total}
-      </h2>
-      <div className="score-ring">
-        <svg className="score-svg" viewBox="0 0 220 220">
-          <defs>
-            <linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#ffb98a" />
-              <stop offset="0.5" stopColor="#ff7a6b" />
-              <stop offset="1" stopColor="#ff5e8a" />
-            </linearGradient>
-          </defs>
-          <circle cx="110" cy="110" r={R} className="score-track" />
-          <circle
-            cx="110" cy="110" r={R}
-            className="score-arc"
-            stroke="url(#scoreGrad)"
-            strokeDasharray={C}
-            strokeDashoffset={armed ? C * (1 - frac) : C}
-          />
-        </svg>
-        <div className="score-ring-num">{shown}<span>/{total}</span></div>
-      </div>
-      <p className="v-lead">
-        real clips from Victoria. The genuine ones aren't random — listen again
-        and they lead somewhere. The fakes were only ever trying to mislead you.
+    <div className="v-screen test-screen">
+      <div className="intro-kicker">The Turing Test</div>
+      <h2 className="v-h1">Which five are really Victoria?</h2>
+      <p className="v-lead test-lead">
+        Play every clip. Mark each one <strong>Real</strong> or <strong>AI</strong>, then lock in.
       </p>
-      <button className="btn-primary btn-lg" onClick={onNext}>Investigate the real clips</button>
+      <div className="test-grid">
+        {clips.map((c, i) => (
+          <ClipCard key={c.id} player={player} clip={c} index={i} onMark={(m) => onMark(c.id, m)} />
+        ))}
+      </div>
+      {feedback && (
+        <p key={attempts} className="test-feedback">{feedback}</p>
+      )}
+      <div className="test-actions">
+        <span className="test-count">
+          Marked real: <strong>{realMarked}</strong> / {realTotal}
+        </span>
+        <button className="btn-primary btn-lg" onClick={submit} disabled={!allMarked}>
+          {allMarked ? 'Lock in answers' : `Mark all ${clips.length} clips first`}
+        </button>
+      </div>
     </div>
   )
 }
@@ -253,8 +159,9 @@ export function RiddleScreen({ player, realClips, onSolved }: {
 
   return (
     <div className="v-screen riddle-screen">
+      <div className="intro-kicker">Decode the message</div>
       <h2 className="v-h1">What is Victoria telling you?</h2>
-      <p className="v-lead">Replay her five genuine clips and read the first letter of each, in order.</p>
+      <p className="v-lead">You found her five genuine clips. Replay them — in this order — and read the first letter of each.</p>
       <div className="riddle-layout">
         <div className="riddle-clips">
           {realClips.map((c, i) => (
@@ -275,7 +182,7 @@ export function RiddleScreen({ player, realClips, onSolved }: {
               <span>{o.label}</span>
             </button>
           ))}
-          {wrong && <p className="riddle-wrong-note">Not quite — play the real clips again and listen to how each one begins.</p>}
+          {wrong && <p className="riddle-wrong-note">Not quite — play the clips again and listen to how each one begins.</p>}
         </div>
       </div>
     </div>
@@ -283,7 +190,7 @@ export function RiddleScreen({ player, realClips, onSolved }: {
 }
 
 // ---------------------------------------------------------------------------
-export function EscapeScreen({ onNext }: { onNext: () => void }) {
+export function OverrideScreen({ teamName, onNext }: { teamName: string; onNext: () => void }) {
   useEffect(() => {
     sfx.sonar()
     const t = window.setTimeout(() => sfx.win(), 750)
@@ -291,9 +198,9 @@ export function EscapeScreen({ onNext }: { onNext: () => void }) {
   }, [])
 
   return (
-    <div className="v-screen escape-screen">
+    <div className="v-screen override-screen">
       <Confetti />
-      <div className="intro-kicker">Case cracked</div>
+      <div className="intro-kicker">Access granted{teamName ? ` · Team ${teamName}` : ''}</div>
       <p className="v-lead">Victoria's hidden message was</p>
       <div className="codeword">
         {ESCAPE.codeword.split('').map((ch, i) => (
@@ -302,13 +209,13 @@ export function EscapeScreen({ onNext }: { onNext: () => void }) {
           </span>
         ))}
       </div>
-      <p className="v-lead escape-letter-label">Your escape-room letter</p>
+      <p className="v-lead escape-letter-label">Your override digit</p>
       <div className="letter-stage">
         <span className="sonar-ring" />
         <span className="sonar-ring" />
         <span className="sonar-ring" />
         <div className="escape-halo" />
-        <div className="escape-letter">{ESCAPE.letter}</div>
+        <div className="escape-letter">{ESCAPE.digit}</div>
       </div>
       <p className="v-lead v-flavour">{ESCAPE.flavour}</p>
       <button className="btn-primary btn-lg" onClick={onNext}>What just happened?</button>
@@ -348,4 +255,9 @@ export function DebriefScreen({ onRestart }: { onRestart: () => void }) {
       <button className="btn-primary btn-lg" onClick={onRestart}>Play again</button>
     </div>
   )
+}
+
+/** The riddle needs the genuine clips in their scripted (acrostic) order. */
+export function riddleOrder(clips: GridClip[]): GridClip[] {
+  return REAL_CLIPS.map((rc) => clips.find((c) => c.id === rc.id)).filter(Boolean) as GridClip[]
 }

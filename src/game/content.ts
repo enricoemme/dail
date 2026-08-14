@@ -126,7 +126,7 @@ export const RIDDLE = {
 export const ESCAPE = {
   /** The code word the real clips spell out. */
   codeword: 'TRUST',
-  /** The single letter this puzzle contributes to the wider escape room. */
-  letter: 'T',
-  flavour: 'Add this letter to the ones from the other rooms to complete the escape phrase.',
+  /** The override digit this challenge contributes to the escape room. */
+  digit: '7',
+  flavour: 'Enter this digit into the override console along with the digits from the other challenges.',
 }
