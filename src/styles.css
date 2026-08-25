@@ -465,6 +465,7 @@ body {
 .insight-line { font-size: clamp(1.25rem, 2.6vw, 1.7rem); color: var(--ink); font-weight: 600; max-width: 46ch; }
 
 /* ---- lock screen ---------------------------------------------------------- */
+.lock-screen { padding-top: 3rem; padding-bottom: 6rem; }
 .lock-panel {
   display: flex;
   flex-direction: column;
@@ -486,10 +487,10 @@ body {
 /* ---- Islington badge (white marks, no tile) -------------------------------- */
 .islington-logo {
   position: fixed;
-  bottom: 1.2rem;
-  right: 1.4rem;
-  width: 92px;
-  height: 92px;
+  bottom: 1.3rem;
+  right: 1.5rem;
+  width: 128px;
+  height: 128px;
   z-index: 40;
   opacity: 0.92;
   filter: drop-shadow(0 4px 14px rgba(0, 20, 40, 0.45));
