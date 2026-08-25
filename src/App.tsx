@@ -21,16 +21,14 @@ import type { GridClip, Phase } from './types'
 
 const PHASE_ORDER: Phase[] = ['brief', 'test', 'flags', 'riddle', 'override', 'debrief']
 
-function shuffledGrid(): GridClip[] {
-  const clips = ALL_CLIPS.map((c) => ({
+// Fixed display order (= content.ts order, already scrambled real/fake):
+// facilitators get a stable answer key — the REAL clips are always
+// numbers 1, 4, 5, 8 and 10 on the test screen.
+function gridClips(): GridClip[] {
+  return ALL_CLIPS.map((c) => ({
     id: c.id, file: c.file, isReal: c.isReal, subject: c.subject,
     transcript: c.transcript, redFlag: c.redFlag, mark: null as boolean | null,
   }))
-  for (let i = clips.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[clips[i], clips[j]] = [clips[j], clips[i]]
-  }
-  return clips
 }
 
 export default function App() {
@@ -38,7 +36,7 @@ export default function App() {
     try { return sessionStorage.getItem('dail-unlocked') === '1' } catch { return false }
   })
   const [phase, setPhase] = useState<Phase>('brief')
-  const [clips, setClips] = useState<GridClip[]>(() => shuffledGrid())
+  const [clips, setClips] = useState<GridClip[]>(() => gridClips())
   const [teamName, setTeamName] = useState('')
 
   const playerRef = useRef<ClipPlayer | null>(null)
@@ -60,7 +58,7 @@ export default function App() {
 
   const restart = () => {
     player.stop()
-    setClips(shuffledGrid())
+    setClips(gridClips())
     setTeamName('')
     setPhase('brief')
   }
