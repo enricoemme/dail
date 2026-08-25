@@ -28,43 +28,48 @@ export interface ClipContent {
   clueFragment?: string
 }
 
-// --- The 5 GENUINE clips (Victoria's real security advice) ------------------
-// Placeholder acrostic: first letters spell TRUST.
+// --- The 5 GENUINE clips (Dale's real recordings as Victoria) ----------------
+// Common thread (the Stage-2 answer): she keeps asking people to CHECK things.
 export const REAL_CLIPS: ClipContent[] = [
   {
     id: 'real-1',
     file: '/clips/real-1.wav',
     isReal: true,
-    transcript: 'Take a breath before you act on anything that feels urgent.',
-    clueFragment: 'Take',
+    transcript:
+      "Morning all. I've been reviewing the latest repairs prioritisation list. Most of it looks sensible, but a couple of urgent damp and mould cases have ended up lower than I'd have expected. It's probably explainable, but before we reschedule anything I'd like somebody to sense-check the rankings.",
+    clueFragment: 'Repairs',
   },
   {
     id: 'real-2',
     file: '/clips/real-2.wav',
     isReal: true,
-    transcript: 'Refuse to hand over passwords or codes, no matter who is asking.',
-    clueFragment: 'Refuse',
+    transcript:
+      "We've seen call waiting times improve quite a bit over the last few weeks, which is great news. The only thing I can't quite reconcile is that complaints about getting through don't seem to have dropped at the same rate. Can someone have another look at the numbers before we include them in next month's report?",
+    clueFragment: 'Contact Centre',
   },
   {
     id: 'real-3',
     file: '/clips/real-3.wav',
     isReal: true,
-    transcript: 'Use a number you already trust to call the person back.',
-    clueFragment: 'Use',
+    transcript:
+      "The case summary is helpful and the recommended placement looks reasonable overall, but before agreeing anything I'd like someone to review the original notes as well. There may be some context that hasn't come through in the summary.",
+    clueFragment: "Children's Services",
   },
   {
     id: 'real-4',
     file: '/clips/real-4.wav',
     isReal: true,
-    transcript: 'Stop and check with a colleague if something seems off.',
-    clueFragment: 'Stop',
+    transcript:
+      "Energy usage is down again according to the dashboard, which is obviously positive. One of the building managers queried the figures yesterday though, so could we double-check them before the next performance update goes out? I'd rather be confident in the numbers.",
+    clueFragment: 'Facilities Management',
   },
   {
     id: 'real-5',
     file: '/clips/real-5.wav',
     isReal: true,
-    transcript: 'Trust has to be verified — never simply assumed.',
-    clueFragment: 'Trust',
+    transcript:
+      "Has anyone else noticed we're relying much more heavily on the automated summaries now? They're generally very good and save a lot of time, but I worry people are starting to skip the detailed reports altogether. It might be worth discussing at the next team meeting.",
+    clueFragment: 'Council Tax',
   },
 ]
 
