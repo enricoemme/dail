@@ -7,6 +7,7 @@ import { Bubbles } from './components/Bubbles'
 import { Stage } from './components/Stage'
 import { TopBar } from './components/TopBar'
 import { FacilitatorMenu } from './components/FacilitatorMenu'
+import { LockScreen } from './components/LockScreen'
 import {
   BriefScreen,
   DebriefScreen,
@@ -33,6 +34,9 @@ function shuffledGrid(): GridClip[] {
 }
 
 export default function App() {
+  const [unlocked, setUnlocked] = useState(() => {
+    try { return sessionStorage.getItem('dail-unlocked') === '1' } catch { return false }
+  })
   const [phase, setPhase] = useState<Phase>('brief')
   const [clips, setClips] = useState<GridClip[]>(() => shuffledGrid())
   const [teamName, setTeamName] = useState('')
@@ -67,6 +71,21 @@ export default function App() {
   }
 
   const progress = PHASE_ORDER.indexOf(phase) / (PHASE_ORDER.length - 1)
+
+  if (!unlocked) {
+    return (
+      <div className="v-app">
+        <Backdrop depth={0} />
+        <Bubbles />
+        <LockScreen
+          onUnlock={() => {
+            try { sessionStorage.setItem('dail-unlocked', '1') } catch { /* private mode */ }
+            setUnlocked(true)
+          }}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="v-app">

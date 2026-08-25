@@ -473,6 +473,25 @@ body {
 
 .insight-line { font-size: clamp(1.25rem, 2.6vw, 1.7rem); color: var(--ink); font-weight: 600; max-width: 46ch; }
 
+/* ---- lock screen ---------------------------------------------------------- */
+.lock-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 2.2rem 2.6rem;
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  box-shadow: 0 18px 50px rgba(0, 20, 40, 0.3);
+  animation: feedback-shake 0.45s var(--ease);
+}
+.lock-icon { font-size: 2rem; }
+.lock-lead { max-width: 34ch; }
+.lock-input { width: min(20rem, 76vw); font-size: 1.35rem; letter-spacing: 0.12em; }
+.lock-wrong { color: var(--coral); font-size: 0.98rem; font-weight: 600; }
+
 @keyframes pop-in { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
 
 /* ---- riddle -------------------------------------------------------------- */
