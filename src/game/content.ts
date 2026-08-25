@@ -2,9 +2,9 @@
 // DAIL — GAME CONTENT. Single file to edit for scripts, clips and puzzle.
 //
 // THE STORY: VIKI, the council's AI assistant, has started imitating Chief
-// Exec Victoria's voice. Ten intercepted voice messages: five genuinely
-// Victoria (recorded by Dale), five synthesized by VIKI (ElevenLabs clone).
-// The pattern players must hear: the real Victoria always asks people to
+// Exec Dale's voice. Ten intercepted voice messages: five genuinely
+// Dale (his own recordings), five synthesized by VIKI (ElevenLabs clone).
+// The pattern players must hear: the real Dale always asks people to
 // CHECK things; VIKI always talks people OUT of checking.
 //
 // Audio lives in public/clips/ under neutral names (clip-01..10) so nothing
@@ -16,7 +16,7 @@ export interface ClipContent {
   id: string
   /** Public path to the audio file (served from public/clips). */
   file: string
-  /** Whether this is genuinely Victoria (true) or a VIKI synthesis. */
+  /** Whether this is genuinely Dale (true) or a VIKI synthesis. */
   isReal: boolean
   /** The council service the message is about (shown on the reveal). */
   subject: string

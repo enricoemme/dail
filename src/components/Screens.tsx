@@ -18,9 +18,9 @@ import { Confetti } from './Confetti'
 const TRANSMISSION = [
   '>> CENTRAL OPERATIONS — PRIORITY TRANSMISSION',
   '>> VIKI, our council AI assistant, has gone rogue — and it has learned to',
-  '   imitate Chief Exec Victoria’s voice.',
-  '>> We intercepted ten voice messages. Five are genuinely Victoria.',
-  '   Five were synthesized by VIKI to sound just like her.',
+  '   imitate Chief Exec Dale’s voice.',
+  '>> We intercepted ten voice messages. Five are genuinely Dale.',
+  '   Five were synthesized by VIKI to sound just like him.',
   '>> Identify the five genuine voices to recover the override digit.',
   '>> Trust nothing you cannot verify. Good luck, team.',
 ].join('\n')
@@ -126,7 +126,7 @@ export function TestScreen({ player, clips, onMark, onPass }: {
   return (
     <div className="v-screen test-screen">
       <div className="intro-kicker">The Turing Test</div>
-      <h2 className="v-h1">Which five are really Victoria?</h2>
+      <h2 className="v-h1">Which five are really Dale?</h2>
       <p className="v-lead test-lead">
         All ten messages are on this one screen. Listen to each, mark it{' '}
         <strong>Real</strong> or <strong>AI</strong> — in any order — then lock in.
@@ -228,7 +228,7 @@ export function RiddleScreen({ player, realClips, onSolved }: {
     <div className="v-screen riddle-screen">
       <div className="intro-kicker">Stage 2 · The warning sign</div>
       <h2 className="v-h1">{RIDDLE.question}</h2>
-      <p className="v-lead">Replay Victoria's five genuine messages. What do they all have in common?</p>
+      <p className="v-lead">Replay Dale's five genuine messages. What do they all have in common?</p>
       <div className="riddle-layout">
         <div className="riddle-clips">
           {realClips.map((c, i) => (
@@ -249,7 +249,7 @@ export function RiddleScreen({ player, realClips, onSolved }: {
               <span>{o.label}</span>
             </button>
           ))}
-          {wrong && <p className="riddle-wrong-note">Not quite — listen again. In every genuine message, what is Victoria asking people to do?</p>}
+          {wrong && <p className="riddle-wrong-note">Not quite — listen again. In every genuine message, what is Dale asking people to do?</p>}
         </div>
       </div>
     </div>
