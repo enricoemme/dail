@@ -432,7 +432,9 @@ body {
 .status-done { color: var(--aqua); border-color: rgba(127, 224, 255, 0.5); }
 
 /* Fill the kiosk screen: generous rows, controls anchored below the grid. */
-.test-screen { padding-top: 6.4rem; padding-bottom: 2rem; gap: 1.1rem; justify-content: center; }
+.test-screen { padding-top: 5.2rem; padding-bottom: 2rem; gap: 1.1rem; justify-content: center; }
+.test-screen .intro-kicker { margin-bottom: -0.2rem; }
+.test-lead { max-width: 80ch; margin-bottom: 0.5rem; }
 .test-grid .clip-box { height: 72px; }
 .test-grid .vt-opt { font-size: 0.98rem; padding: 0.55rem 1.2rem; }
 
