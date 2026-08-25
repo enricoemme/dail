@@ -419,12 +419,13 @@ body {
 }
 .test-actions { display: flex; align-items: center; gap: 1.8rem; flex-wrap: wrap; justify-content: center; }
 
-/* Header pinned high, generous rows below. */
+/* Header pinned high, clear air between the text block and the grid. */
 .test-screen { padding-top: 5.8rem; padding-bottom: 1.6rem; gap: 1.1rem; justify-content: flex-start; }
 .test-screen .intro-kicker { margin-bottom: -0.2rem; }
-.test-lead { max-width: 80ch; margin-bottom: 0.5rem; }
+.test-lead { max-width: 80ch; margin-bottom: 2.2rem; }
 .test-grid .clip-box { height: 76px; }
 .test-grid .vt-opt { font-size: 0.98rem; padding: 0.55rem 1.2rem; }
+.test-actions { margin-top: 1.2rem; }
 
 /* ---- red-flag reveal ------------------------------------------------------ */
 .flags-screen { padding-top: 6.6rem; gap: 1rem; justify-content: flex-start; }
