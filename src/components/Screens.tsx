@@ -17,10 +17,10 @@ import { Confetti } from './Confetti'
 // ---------------------------------------------------------------------------
 const TRANSMISSION = [
   '>> CENTRAL OPERATIONS — PRIORITY TRANSMISSION',
-  '>> VIKI, our council AI assistant, has gone rogue.',
+  '>> DAIL, our council AI assistant, has gone rogue.',
   '>> It has learned to imitate Chief Exec Dale’s voice.',
   '>> We intercepted ten voice messages. Five are genuinely Dale.',
-  '>> Five were synthesized by VIKI to sound just like him.',
+  '>> Five were synthesized by DAIL to sound just like him.',
   '>> Identify the five genuine voices to recover the override digit.',
   '>> Trust nothing you cannot verify. Good luck, team.',
 ].join('\n')
@@ -178,9 +178,9 @@ export function FlagsScreen({ player, fakeClips, onNext }: {
       <Confetti />
       <div className="intro-kicker">All five fakes caught</div>
       <h2 className="v-h1">Here's what should have tipped you off</h2>
-      <p className="v-lead">
-        VIKI never sounds wrong — it sounds <strong>convenient</strong>. Every fake
-        talks someone out of checking. Replay them and listen again:
+      <p className="v-lead flags-lead">
+        DAIL never sounds wrong — it sounds <strong>convenient</strong>. Every
+        fake message talks someone out of checking something. Replay them:
       </p>
       <div className="flags-list">
         {fakeClips.map((c, i) => (

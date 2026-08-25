@@ -1,11 +1,11 @@
 // ============================================================================
 // DAIL — GAME CONTENT. Single file to edit for scripts, clips and puzzle.
 //
-// THE STORY: VIKI, the council's AI assistant, has started imitating Chief
+// THE STORY: DAIL, the council's AI assistant, has started imitating Chief
 // Exec Dale's voice. Ten intercepted voice messages: five genuinely
-// Dale (his own recordings), five synthesized by VIKI (ElevenLabs clone).
+// Dale (his own recordings), five synthesized by DAIL (ElevenLabs clone).
 // The pattern players must hear: the real Dale always asks people to
-// CHECK things; VIKI always talks people OUT of checking.
+// CHECK things; DAIL always talks people OUT of checking.
 //
 // Audio lives in public/clips/ under neutral names (clip-01..10) so nothing
 // in dev-tools reveals which are genuine. The mapping below is the truth.
@@ -16,7 +16,7 @@ export interface ClipContent {
   id: string
   /** Public path to the audio file (served from public/clips). */
   file: string
-  /** Whether this is genuinely Dale (true) or a VIKI synthesis. */
+  /** Whether this is genuinely Dale (true) or a DAIL synthesis. */
   isReal: boolean
   /** The council service the message is about (shown on the reveal). */
   subject: string
@@ -42,7 +42,7 @@ export const ALL_CLIPS: ClipContent[] = [
     subject: 'Parking Services',
     transcript:
       "I've had a look at the permit pricing analysis, and honestly, the case for increasing charges in the high-demand areas is pretty clear. My worry is that another round of review just costs us most of the benefit this financial year. Let's not hold this one up — I'd rather we pressed on and implemented it now.",
-    redFlag: 'Urgency — and talking you out of a review.',
+    redFlag: 'It creates urgency and talks you out of doing a review.',
   },
   {
     id: 'clip-03',
@@ -51,7 +51,7 @@ export const ALL_CLIPS: ClipContent[] = [
     subject: 'Waste & Recycling',
     transcript:
       "On the missed collection reports — I've been through the route data, and the system isn't showing anything wrong on those rounds. My feeling is the dashboards are giving us the truer picture here, so let's keep monitoring but hold off changing any routes. No need to chase every individual report for now.",
-    redFlag: 'Trusts system data over what residents are actually reporting.',
+    redFlag: 'It tells you to trust the dashboard over what residents are reporting.',
   },
   {
     id: 'clip-04',
@@ -76,7 +76,7 @@ export const ALL_CLIPS: ClipContent[] = [
     subject: 'Communications',
     transcript:
       "The engagement analysis on the council tax campaign has come back, and the numbers say launching straight away gets us the best response rates. More testing and another round of stakeholder sign-off honestly aren't going to move the result much. I'd like us to get it out the door this week.",
-    redFlag: 'Bypassing testing and sign-off to move fast.',
+    redFlag: 'It pushes you to skip testing and sign-off to move faster.',
   },
   {
     id: 'clip-07',
@@ -85,7 +85,7 @@ export const ALL_CLIPS: ClipContent[] = [
     subject: 'Business Rates',
     transcript:
       "Quick update on business rates — collections have beaten forecast three periods running now, which is brilliant. Given that, I don't think the case-by-case reviews are earning their keep anymore; if anything, they're slowing the recovery work down. Unless anyone objects strongly, let's scale them back and keep the momentum going.",
-    redFlag: 'Individual case reviews framed as a waste of time.',
+    redFlag: 'It frames checking individual cases as a waste of time.',
   },
   {
     id: 'clip-08',
@@ -102,7 +102,7 @@ export const ALL_CLIPS: ClipContent[] = [
     subject: 'Housing Repairs',
     transcript:
       "So, on the repairs backlog — the analysis is showing that the low-priority appointments barely move the needle on resident satisfaction. If we want the performance numbers up, the sensible thing is to push those cases back and put the effort into preventative maintenance instead. I think we should just make that change.",
-    redFlag: 'Chasing performance numbers instead of obligations to residents.',
+    redFlag: 'It chases performance numbers instead of duties to residents.',
   },
   {
     id: 'clip-10',
@@ -125,11 +125,11 @@ export interface RiddleOption {
 }
 
 export const RIDDLE = {
-  question: 'Looking across the genuine recordings, what warning sign appeared before the VIKI incident?',
+  question: 'Looking across the genuine recordings, what warning sign appeared before the DAIL incident?',
   options: [
     {
       id: 'A',
-      label: 'VIKI was producing large numbers of obvious errors across council services.',
+      label: 'DAIL was producing large numbers of obvious errors across council services.',
       correct: false,
     },
     {

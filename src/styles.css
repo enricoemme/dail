@@ -428,37 +428,39 @@ body {
 .test-actions { margin-top: 1.2rem; }
 
 /* ---- red-flag reveal ------------------------------------------------------ */
-.flags-screen { padding-top: 6.6rem; gap: 1rem; justify-content: flex-start; }
+.flags-screen { padding-top: 5.8rem; gap: 1.1rem; justify-content: flex-start; }
+.flags-lead { margin-bottom: 1.8rem; }
 .flags-list {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
-  width: min(58rem, 94vw);
+  gap: 1.1rem;
+  width: min(70rem, 96vw);
 }
 .flag-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 1.2rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.8rem;
   align-items: center;
 }
-.flag-clip .clip-box { height: 56px; }
-.flag-meta { display: flex; flex-direction: column; gap: 0.3rem; text-align: left; }
+.flag-clip .clip-box { height: 64px; }
+.flag-meta { display: flex; flex-direction: column; gap: 0.45rem; text-align: left; }
 .flag-subject {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--ink-dim);
+  color: var(--aqua);
 }
 .flag-chip {
-  font-size: 0.98rem;
-  line-height: 1.35;
+  font-size: 1.08rem;
+  line-height: 1.45;
   color: #ffd9c4;
   background: rgba(255, 110, 90, 0.14);
   border: 1px solid rgba(255, 138, 92, 0.45);
-  border-radius: 12px;
-  padding: 0.5rem 0.85rem;
+  border-radius: 14px;
+  padding: 0.7rem 1.1rem;
 }
+.flags-screen .btn-lg { margin-top: 1.2rem; }
 
 .insight-line { font-size: clamp(1.25rem, 2.6vw, 1.7rem); color: var(--ink); font-weight: 600; max-width: 46ch; }
 
