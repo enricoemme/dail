@@ -9,24 +9,31 @@ interface Props {
   clip: GridClip
   index: number
   onMark: (mark: boolean) => void
-  /** Hide the verdict controls (used when replaying real clips on the riddle). */
+  /** Hide the verdict controls (used when replaying clips on later screens). */
   readOnly?: boolean
+  /** Whether the team has listened to this clip (shows the ✓ on the player). */
+  heard?: boolean
 }
 
-export function ClipCard({ player, clip, index, onMark, readOnly }: Props) {
+export function ClipCard({ player, clip, index, onMark, readOnly, heard }: Props) {
   const [playing, setPlaying] = useState(player.currentId === clip.id)
 
   useEffect(() => player.onChange(() => setPlaying(player.currentId === clip.id)), [player, clip.id])
 
+  const markClass =
+    !readOnly && clip.mark !== null ? (clip.mark ? ' clip-row-real' : ' clip-row-ai') : ''
+
   return (
-    <div className={'clip-row' + (playing ? ' clip-row-playing' : '')}>
+    <div className={'clip-row' + (playing ? ' clip-row-playing' : '') + markClass}>
       <button
         className={'clip-box' + (playing ? ' clip-box-playing' : '')}
         onClick={() => player.toggle(clip.id, clip.file)}
         aria-label={playing ? 'Stop clip' : 'Play clip'}
       >
         {!readOnly && <span className="clip-num">{index + 1}</span>}
-        <span className="clip-play-icon">{playing ? '❚❚' : '▶'}</span>
+        <span className={'clip-play-icon' + (heard && !playing ? ' clip-heard' : '')}>
+          {playing ? '❚❚' : heard ? '✓' : '▶'}
+        </span>
         <AudioWaveform player={player} clipId={clip.id} seed={clip.id + index} />
       </button>
 

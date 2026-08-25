@@ -356,17 +356,21 @@ body {
 .test-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.8rem 1.6rem;
-  width: min(66rem, 94vw);
+  gap: 0.9rem 2.2rem;
+  width: min(88rem, 96vw);
 }
 .clip-num {
   flex: none;
-  min-width: 1.4rem;
-  font-size: 0.85rem;
+  min-width: 1.6rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--ink-dim);
   text-align: right;
 }
+/* Marked cards tint toward their verdict so progress is visible at a glance. */
+.clip-row-real .clip-box { border-color: rgba(127, 224, 255, 0.55); background: rgba(127, 224, 255, 0.08); }
+.clip-row-ai .clip-box { border-color: rgba(255, 138, 92, 0.55); background: rgba(255, 110, 90, 0.08); }
+.clip-heard { background: rgba(255, 255, 255, 0.22) !important; box-shadow: none; }
 .verdict-toggle {
   flex: none;
   display: flex;
@@ -412,13 +416,25 @@ body {
   50% { transform: translateX(6px); }
   75% { transform: translateX(-3px); }
 }
-.test-actions { display: flex; align-items: center; gap: 1.6rem; flex-wrap: wrap; justify-content: center; }
-.test-count { font-size: 1.05rem; color: var(--ink-dim); }
-.test-count strong { color: var(--aqua); font-size: 1.2rem; }
+.test-actions { display: flex; align-items: center; gap: 1.8rem; flex-wrap: wrap; justify-content: center; }
+.test-status { display: flex; gap: 0.7rem; flex-wrap: wrap; justify-content: center; }
+.status-chip {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--ink-dim);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  padding: 0.55rem 1.1rem;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+.status-done { color: var(--aqua); border-color: rgba(127, 224, 255, 0.5); }
 
-/* Fit all 10 rows comfortably on a kiosk screen. */
-.test-screen { padding-top: 6.6rem; gap: 1rem; justify-content: flex-start; }
-.test-grid .clip-box { height: 62px; }
+/* Fill the kiosk screen: generous rows, controls anchored below the grid. */
+.test-screen { padding-top: 6.4rem; padding-bottom: 2rem; gap: 1.1rem; justify-content: center; }
+.test-grid .clip-box { height: 72px; }
+.test-grid .vt-opt { font-size: 0.98rem; padding: 0.55rem 1.2rem; }
 
 /* ---- red-flag reveal ------------------------------------------------------ */
 .flags-screen { padding-top: 6.6rem; gap: 1rem; justify-content: flex-start; }

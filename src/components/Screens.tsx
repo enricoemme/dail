@@ -86,8 +86,20 @@ export function TestScreen({ player, clips, onMark, onPass }: {
 }) {
   const [attempts, setAttempts] = useState(0)
   const [feedback, setFeedback] = useState<string | null>(null)
+  const [heard, setHeard] = useState<Set<string>>(() => new Set())
+
+  // Remember every clip the team has pressed play on (✓ on the player).
+  useEffect(
+    () =>
+      player.onChange(() => {
+        const id = player.currentId
+        if (id) setHeard((prev) => (prev.has(id) ? prev : new Set(prev).add(id)))
+      }),
+    [player],
+  )
 
   const allMarked = clips.every((c) => c.mark !== null)
+  const markedCount = clips.filter((c) => c.mark !== null).length
   const realMarked = clips.filter((c) => c.mark === true).length
   const realTotal = clips.filter((c) => c.isReal).length
 
@@ -116,22 +128,38 @@ export function TestScreen({ player, clips, onMark, onPass }: {
       <div className="intro-kicker">The Turing Test</div>
       <h2 className="v-h1">Which five are really Victoria?</h2>
       <p className="v-lead test-lead">
-        Play every clip. Mark each one <strong>Real</strong> or <strong>AI</strong>, then lock in.
+        All ten messages are on this one screen. Listen to each, mark it{' '}
+        <strong>Real</strong> or <strong>AI</strong> — in any order — then lock in.
       </p>
       <div className="test-grid">
         {clips.map((c, i) => (
-          <ClipCard key={c.id} player={player} clip={c} index={i} onMark={(m) => onMark(c.id, m)} />
+          <ClipCard
+            key={c.id}
+            player={player}
+            clip={c}
+            index={i}
+            heard={heard.has(c.id)}
+            onMark={(m) => onMark(c.id, m)}
+          />
         ))}
       </div>
       {feedback && (
         <p key={attempts} className="test-feedback">{feedback}</p>
       )}
       <div className="test-actions">
-        <span className="test-count">
-          Marked real: <strong>{realMarked}</strong> / {realTotal}
-        </span>
+        <div className="test-status">
+          <span className={'status-chip' + (heard.size === clips.length ? ' status-done' : '')}>
+            🎧 Heard {heard.size}/{clips.length}
+          </span>
+          <span className={'status-chip' + (markedCount === clips.length ? ' status-done' : '')}>
+            Marked {markedCount}/{clips.length}
+          </span>
+          <span className={'status-chip' + (realMarked === realTotal ? ' status-done' : '')}>
+            Real picks {realMarked}/{realTotal}
+          </span>
+        </div>
         <button className="btn-primary btn-lg" onClick={submit} disabled={!allMarked}>
-          {allMarked ? 'Lock in answers' : `Mark all ${clips.length} clips first`}
+          {allMarked ? 'Lock in answers' : `${clips.length - markedCount} still to mark`}
         </button>
       </div>
     </div>
