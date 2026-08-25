@@ -2,7 +2,7 @@
   "name": "human-or-not",
   "private": true,
   "version": "1.0.0",
-  "description": "Human or Not? — The Islington AI Challenge. Kiosk voice game vs Gemini Live.",
+  "description": "Human or Not? \u2014 The Islington AI Challenge. Kiosk voice game vs Gemini Live.",
   "type": "module",
   "scripts": {
     "start": "node server/index.mjs",
@@ -10,7 +10,8 @@
     "dev:server": "node server/index.mjs",
     "dev:web": "vite",
     "build": "tsc && vite build",
-    "preview": "concurrently -k -n server,web -c yellow,cyan \"npm run dev:server\" \"vite preview\""
+    "preview": "concurrently -k -n server,web -c yellow,cyan \"npm run dev:server\" \"vite preview\"",
+    "deploy:gh": "BASE_PATH=/dail/ vite build && touch dist/.nojekyll && npx gh-pages -d dist -b gh-pages -t"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
