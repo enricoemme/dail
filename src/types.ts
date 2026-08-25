@@ -1,6 +1,6 @@
 // Shared types for DAIL.
 
-export type Phase = 'brief' | 'test' | 'riddle' | 'override' | 'debrief'
+export type Phase = 'brief' | 'test' | 'flags' | 'riddle' | 'override' | 'debrief'
 
 export interface AppConfig {
   model: string
@@ -14,7 +14,10 @@ export interface GridClip {
   id: string
   file: string
   isReal: boolean
+  subject: string
   transcript: string
+  /** FAKE clips only: the tell shown on the red-flag reveal. */
+  redFlag?: string
   /** Player's mark: true = "yes, real", false = "no, AI", null = unanswered. */
   mark: boolean | null
 }

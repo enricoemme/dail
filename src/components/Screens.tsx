@@ -1,8 +1,9 @@
-// DAIL screens — the four-screen flow from Dale's storyboard:
+// DAIL screens — Dale's storyboard plus the red-flag reveal:
 //   1. BriefScreen    — transmission from Central Operations + team name
 //   2. TestScreen     — the Turing test: all 10 clips, lock in, retry until perfect
-//   3. RiddleScreen   — replay the 5 genuine clips, decode the hidden message
-//   4. OverrideScreen — the override digit ceremony
+//   3. FlagsScreen    — the five fakes revealed, each with its red flag
+//   4. RiddleScreen   — replay the 5 genuine clips, spot the warning sign
+//   5. OverrideScreen — the override digit ceremony
 // (+ DebriefScreen — the voice-cloning safety takeaway.)
 
 import { useEffect, useRef, useState } from 'react'
@@ -16,8 +17,10 @@ import { Confetti } from './Confetti'
 // ---------------------------------------------------------------------------
 const TRANSMISSION = [
   '>> CENTRAL OPERATIONS — PRIORITY TRANSMISSION',
-  '>> Chief Exec Victoria has been hacked. Her voice has been cloned.',
-  '>> We intercepted ten voice messages. Five are genuine. Five are synthetic.',
+  '>> VIKI, our council AI assistant, has gone rogue — and it has learned to',
+  '   imitate Chief Exec Victoria’s voice.',
+  '>> We intercepted ten voice messages. Five are genuinely Victoria.',
+  '   Five were synthesized by VIKI to sound just like her.',
   '>> Identify the five genuine voices to recover the override digit.',
   '>> Trust nothing you cannot verify. Good luck, team.',
 ].join('\n')
@@ -136,6 +139,42 @@ export function TestScreen({ player, clips, onMark, onPass }: {
 }
 
 // ---------------------------------------------------------------------------
+export function FlagsScreen({ player, fakeClips, onNext }: {
+  player: ClipPlayer
+  fakeClips: GridClip[]
+  onNext: () => void
+}) {
+  useEffect(() => { sfx.win() }, [])
+  return (
+    <div className="v-screen flags-screen">
+      <Confetti />
+      <div className="intro-kicker">All five fakes caught</div>
+      <h2 className="v-h1">Here's what should have tipped you off</h2>
+      <p className="v-lead">
+        VIKI never sounds wrong — it sounds <strong>convenient</strong>. Every fake
+        talks someone out of checking. Replay them and listen again:
+      </p>
+      <div className="flags-list">
+        {fakeClips.map((c, i) => (
+          <div className="flag-row" key={c.id}>
+            <div className="flag-clip">
+              <ClipCard player={player} clip={c} index={i} onMark={() => {}} readOnly />
+            </div>
+            <div className="flag-meta">
+              <span className="flag-subject">{c.subject}</span>
+              <span className="flag-chip">🚩 {c.redFlag}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button className="btn-primary btn-lg" onClick={() => { player.stop(); onNext() }}>
+        Now — the genuine recordings
+      </button>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 export function RiddleScreen({ player, realClips, onSolved }: {
   player: ClipPlayer
   realClips: GridClip[]
@@ -159,9 +198,9 @@ export function RiddleScreen({ player, realClips, onSolved }: {
 
   return (
     <div className="v-screen riddle-screen">
-      <div className="intro-kicker">Decode the message</div>
-      <h2 className="v-h1">What is Victoria telling you?</h2>
-      <p className="v-lead">You found her five genuine clips. Replay them — in this order — and read the first letter of each.</p>
+      <div className="intro-kicker">Stage 2 · The warning sign</div>
+      <h2 className="v-h1">{RIDDLE.question}</h2>
+      <p className="v-lead">Replay Victoria's five genuine messages. What do they all have in common?</p>
       <div className="riddle-layout">
         <div className="riddle-clips">
           {realClips.map((c, i) => (
@@ -182,7 +221,7 @@ export function RiddleScreen({ player, realClips, onSolved }: {
               <span>{o.label}</span>
             </button>
           ))}
-          {wrong && <p className="riddle-wrong-note">Not quite — play the clips again and listen to how each one begins.</p>}
+          {wrong && <p className="riddle-wrong-note">Not quite — listen again. In every genuine message, what is Victoria asking people to do?</p>}
         </div>
       </div>
     </div>
@@ -201,14 +240,7 @@ export function OverrideScreen({ teamName, onNext }: { teamName: string; onNext:
     <div className="v-screen override-screen">
       <Confetti />
       <div className="intro-kicker">Access granted{teamName ? ` · Team ${teamName}` : ''}</div>
-      <p className="v-lead">Victoria's hidden message was</p>
-      <div className="codeword">
-        {ESCAPE.codeword.split('').map((ch, i) => (
-          <span key={i} className="codeword-ch" style={{ animationDelay: `${0.15 + i * 0.09}s` }}>
-            {ch}
-          </span>
-        ))}
-      </div>
+      <p className="v-lead insight-line">{ESCAPE.insight}</p>
       <p className="v-lead escape-letter-label">Your override digit</p>
       <div className="letter-stage">
         <span className="sonar-ring" />

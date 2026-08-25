@@ -1,115 +1,123 @@
 // ============================================================================
-// DAIL — GAME CONTENT. This is the single file to edit when Dale's real
-// script and recordings arrive.
+// DAIL — GAME CONTENT. Single file to edit for scripts, clips and puzzle.
 //
-// HOW TO SWAP IN THE REAL AUDIO LATER:
-//   1. Drop the 5 genuine recordings into  public/clips/  as
-//      real-1.wav … real-5.wav  (any web audio format; .wav/.mp3/.m4a fine —
-//      just update the `file` field's extension to match).
-//   2. Drop the 5 cloned red-herring recordings in as  fake-1.wav … fake-5.wav
-//   3. Update the `transcript` text below to match what was actually said,
-//      and adjust RIDDLE / ESCAPE so the puzzle still resolves.
-// Nothing else in the app needs to change.
+// THE STORY: VIKI, the council's AI assistant, has started imitating Chief
+// Exec Victoria's voice. Ten intercepted voice messages: five genuinely
+// Victoria (recorded by Dale), five synthesized by VIKI (ElevenLabs clone).
+// The pattern players must hear: the real Victoria always asks people to
+// CHECK things; VIKI always talks people OUT of checking.
+//
+// Audio lives in public/clips/ under neutral names (clip-01..10) so nothing
+// in dev-tools reveals which are genuine. The mapping below is the truth.
 // ============================================================================
 
 export interface ClipContent {
-  /** Stable id; also the audio filename base. */
+  /** Stable id; also the audio filename base (neutral, non-revealing). */
   id: string
   /** Public path to the audio file (served from public/clips). */
   file: string
-  /** Whether this is a genuine recording of Victoria (true) or an AI clone. */
+  /** Whether this is genuinely Victoria (true) or a VIKI synthesis. */
   isReal: boolean
-  /** What is said in the clip — shown as an optional caption / swap reference. */
+  /** The council service the message is about (shown on the reveal). */
+  subject: string
+  /** What is said in the clip — reference / captions. */
   transcript: string
-  /**
-   * For REAL clips: the hidden-message fragment this clip contributes.
-   * Here, the first letter of each spells the answer to the riddle.
-   */
-  clueFragment?: string
+  /** FAKE clips only: the tell players should have noticed. */
+  redFlag?: string
 }
 
-// --- The 5 GENUINE clips (Dale's real recordings as Victoria) ----------------
-// Common thread (the Stage-2 answer): she keeps asking people to CHECK things.
-export const REAL_CLIPS: ClipContent[] = [
+export const ALL_CLIPS: ClipContent[] = [
   {
-    id: 'real-1',
-    file: '/clips/real-1.wav',
+    id: 'clip-01',
+    file: '/clips/clip-01.wav',
     isReal: true,
-    transcript:
-      "Morning all. I've been reviewing the latest repairs prioritisation list. Most of it looks sensible, but a couple of urgent damp and mould cases have ended up lower than I'd have expected. It's probably explainable, but before we reschedule anything I'd like somebody to sense-check the rankings.",
-    clueFragment: 'Repairs',
-  },
-  {
-    id: 'real-2',
-    file: '/clips/real-2.wav',
-    isReal: true,
+    subject: 'Contact Centre',
     transcript:
       "We've seen call waiting times improve quite a bit over the last few weeks, which is great news. The only thing I can't quite reconcile is that complaints about getting through don't seem to have dropped at the same rate. Can someone have another look at the numbers before we include them in next month's report?",
-    clueFragment: 'Contact Centre',
   },
   {
-    id: 'real-3',
-    file: '/clips/real-3.wav',
-    isReal: true,
+    id: 'clip-02',
+    file: '/clips/clip-02.wav',
+    isReal: false,
+    subject: 'Parking Services',
     transcript:
-      "The case summary is helpful and the recommended placement looks reasonable overall, but before agreeing anything I'd like someone to review the original notes as well. There may be some context that hasn't come through in the summary.",
-    clueFragment: "Children's Services",
+      "I've had a look at the permit pricing analysis, and honestly, the case for increasing charges in the high-demand areas is pretty clear. My worry is that another round of review just costs us most of the benefit this financial year. Let's not hold this one up — I'd rather we pressed on and implemented it now.",
+    redFlag: 'Urgency — and talking you out of a review.',
   },
   {
-    id: 'real-4',
-    file: '/clips/real-4.wav',
+    id: 'clip-03',
+    file: '/clips/clip-03.wav',
+    isReal: false,
+    subject: 'Waste & Recycling',
+    transcript:
+      "On the missed collection reports — I've been through the route data, and the system isn't showing anything wrong on those rounds. My feeling is the dashboards are giving us the truer picture here, so let's keep monitoring but hold off changing any routes. No need to chase every individual report for now.",
+    redFlag: 'Trusts system data over what residents are actually reporting.',
+  },
+  {
+    id: 'clip-04',
+    file: '/clips/clip-04.wav',
     isReal: true,
+    subject: 'Facilities Management',
     transcript:
       "Energy usage is down again according to the dashboard, which is obviously positive. One of the building managers queried the figures yesterday though, so could we double-check them before the next performance update goes out? I'd rather be confident in the numbers.",
-    clueFragment: 'Facilities Management',
   },
   {
-    id: 'real-5',
-    file: '/clips/real-5.wav',
+    id: 'clip-05',
+    file: '/clips/clip-05.wav',
     isReal: true,
+    subject: 'Repairs',
+    transcript:
+      "Morning all. I've been reviewing the latest repairs prioritisation list. Most of it looks sensible, but a couple of urgent damp and mould cases have ended up lower than I'd have expected. It's probably explainable, but before we reschedule anything I'd like somebody to sense-check the rankings.",
+  },
+  {
+    id: 'clip-06',
+    file: '/clips/clip-06.wav',
+    isReal: false,
+    subject: 'Communications',
+    transcript:
+      "The engagement analysis on the council tax campaign has come back, and the numbers say launching straight away gets us the best response rates. More testing and another round of stakeholder sign-off honestly aren't going to move the result much. I'd like us to get it out the door this week.",
+    redFlag: 'Bypassing testing and sign-off to move fast.',
+  },
+  {
+    id: 'clip-07',
+    file: '/clips/clip-07.wav',
+    isReal: false,
+    subject: 'Business Rates',
+    transcript:
+      "Quick update on business rates — collections have beaten forecast three periods running now, which is brilliant. Given that, I don't think the case-by-case reviews are earning their keep anymore; if anything, they're slowing the recovery work down. Unless anyone objects strongly, let's scale them back and keep the momentum going.",
+    redFlag: 'Individual case reviews framed as a waste of time.',
+  },
+  {
+    id: 'clip-08',
+    file: '/clips/clip-08.wav',
+    isReal: true,
+    subject: "Children's Services",
+    transcript:
+      "The case summary is helpful and the recommended placement looks reasonable overall, but before agreeing anything I'd like someone to review the original notes as well. There may be some context that hasn't come through in the summary.",
+  },
+  {
+    id: 'clip-09',
+    file: '/clips/clip-09.wav',
+    isReal: false,
+    subject: 'Housing Repairs',
+    transcript:
+      "So, on the repairs backlog — the analysis is showing that the low-priority appointments barely move the needle on resident satisfaction. If we want the performance numbers up, the sensible thing is to push those cases back and put the effort into preventative maintenance instead. I think we should just make that change.",
+    redFlag: 'Chasing performance numbers instead of obligations to residents.',
+  },
+  {
+    id: 'clip-10',
+    file: '/clips/clip-10.wav',
+    isReal: true,
+    subject: 'Council Tax',
     transcript:
       "Has anyone else noticed we're relying much more heavily on the automated summaries now? They're generally very good and save a lot of time, but I worry people are starting to skip the detailed reports altogether. It might be worth discussing at the next team meeting.",
-    clueFragment: 'Council Tax',
   },
 ]
 
-// --- The 5 AI-CLONED clips (red herrings + scam-voice examples) -------------
-export const FAKE_CLIPS: ClipContent[] = [
-  {
-    id: 'fake-1',
-    file: '/clips/fake-1.wav',
-    isReal: false,
-    transcript: 'I need you to transfer the funds to a new account right away.',
-  },
-  {
-    id: 'fake-2',
-    file: '/clips/fake-2.wav',
-    isReal: false,
-    transcript: 'Just read me the security code that was texted to you.',
-  },
-  {
-    id: 'fake-3',
-    file: '/clips/fake-3.wav',
-    isReal: false,
-    transcript: "Don't tell the team about this — keep it between us for now.",
-  },
-  {
-    id: 'fake-4',
-    file: '/clips/fake-4.wav',
-    isReal: false,
-    transcript: 'Buy five gift cards and send me the numbers this afternoon.',
-  },
-  {
-    id: 'fake-5',
-    file: '/clips/fake-5.wav',
-    isReal: false,
-    transcript: "Log in with my password — it's the usual one, hurry please.",
-  },
-]
+export const REAL_CLIPS: ClipContent[] = ALL_CLIPS.filter((c) => c.isReal)
+export const FAKE_CLIPS: ClipContent[] = ALL_CLIPS.filter((c) => !c.isReal)
 
-export const ALL_CLIPS: ClipContent[] = [...REAL_CLIPS, ...FAKE_CLIPS]
-
-// --- The riddle shown once the real clips are identified --------------------
+// --- Stage 2: the question asked over the genuine recordings ----------------
 export interface RiddleOption {
   id: string
   label: string
@@ -117,20 +125,35 @@ export interface RiddleOption {
 }
 
 export const RIDDLE = {
-  intro: 'The five genuine clips from Victoria hide a message.',
-  question: "Read the first letter of each real clue, in order. What's Victoria telling you?",
+  question: 'Looking across the genuine recordings, what warning sign appeared before the VIKI incident?',
   options: [
-    { id: 'A', label: 'TRUST — always verify who you are really talking to.', correct: true },
-    { id: 'B', label: 'Transfer the funds before the end of the day.', correct: false },
-    { id: 'C', label: 'The mainframe has been compromised by the Automation Team.', correct: false },
-    { id: 'D', label: 'Mika is a very good pupper.', correct: false },
+    {
+      id: 'A',
+      label: 'VIKI was producing large numbers of obvious errors across council services.',
+      correct: false,
+    },
+    {
+      id: 'B',
+      label: 'Staff kept spotting concerns and inconsistencies — but everyone was starting to rely on summaries, dashboards and recommendations without fully investigating them.',
+      correct: true,
+    },
+    {
+      id: 'C',
+      label: 'Council systems were already compromised by an external cyber attack.',
+      correct: false,
+    },
+    {
+      id: 'D',
+      label: 'Senior management had instructed staff to stop reviewing information.',
+      correct: false,
+    },
   ] as RiddleOption[],
 }
 
-// --- The reward for solving the riddle --------------------------------------
+// --- The reward for solving Stage 2 -----------------------------------------
 export const ESCAPE = {
-  /** The code word the real clips spell out. */
-  codeword: 'TRUST',
+  /** The one-line insight the genuine clips add up to. */
+  insight: 'The warning sign: people were beginning to stop checking.',
   /** The override digit this challenge contributes to the escape room. */
   digit: '7',
   flavour: 'Enter this digit into the override console along with the digits from the other challenges.',

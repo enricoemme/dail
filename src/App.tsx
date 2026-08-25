@@ -10,6 +10,7 @@ import { FacilitatorMenu } from './components/FacilitatorMenu'
 import {
   BriefScreen,
   DebriefScreen,
+  FlagsScreen,
   OverrideScreen,
   RiddleScreen,
   riddleOrder,
@@ -17,11 +18,12 @@ import {
 } from './components/Screens'
 import type { GridClip, Phase } from './types'
 
-const PHASE_ORDER: Phase[] = ['brief', 'test', 'riddle', 'override', 'debrief']
+const PHASE_ORDER: Phase[] = ['brief', 'test', 'flags', 'riddle', 'override', 'debrief']
 
 function shuffledGrid(): GridClip[] {
   const clips = ALL_CLIPS.map((c) => ({
-    id: c.id, file: c.file, isReal: c.isReal, transcript: c.transcript, mark: null as boolean | null,
+    id: c.id, file: c.file, isReal: c.isReal, subject: c.subject,
+    transcript: c.transcript, redFlag: c.redFlag, mark: null as boolean | null,
   }))
   for (let i = clips.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
@@ -45,6 +47,7 @@ export default function App() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const realClips = useMemo(() => riddleOrder(clips), [clips])
+  const fakeClips = useMemo(() => clips.filter((c) => !c.isReal), [clips])
 
   const mark = (id: string, m: boolean) =>
     setClips((prev) => prev.map((c) => (c.id === id ? { ...c, mark: m } : c)))
@@ -76,7 +79,10 @@ export default function App() {
           <BriefScreen onStart={(n) => { setTeamName(n); go('test') }} />
         )}
         {phase === 'test' && (
-          <TestScreen player={player} clips={clips} onMark={mark} onPass={() => go('riddle')} />
+          <TestScreen player={player} clips={clips} onMark={mark} onPass={() => go('flags')} />
+        )}
+        {phase === 'flags' && (
+          <FlagsScreen player={player} fakeClips={fakeClips} onNext={() => go('riddle')} />
         )}
         {phase === 'riddle' && (
           <RiddleScreen player={player} realClips={realClips} onSolved={() => go('override')} />

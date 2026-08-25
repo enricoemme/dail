@@ -420,6 +420,41 @@ body {
 .test-screen { padding-top: 6.6rem; gap: 1rem; justify-content: flex-start; }
 .test-grid .clip-box { height: 62px; }
 
+/* ---- red-flag reveal ------------------------------------------------------ */
+.flags-screen { padding-top: 6.6rem; gap: 1rem; justify-content: flex-start; }
+.flags-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  width: min(58rem, 94vw);
+}
+.flag-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 1.2rem;
+  align-items: center;
+}
+.flag-clip .clip-box { height: 56px; }
+.flag-meta { display: flex; flex-direction: column; gap: 0.3rem; text-align: left; }
+.flag-subject {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.flag-chip {
+  font-size: 0.98rem;
+  line-height: 1.35;
+  color: #ffd9c4;
+  background: rgba(255, 110, 90, 0.14);
+  border: 1px solid rgba(255, 138, 92, 0.45);
+  border-radius: 12px;
+  padding: 0.5rem 0.85rem;
+}
+
+.insight-line { font-size: clamp(1.25rem, 2.6vw, 1.7rem); color: var(--ink); font-weight: 600; max-width: 46ch; }
+
 @keyframes pop-in { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
 
 /* ---- riddle -------------------------------------------------------------- */
