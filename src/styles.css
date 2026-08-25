@@ -312,11 +312,12 @@ body {
 
 /* ---- briefing: the transmission ------------------------------------------- */
 .transmission {
-  width: min(52rem, 92vw);
+  width: min(58rem, 94vw);
   background: rgba(4, 24, 40, 0.55);
   border: 1px solid var(--glass-border);
-  border-radius: 18px;
-  padding: 1.5rem 1.9rem;
+  border-radius: 20px;
+  padding: 2rem 2.6rem;
+  margin: 0.6rem 0;
   -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
   box-shadow: inset 0 0 40px rgba(127, 224, 255, 0.06), 0 16px 44px rgba(0, 20, 40, 0.3);
   cursor: pointer;
@@ -325,7 +326,7 @@ body {
 .transmission-text {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: clamp(0.92rem, 1.7vw, 1.12rem);
-  line-height: 1.75;
+  line-height: 2.1;
   color: var(--aqua);
   white-space: pre-wrap;
   text-shadow: 0 0 12px rgba(127, 224, 255, 0.35);
@@ -479,17 +480,16 @@ body {
 .lock-input { width: min(20rem, 76vw); font-size: 1.35rem; letter-spacing: 0.12em; }
 .lock-wrong { color: var(--coral); font-size: 0.98rem; font-weight: 600; }
 
-/* ---- Islington badge ------------------------------------------------------ */
+/* ---- Islington badge (white marks, no tile) -------------------------------- */
 .islington-logo {
   position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
+  bottom: 1.2rem;
+  right: 1.4rem;
+  width: 92px;
+  height: 92px;
   z-index: 40;
-  box-shadow: 0 8px 24px rgba(0, 20, 40, 0.35);
-  opacity: 0.95;
+  opacity: 0.92;
+  filter: drop-shadow(0 4px 14px rgba(0, 20, 40, 0.45));
 }
 
 @keyframes pop-in { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }

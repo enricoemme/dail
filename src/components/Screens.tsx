@@ -17,10 +17,10 @@ import { Confetti } from './Confetti'
 // ---------------------------------------------------------------------------
 const TRANSMISSION = [
   '>> CENTRAL OPERATIONS — PRIORITY TRANSMISSION',
-  '>> VIKI, our council AI assistant, has gone rogue — and it has learned to',
-  '   imitate Chief Exec Dale’s voice.',
+  '>> VIKI, our council AI assistant, has gone rogue.',
+  '>> It has learned to imitate Chief Exec Dale’s voice.',
   '>> We intercepted ten voice messages. Five are genuinely Dale.',
-  '   Five were synthesized by VIKI to sound just like him.',
+  '>> Five were synthesized by VIKI to sound just like him.',
   '>> Identify the five genuine voices to recover the override digit.',
   '>> Trust nothing you cannot verify. Good luck, team.',
 ].join('\n')
