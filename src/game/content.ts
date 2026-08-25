@@ -29,7 +29,7 @@ export interface ClipContent {
 export const ALL_CLIPS: ClipContent[] = [
   {
     id: 'clip-01',
-    file: '/clips/clip-01.wav',
+    file: '/clips/clip-01.mp3',
     isReal: true,
     subject: 'Contact Centre',
     transcript:
@@ -37,7 +37,7 @@ export const ALL_CLIPS: ClipContent[] = [
   },
   {
     id: 'clip-02',
-    file: '/clips/clip-02.wav',
+    file: '/clips/clip-02.mp3',
     isReal: false,
     subject: 'Parking Services',
     transcript:
@@ -46,7 +46,7 @@ export const ALL_CLIPS: ClipContent[] = [
   },
   {
     id: 'clip-03',
-    file: '/clips/clip-03.wav',
+    file: '/clips/clip-03.mp3',
     isReal: false,
     subject: 'Waste & Recycling',
     transcript:
@@ -55,7 +55,7 @@ export const ALL_CLIPS: ClipContent[] = [
   },
   {
     id: 'clip-04',
-    file: '/clips/clip-04.wav',
+    file: '/clips/clip-04.mp3',
     isReal: true,
     subject: 'Facilities Management',
     transcript:
@@ -63,7 +63,7 @@ export const ALL_CLIPS: ClipContent[] = [
   },
   {
     id: 'clip-05',
-    file: '/clips/clip-05.wav',
+    file: '/clips/clip-05.mp3',
     isReal: true,
     subject: 'Repairs',
     transcript:
@@ -71,7 +71,7 @@ export const ALL_CLIPS: ClipContent[] = [
   },
   {
     id: 'clip-06',
-    file: '/clips/clip-06.wav',
+    file: '/clips/clip-06.mp3',
     isReal: false,
     subject: 'Communications',
     transcript:
@@ -80,7 +80,7 @@ export const ALL_CLIPS: ClipContent[] = [
   },
   {
     id: 'clip-07',
-    file: '/clips/clip-07.wav',
+    file: '/clips/clip-07.mp3',
     isReal: false,
     subject: 'Business Rates',
     transcript:
@@ -89,7 +89,7 @@ export const ALL_CLIPS: ClipContent[] = [
   },
   {
     id: 'clip-08',
-    file: '/clips/clip-08.wav',
+    file: '/clips/clip-08.mp3',
     isReal: true,
     subject: "Children's Services",
     transcript:
@@ -97,7 +97,7 @@ export const ALL_CLIPS: ClipContent[] = [
   },
   {
     id: 'clip-09',
-    file: '/clips/clip-09.wav',
+    file: '/clips/clip-09.mp3',
     isReal: false,
     subject: 'Housing Repairs',
     transcript:
@@ -106,7 +106,7 @@ export const ALL_CLIPS: ClipContent[] = [
   },
   {
     id: 'clip-10',
-    file: '/clips/clip-10.wav',
+    file: '/clips/clip-10.mp3',
     isReal: true,
     subject: 'Council Tax',
     transcript:
