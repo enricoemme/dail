@@ -99,12 +99,23 @@ export function TestScreen({ player, clips, onMark, onPass }: {
   )
 
   const allMarked = clips.every((c) => c.mark !== null)
-  const markedCount = clips.filter((c) => c.mark !== null).length
   const realMarked = clips.filter((c) => c.mark === true).length
   const realTotal = clips.filter((c) => c.isReal).length
 
   const submit = () => {
-    if (!allMarked) return
+    if (!allMarked) {
+      sfx.deny()
+      setAttempts((a) => a + 1)
+      const missing = clips
+        .map((c, i) => (c.mark === null ? i + 1 : null))
+        .filter((n): n is number => n !== null)
+      setFeedback(
+        missing.length === 1
+          ? `You haven't marked clip ${missing[0]} yet.`
+          : `You haven't marked clips ${missing.join(', ')} yet.`,
+      )
+      return
+    }
     if (realMarked !== realTotal) {
       sfx.deny()
       setAttempts((a) => a + 1)
@@ -147,19 +158,8 @@ export function TestScreen({ player, clips, onMark, onPass }: {
         <p key={attempts} className="test-feedback">{feedback}</p>
       )}
       <div className="test-actions">
-        <div className="test-status">
-          <span className={'status-chip' + (heard.size === clips.length ? ' status-done' : '')}>
-            🎧 Heard {heard.size}/{clips.length}
-          </span>
-          <span className={'status-chip' + (markedCount === clips.length ? ' status-done' : '')}>
-            Marked {markedCount}/{clips.length}
-          </span>
-          <span className={'status-chip' + (realMarked === realTotal ? ' status-done' : '')}>
-            Real picks {realMarked}/{realTotal}
-          </span>
-        </div>
-        <button className="btn-primary btn-lg" onClick={submit} disabled={!allMarked}>
-          {allMarked ? 'Lock in answers' : `${clips.length - markedCount} still to mark`}
+        <button className="btn-primary btn-lg" onClick={submit}>
+          Lock in answers
         </button>
       </div>
     </div>

@@ -417,25 +417,12 @@ body {
   75% { transform: translateX(-3px); }
 }
 .test-actions { display: flex; align-items: center; gap: 1.8rem; flex-wrap: wrap; justify-content: center; }
-.test-status { display: flex; gap: 0.7rem; flex-wrap: wrap; justify-content: center; }
-.status-chip {
-  font-size: 0.98rem;
-  font-weight: 600;
-  color: var(--ink-dim);
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: 999px;
-  padding: 0.55rem 1.1rem;
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  transition: color 0.25s ease, border-color 0.25s ease;
-}
-.status-done { color: var(--aqua); border-color: rgba(127, 224, 255, 0.5); }
 
-/* Fill the kiosk screen: generous rows, controls anchored below the grid. */
-.test-screen { padding-top: 5.2rem; padding-bottom: 2rem; gap: 1.1rem; justify-content: center; }
+/* Header pinned high, generous rows below. */
+.test-screen { padding-top: 5.8rem; padding-bottom: 1.6rem; gap: 1.1rem; justify-content: flex-start; }
 .test-screen .intro-kicker { margin-bottom: -0.2rem; }
 .test-lead { max-width: 80ch; margin-bottom: 0.5rem; }
-.test-grid .clip-box { height: 72px; }
+.test-grid .clip-box { height: 76px; }
 .test-grid .vt-opt { font-size: 0.98rem; padding: 0.55rem 1.2rem; }
 
 /* ---- red-flag reveal ------------------------------------------------------ */
@@ -491,6 +478,19 @@ body {
 .lock-lead { max-width: 34ch; }
 .lock-input { width: min(20rem, 76vw); font-size: 1.35rem; letter-spacing: 0.12em; }
 .lock-wrong { color: var(--coral); font-size: 0.98rem; font-weight: 600; }
+
+/* ---- Islington badge ------------------------------------------------------ */
+.islington-logo {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  z-index: 40;
+  box-shadow: 0 8px 24px rgba(0, 20, 40, 0.35);
+  opacity: 0.95;
+}
 
 @keyframes pop-in { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
 
