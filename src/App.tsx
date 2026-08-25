@@ -81,7 +81,7 @@ export default function App() {
             setUnlocked(true)
           }}
         />
-        <img className="islington-logo" src="/islington.png" alt="Islington Council" />
+        <img className="islington-logo" src={`${import.meta.env.BASE_URL}islington.png`} alt="Islington Council" />
       </div>
     )
   }
@@ -112,7 +112,7 @@ export default function App() {
       </Stage>
 
       <FacilitatorMenu onRestart={restart} onSkip={skip} />
-      <img className="islington-logo" src="/islington.png" alt="Islington Council" />
+      <img className="islington-logo" src={`${import.meta.env.BASE_URL}islington.png`} alt="Islington Council" />
     </div>
   )
 }
