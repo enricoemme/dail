@@ -28,6 +28,22 @@ const TRANSMISSION = [
   '>> and recover the second override digit.',
 ].join('\n')
 
+const ALERT_LINE = '⚠ SECURITY ALERT'
+
+/** Reveal the transmission as plain text, but flag the alert line coral-red
+ *  once it has fully typed out — like a system breach warning. */
+function renderTransmission(shown: string) {
+  const i = shown.indexOf(ALERT_LINE)
+  if (i === -1) return shown
+  return (
+    <>
+      {shown.slice(0, i)}
+      <span className="sys-alert">{ALERT_LINE}</span>
+      {shown.slice(i + ALERT_LINE.length)}
+    </>
+  )
+}
+
 export function BriefScreen({ onStart }: { onStart: (teamName: string) => void }) {
   const [chars, setChars] = useState(0)
   const [name, setName] = useState('')
@@ -58,7 +74,7 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string) => void }
         title={done ? undefined : 'Tap to skip'}
       >
         <pre className="transmission-text">
-          {TRANSMISSION.slice(0, chars)}
+          {renderTransmission(TRANSMISSION.slice(0, chars))}
           <span className="cursor" />
         </pre>
       </div>

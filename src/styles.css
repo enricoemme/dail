@@ -339,6 +339,15 @@ body {
   background: var(--aqua);
   animation: cursor-blink 0.9s steps(1) infinite;
 }
+/* Breach-warning line: coral-red, glowing, gently pulsing. */
+.sys-alert {
+  color: #ff5d5d;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 14px rgba(255, 70, 70, 0.75);
+  animation: sys-alert-pulse 1.3s ease-in-out infinite;
+}
+@keyframes sys-alert-pulse { 50% { opacity: 0.62; } }
 @keyframes cursor-blink { 50% { opacity: 0; } }
 .brief-join {
   display: flex;
