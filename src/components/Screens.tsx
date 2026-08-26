@@ -17,12 +17,15 @@ import { Confetti } from './Confetti'
 // ---------------------------------------------------------------------------
 const TRANSMISSION = [
   '>> CENTRAL OPERATIONS — PRIORITY TRANSMISSION',
-  '>> DAIL, our council AI assistant, has gone rogue.',
-  '>> It has learned to imitate Chief Exec Dale’s voice.',
-  '>> We intercepted ten voice messages. Five are genuinely Dale.',
-  '>> Five were synthesized by DAIL to sound just like him.',
-  '>> Identify the five genuine voices to recover the override digit.',
-  '>> Trust nothing you cannot verify. Good luck, team.',
+  '>> ⚠ SECURITY ALERT',
+  '>> VIKI has discovered voice cloning.',
+  '>> It now sounds exactly like council staff,',
+  '>> and has been using those voices to push',
+  '>> its own recommendations.',
+  '>> Ten voice messages have been intercepted.',
+  '>> Some are genuine. Some are VIKI in disguise.',
+  '>> Spot the fakes before VIKI sways council decisions —',
+  '>> and recover the second override digit.',
 ].join('\n')
 
 export function BriefScreen({ onStart }: { onStart: (teamName: string) => void }) {
@@ -198,7 +201,7 @@ export function FlagsScreen({ player, fakeClips, onNext }: {
       <div className="intro-kicker">All five fakes caught</div>
       <h2 className="v-h1">Here's what should have tipped you off</h2>
       <p className="v-lead flags-lead">
-        DAIL never sounds wrong — it sounds <strong>convenient</strong>. Every
+        VIKI never sounds wrong — it sounds <strong>convenient</strong>. Every
         fake message talks someone out of checking something. Replay them:
       </p>
       <div className="flags-list">
@@ -288,7 +291,7 @@ export function OverrideScreen({ teamName, onNext }: { teamName: string; onNext:
       <Confetti />
       <div className="intro-kicker">Access granted{teamName ? ` · Team ${teamName}` : ''}</div>
       <p className="v-lead insight-line">{ESCAPE.insight}</p>
-      <p className="v-lead escape-letter-label">Your override digit</p>
+      <p className="v-lead escape-letter-label">The second override digit</p>
       <div className="letter-stage">
         <span className="sonar-ring" />
         <span className="sonar-ring" />

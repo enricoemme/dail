@@ -1,11 +1,11 @@
 // ============================================================================
-// DAIL — GAME CONTENT. Single file to edit for scripts, clips and puzzle.
+// DAIL — GAME CONTENT (DAIL = the challenge; VIKI = the rogue AI villain). Single file to edit for scripts, clips and puzzle.
 //
-// THE STORY: DAIL, the council's AI assistant, has started imitating Chief
+// THE STORY: VIKI, the council's AI assistant, has started imitating Chief
 // Exec Dale's voice. Ten intercepted voice messages: five genuinely
-// Dale (his own recordings), five synthesized by DAIL (ElevenLabs clone).
+// Dale (his own recordings), five synthesized by VIKI (ElevenLabs clone).
 // The pattern players must hear: the real Dale always asks people to
-// CHECK things; DAIL always talks people OUT of checking.
+// CHECK things; VIKI always talks people OUT of checking.
 //
 // Audio lives in public/clips/ under neutral names (clip-01..10) so nothing
 // in dev-tools reveals which are genuine. The mapping below is the truth.
@@ -16,7 +16,7 @@ export interface ClipContent {
   id: string
   /** Public path to the audio file (served from public/clips). */
   file: string
-  /** Whether this is genuinely Dale (true) or a DAIL synthesis. */
+  /** Whether this is genuinely Dale (true) or a VIKI synthesis. */
   isReal: boolean
   /** The council service the message is about (shown on the reveal). */
   subject: string
@@ -129,11 +129,11 @@ export interface RiddleOption {
 }
 
 export const RIDDLE = {
-  question: 'Looking across the genuine recordings, what warning sign appeared before the DAIL incident?',
+  question: 'Looking across the genuine recordings, what warning sign appeared before the VIKI incident?',
   options: [
     {
       id: 'A',
-      label: 'DAIL was producing large numbers of obvious errors across council services.',
+      label: 'VIKI was producing large numbers of obvious errors across council services.',
       correct: false,
     },
     {
