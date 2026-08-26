@@ -11,7 +11,7 @@
     "dev:web": "vite",
     "build": "tsc && vite build",
     "preview": "concurrently -k -n server,web -c yellow,cyan \"npm run dev:server\" \"vite preview\"",
-    "deploy:gh": "BASE_PATH=/dail/ vite build && touch dist/.nojekyll && npx gh-pages -d dist -b gh-pages -t"
+    "deploy:gh": "BASE_PATH=/dail/ vite build && touch dist/.nojekyll && gh-pages -d dist -b gh-pages -t -f"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
