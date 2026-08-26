@@ -156,18 +156,13 @@ export function TestScreen({ player, clips, onMark, onPass }: {
       return
     }
     setAttempts((a) => a + 1)
-    const remaining = realTotal - next.size
-    if (newly > 0) {
-      sfx.win()
-      setFeedback(
-        `${newly} genuine voice${newly > 1 ? 's' : ''} confirmed and locked in green. ${remaining} more of Dale's real voices still hidden among the fakes — keep going.`,
-      )
-    } else {
-      sfx.deny()
-      setFeedback(
-        `None of those were genuine. ${next.size} of ${realTotal} locked so far — listen again and move your Real marks.`,
-      )
-    }
+    const found = next.size
+    const remaining = realTotal - found
+    const fakeWord = `fake recording${found === 1 ? '' : 's'}`
+    const cloneClause = `${remaining} more VIKI clone${remaining === 1 ? ' is' : 's are'} still operating undetected`
+    if (newly > 0) sfx.win()
+    else sfx.deny()
+    setFeedback(`${found} ${fakeWord} identified. ${cloneClause}.`)
   }
 
   return (
@@ -175,9 +170,9 @@ export function TestScreen({ player, clips, onMark, onPass }: {
       <div className="intro-kicker">The Turing Test</div>
       <h2 className="v-h1">Spot the fakes</h2>
       <p className="v-lead test-lead">
-        Five voices are really Dale — five are malicious AI clones of him. Mark each{' '}
-        <strong>Real</strong> or <strong>AI</strong>, then lock in. Every genuine voice you
-        get right locks in <span className="lead-green">green</span> — find all five to expose the fakes.
+        VIKI has been cloning staff voices to influence decisions and bypass human
+        oversight. Five recordings are genuine. Five are AI-generated imposters.
+        Listen carefully and decide which are <strong>Real</strong> and which are <strong>AI</strong>.
       </p>
       <div className="test-grid">
         {clips.map((c, i) => (
