@@ -29,7 +29,7 @@ export function LockScreen({ onUnlock }: Props) {
 
   return (
     <div className="v-screen lock-screen">
-      <div className="intro-kicker">The Islington AI Challenge</div>
+      <div className="intro-kicker">The Turing Test Challenge</div>
       <h1 className="v-title">D<span className="name-ai">AI</span>L</h1>
       <div className="lock-panel" key={wrong}>
         <div className="lock-icon">🔒</div>

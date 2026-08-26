@@ -66,7 +66,7 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string) => void }
 
   return (
     <div className="v-screen brief-screen">
-      <div className="intro-kicker">The Islington AI Challenge</div>
+      <div className="intro-kicker">The Turing Test Challenge</div>
       <h1 className="v-title">D<span className="name-ai">AI</span>L</h1>
       <div
         className="transmission"
