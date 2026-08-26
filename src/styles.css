@@ -368,8 +368,13 @@ body {
   color: var(--ink-dim);
   text-align: right;
 }
-/* Marked cards tint toward their verdict so progress is visible at a glance. */
-.clip-row-real .clip-box { border-color: rgba(127, 224, 255, 0.55); background: rgba(127, 224, 255, 0.08); }
+/* Marked cards tint toward their verdict so progress is visible at a glance.
+   REAL picks get a clear green illumination to spotlight the team's guesses. */
+.clip-row-real .clip-box {
+  border-color: rgba(74, 222, 128, 0.85);
+  background: rgba(74, 222, 128, 0.14);
+  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.5), 0 0 26px rgba(74, 222, 128, 0.55);
+}
 .clip-row-ai .clip-box { border-color: rgba(255, 138, 92, 0.55); background: rgba(255, 110, 90, 0.08); }
 .clip-heard { background: rgba(255, 255, 255, 0.22) !important; box-shadow: none; }
 .verdict-toggle {
@@ -395,9 +400,9 @@ body {
 }
 .vt-opt:hover { color: var(--ink); }
 .vt-real.vt-on {
-  background: var(--aqua-grad);
-  color: #06344a;
-  box-shadow: 0 4px 14px rgba(55, 182, 230, 0.45);
+  background: linear-gradient(120deg, #86efac, #4ade80 55%, #22c55e);
+  color: #06340f;
+  box-shadow: 0 4px 16px rgba(74, 222, 128, 0.5);
 }
 .vt-ai.vt-on {
   background: var(--coral-grad);
