@@ -173,7 +173,7 @@ export function TestScreen({ player, clips, onMark, onPass }: {
   return (
     <div className="v-screen test-screen">
       <div className="intro-kicker">The Turing Test</div>
-      <h2 className="v-h1">Find the fake Dale</h2>
+      <h2 className="v-h1">Spot the fakes</h2>
       <p className="v-lead test-lead">
         Five voices are really Dale — five are malicious AI clones of him. Mark each{' '}
         <strong>Real</strong> or <strong>AI</strong>, then lock in. Every genuine voice you
@@ -295,7 +295,7 @@ export function RiddleScreen({ player, realClips, onSolved }: {
 }
 
 // ---------------------------------------------------------------------------
-export function OverrideScreen({ teamName, onNext }: { teamName: string; onNext: () => void }) {
+export function OverrideScreen({ teamName, solveTime, onNext }: { teamName: string; solveTime?: string; onNext: () => void }) {
   useEffect(() => {
     sfx.sonar()
     const t = window.setTimeout(() => sfx.win(), 750)
@@ -305,7 +305,9 @@ export function OverrideScreen({ teamName, onNext }: { teamName: string; onNext:
   return (
     <div className="v-screen override-screen">
       <Confetti />
-      <div className="intro-kicker">Access granted{teamName ? ` · Team ${teamName}` : ''}</div>
+      <div className="intro-kicker">
+        Access granted{teamName ? ` · Team ${teamName}` : ''}{solveTime ? ` · solved in ${solveTime}` : ''}
+      </div>
       <p className="v-lead insight-line">{ESCAPE.insight}</p>
       <p className="v-lead escape-letter-label">The second override digit</p>
       <div className="letter-stage">
