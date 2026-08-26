@@ -87,6 +87,8 @@ export function TestScreen({ player, clips, onMark, onPass }: {
   const [attempts, setAttempts] = useState(0)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [heard, setHeard] = useState<Set<string>>(() => new Set())
+  // Genuine clips the team has correctly caught — locked green, can't change.
+  const [locked, setLocked] = useState<Set<string>>(() => new Set())
 
   // Remember every clip the team has pressed play on (✓ on the player).
   useEffect(
@@ -119,28 +121,44 @@ export function TestScreen({ player, clips, onMark, onPass }: {
     if (realMarked !== realTotal) {
       sfx.deny()
       setAttempts((a) => a + 1)
-      setFeedback(`There are exactly ${realTotal} genuine clips — you've marked ${realMarked} as real.`)
+      setFeedback(`Pick exactly ${realTotal} voices as Real — those are the genuine ones.`)
       return
     }
-    const hits = clips.filter((c) => c.isReal && c.mark === true).length
-    if (hits === realTotal) {
+    // Lock every genuine clip they've correctly marked Real.
+    const next = new Set(locked)
+    clips.forEach((c) => { if (c.isReal && c.mark === true) next.add(c.id) })
+    const newly = next.size - locked.size
+    setLocked(next)
+
+    if (next.size === realTotal) {
       sfx.win()
       player.stop()
       onPass()
+      return
+    }
+    setAttempts((a) => a + 1)
+    const remaining = realTotal - next.size
+    if (newly > 0) {
+      sfx.win()
+      setFeedback(
+        `${newly} genuine voice${newly > 1 ? 's' : ''} confirmed and locked in green. ${remaining} more of Dale's real voices still hidden among the fakes — keep going.`,
+      )
     } else {
       sfx.deny()
-      setAttempts((a) => a + 1)
-      setFeedback(`Analysis: you identified ${hits} of the ${realTotal} genuine voices. Listen again and adjust.`)
+      setFeedback(
+        `None of those were genuine. ${next.size} of ${realTotal} locked so far — listen again and move your Real marks.`,
+      )
     }
   }
 
   return (
     <div className="v-screen test-screen">
       <div className="intro-kicker">The Turing Test</div>
-      <h2 className="v-h1">Which five are really Dale?</h2>
+      <h2 className="v-h1">Find the fake Dale</h2>
       <p className="v-lead test-lead">
-        All ten messages are on this one screen. Listen to each, mark it{' '}
-        <strong>Real</strong> or <strong>AI</strong> — in any order — then lock in.
+        Five voices are really Dale — five are malicious AI clones of him. Mark each{' '}
+        <strong>Real</strong> or <strong>AI</strong>, then lock in. Every genuine voice you
+        get right locks in <span className="lead-green">green</span> — find all five to expose the fakes.
       </p>
       <div className="test-grid">
         {clips.map((c, i) => (
@@ -150,6 +168,7 @@ export function TestScreen({ player, clips, onMark, onPass }: {
             clip={c}
             index={i}
             heard={heard.has(c.id)}
+            locked={locked.has(c.id)}
             onMark={(m) => onMark(c.id, m)}
           />
         ))}

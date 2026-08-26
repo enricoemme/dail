@@ -13,18 +13,23 @@ interface Props {
   readOnly?: boolean
   /** Whether the team has listened to this clip (shows the ✓ on the player). */
   heard?: boolean
+  /** Confirmed-correct genuine clip: glows green, controls disabled. */
+  locked?: boolean
 }
 
-export function ClipCard({ player, clip, index, onMark, readOnly, heard }: Props) {
+export function ClipCard({ player, clip, index, onMark, readOnly, heard, locked }: Props) {
   const [playing, setPlaying] = useState(player.currentId === clip.id)
 
   useEffect(() => player.onChange(() => setPlaying(player.currentId === clip.id)), [player, clip.id])
 
-  const markClass =
-    !readOnly && clip.mark !== null ? (clip.mark ? ' clip-row-real' : ' clip-row-ai') : ''
+  const rowClass = locked
+    ? ' clip-row-locked'
+    : !readOnly && clip.mark !== null
+      ? clip.mark ? ' clip-row-real' : ' clip-row-ai'
+      : ''
 
   return (
-    <div className={'clip-row' + (playing ? ' clip-row-playing' : '') + markClass}>
+    <div className={'clip-row' + (playing ? ' clip-row-playing' : '') + rowClass}>
       <button
         className={'clip-box' + (playing ? ' clip-box-playing' : '')}
         onClick={() => player.toggle(clip.id, clip.file)}
@@ -41,12 +46,14 @@ export function ClipCard({ player, clip, index, onMark, readOnly, heard }: Props
         <div className="verdict-toggle">
           <button
             className={'vt-opt vt-real' + (clip.mark === true ? ' vt-on' : '')}
+            disabled={locked}
             onClick={() => { sfx.chooseReal(); onMark(true) }}
           >
-            Real
+            {locked ? 'Real ✓' : 'Real'}
           </button>
           <button
             className={'vt-opt vt-ai' + (clip.mark === false ? ' vt-on' : '')}
+            disabled={locked}
             onClick={() => { sfx.chooseAI(); onMark(false) }}
           >
             AI
