@@ -210,10 +210,11 @@ export function FlagsScreen({ player, fakeClips, onNext }: {
     <div className="v-screen flags-screen">
       <Confetti />
       <div className="intro-kicker">All five fakes caught</div>
-      <h2 className="v-h1">Here's what should have tipped you off</h2>
+      <h2 className="v-h1">Here's what should have raised suspicion</h2>
       <p className="v-lead flags-lead">
-        VIKI never sounds wrong — it sounds <strong>convenient</strong>. Every
-        fake message talks someone out of checking something. Replay them:
+        VIKI's messages weren't obviously wrong — they sounded faster, easier and more
+        efficient. Each fake tried to persuade staff to skip a check, bypass a safeguard,
+        or act without verification. That's exactly what VIKI wanted. These were the warning signs:
       </p>
       <div className="flags-list">
         {fakeClips.map((c, i) => (
