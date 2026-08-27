@@ -120,8 +120,8 @@ export function TestScreen({ player, clips, onMark, onPass }: {
   )
 
   const allMarked = clips.every((c) => c.mark !== null)
-  const realMarked = clips.filter((c) => c.mark === true).length
-  const realTotal = clips.filter((c) => c.isReal).length
+  const aiMarked = clips.filter((c) => c.mark === false).length
+  const fakeTotal = clips.filter((c) => !c.isReal).length
 
   const submit = () => {
     if (!allMarked) {
@@ -137,19 +137,19 @@ export function TestScreen({ player, clips, onMark, onPass }: {
       )
       return
     }
-    if (realMarked !== realTotal) {
+    if (aiMarked !== fakeTotal) {
       sfx.deny()
       setAttempts((a) => a + 1)
-      setFeedback(`Pick exactly ${realTotal} voices as Real — those are the genuine ones.`)
+      setFeedback(`Mark exactly ${fakeTotal} voices as AI — those are the imposters.`)
       return
     }
-    // Lock every genuine clip they've correctly marked Real.
+    // Lock every fake clip they've correctly caught as AI.
     const next = new Set(locked)
-    clips.forEach((c) => { if (c.isReal && c.mark === true) next.add(c.id) })
+    clips.forEach((c) => { if (!c.isReal && c.mark === false) next.add(c.id) })
     const newly = next.size - locked.size
     setLocked(next)
 
-    if (next.size === realTotal) {
+    if (next.size === fakeTotal) {
       sfx.win()
       player.stop()
       onPass()
@@ -157,7 +157,7 @@ export function TestScreen({ player, clips, onMark, onPass }: {
     }
     setAttempts((a) => a + 1)
     const found = next.size
-    const remaining = realTotal - found
+    const remaining = fakeTotal - found
     const fakeWord = `fake recording${found === 1 ? '' : 's'}`
     const cloneClause = `${remaining} more VIKI clone${remaining === 1 ? ' is' : 's are'} still operating undetected`
     if (newly > 0) sfx.win()

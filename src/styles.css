@@ -411,12 +411,12 @@ body {
   background: rgba(74, 222, 128, 0.16);
   box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.55), 0 0 28px rgba(74, 222, 128, 0.5);
 }
-.clip-row-locked .vt-real {
+.clip-row-locked .vt-ai {
   background: linear-gradient(120deg, #86efac, #4ade80 55%, #22c55e);
   color: #06340f;
   box-shadow: 0 4px 16px rgba(74, 222, 128, 0.5);
 }
-.clip-row-locked .vt-ai { opacity: 0.25; }
+.clip-row-locked .vt-real { opacity: 0.25; }
 .vt-opt:disabled { cursor: default; }
 .verdict-toggle {
   flex: none;

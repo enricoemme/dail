@@ -49,14 +49,14 @@ export function ClipCard({ player, clip, index, onMark, readOnly, heard, locked 
             disabled={locked}
             onClick={() => { sfx.chooseReal(); onMark(true) }}
           >
-            {locked ? 'Real ✓' : 'Real'}
+            Real
           </button>
           <button
             className={'vt-opt vt-ai' + (clip.mark === false ? ' vt-on' : '')}
             disabled={locked}
             onClick={() => { sfx.chooseAI(); onMark(false) }}
           >
-            AI
+            {locked ? 'AI ✓' : 'AI'}
           </button>
         </div>
       )}
