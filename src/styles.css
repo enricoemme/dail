@@ -351,11 +351,11 @@ body {
   transform: translateY(-50%);
   /* Feather the left edge and top/bottom to nothing, so it dissolves in. */
   -webkit-mask-image:
-    linear-gradient(to right, transparent 0%, #000 52%),
+    linear-gradient(to right, transparent 0%, #000 46%, #000 70%, transparent 92%),
     linear-gradient(to bottom, transparent 2%, #000 20%, #000 80%, transparent 98%);
   -webkit-mask-composite: source-in;
   mask-image:
-    linear-gradient(to right, transparent 0%, #000 52%),
+    linear-gradient(to right, transparent 0%, #000 46%, #000 70%, transparent 92%),
     linear-gradient(to bottom, transparent 2%, #000 20%, #000 80%, transparent 98%);
   mask-composite: intersect;
   animation: brief-portrait-in 1.9s cubic-bezier(0.16, 1, 0.3, 1) both;
