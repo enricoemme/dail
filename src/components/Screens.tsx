@@ -23,7 +23,7 @@ const TRANSMISSION = [
   '>> and has been using those voices to push',
   '>> its own recommendations.',
   '>> Ten voice messages have been intercepted.',
-  '>> Some are genuine. Some are VIKI in disguise.',
+  '>> Five are genuine, five are VIKI in disguise.',
   '>> Spot the fakes before VIKI sways council decisions —',
   '>> and recover the second override digit.',
 ].join('\n')
