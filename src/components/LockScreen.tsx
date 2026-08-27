@@ -31,9 +31,16 @@ export function LockScreen({ onUnlock }: Props) {
     <div className="v-screen lock-screen">
       <div className="intro-kicker">The Turing Test Challenge</div>
       <h1 className="v-title">D<span className="name-ai">AI</span>L</h1>
+
+      <figure className="hero-portrait">
+        <img src={`${import.meta.env.BASE_URL}dail-portrait.jpg`} alt="Half-human, half-AI portrait" />
+        <span className="hero-scan" aria-hidden="true" />
+        <span className="hero-duotone" aria-hidden="true" />
+        <figcaption className="hero-caption">Human, or machine? Soon you won't be able to tell.</figcaption>
+      </figure>
+
       <div className="lock-panel" key={wrong}>
-        <div className="lock-icon">🔒</div>
-        <p className="v-lead lock-lead">This challenge is under wraps. Enter the access code.</p>
+        <p className="v-lead lock-lead">🔒 Enter the access code to begin.</p>
         <input
           ref={inputRef}
           className="team-input lock-input"
