@@ -340,7 +340,7 @@ body {
 .brief-portrait {
   position: absolute;
   z-index: 0;
-  right: -3%;
+  right: -12%;
   top: 50%;
   height: min(94vh, 1040px);
   width: auto;
