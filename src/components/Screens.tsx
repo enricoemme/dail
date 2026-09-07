@@ -11,6 +11,7 @@ import type { ClipPlayer } from '../lib/audio/clipPlayer'
 import type { GridClip, Team } from '../types'
 import { RIDDLE, ESCAPE, REAL_CLIPS } from '../game/content'
 import { sfx } from '../lib/audio/sfx'
+import { apiFetch } from '../lib/api'
 import { ClipCard } from './ClipCard'
 import { Confetti } from './Confetti'
 
@@ -66,7 +67,7 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
   // Load the registered teams from the relay; fall back to typing on failure.
   useEffect(() => {
     let ok = true
-    fetch('/api/teams', { headers: { Accept: 'application/json' } })
+    apiFetch('/api/teams', { headers: { Accept: 'application/json' } })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data: Team[]) => {
         if (!ok) return

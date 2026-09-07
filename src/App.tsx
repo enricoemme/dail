@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ClipPlayer } from './lib/audio/clipPlayer'
 import { sfx } from './lib/audio/sfx'
+import { apiFetch } from './lib/api'
 import { ALL_CLIPS } from './game/content'
 import { Backdrop } from './components/Backdrop'
 import { Bubbles } from './components/Bubbles'
@@ -93,7 +94,7 @@ export default function App() {
   const reportCompletion = () => {
     if (!teamId) return
     const ms = startedAt !== null ? (finishedAt ?? Date.now()) - startedAt : 0
-    fetch('/api/complete', {
+    apiFetch('/api/complete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ teamId, timeSeconds: Math.round(ms / 1000), durationMs: ms }),

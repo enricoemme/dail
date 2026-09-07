@@ -1,6 +1,10 @@
 // Vercel serverless proxy for the VIKI team roster. Mirrors the local relay's
 // /api/teams so the hosted site works too. GM secret stays in Vercel env.
-export default async function handler(_req, res) {
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  if (req.method === 'OPTIONS') return res.status(204).end()
   const secret = process.env.VIKI_GM_SECRET
   if (!secret) return res.status(503).json({ error: 'no-secret' })
   const url =
