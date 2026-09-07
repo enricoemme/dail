@@ -4,7 +4,7 @@ import { useReducedMotion } from '../lib/useReducedMotion'
 const COLORS = ['#ff8a5c', '#ff5e86', '#ffb38a', '#7fe0ff', '#ffd0ad', '#ffffff']
 
 /** Lightweight canvas confetti burst, plays once on mount (~2.5s). */
-export function Confetti() {
+export function Confetti({ milestone = false }: { milestone?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null)
   const reduced = useReducedMotion()
 
@@ -18,7 +18,9 @@ export function Confetti() {
     canvas.height = window.innerHeight
 
     interface P { x: number; y: number; vx: number; vy: number; rot: number; vrot: number; w: number; h: number; color: string }
-    const parts: P[] = Array.from({ length: 100 }, () => ({
+    const duration = milestone ? 1.8 : 2.6
+    const colors = milestone ? ['#86efac', '#7fe0ff', '#ffffff'] : COLORS
+    const parts: P[] = Array.from({ length: milestone ? 60 : 100 }, () => ({
       x: (Math.random() < 0.5 ? 0.08 : 0.92) * canvas.width + (Math.random() - 0.5) * canvas.width * 0.12,
       y: canvas.height * 0.65,
       vx: (Math.random() - 0.5) * 16,
@@ -27,7 +29,7 @@ export function Confetti() {
       vrot: (Math.random() - 0.5) * 0.35,
       w: 5 + Math.random() * 5,
       h: 3 + Math.random() * 4,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      color: colors[Math.floor(Math.random() * colors.length)],
     }))
 
     let raf = 0
@@ -35,7 +37,7 @@ export function Confetti() {
     const tick = (now: number) => {
       const t = (now - start) / 1000
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      if (t > 2.6) return
+      if (t > duration) return
       for (const p of parts) {
         p.vy += 0.35
         p.x += p.vx
@@ -45,7 +47,7 @@ export function Confetti() {
         ctx.save()
         ctx.translate(p.x, p.y)
         ctx.rotate(p.rot)
-        ctx.globalAlpha = Math.max(0, 1 - t / 2.6)
+        ctx.globalAlpha = Math.max(0, 1 - t / duration)
         ctx.fillStyle = p.color
         ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h)
         ctx.restore()
@@ -54,8 +56,8 @@ export function Confetti() {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [reduced])
+  }, [reduced, milestone])
 
   if (reduced) return null
-  return <canvas ref={ref} className="confetti-canvas" />
+  return <canvas ref={ref} className="confetti-canvas" aria-hidden="true" />
 }

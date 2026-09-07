@@ -290,7 +290,11 @@ export function FlagsScreen({ player, fakeClips, onNext }: {
   useEffect(() => { sfx.win() }, [])
   return (
     <div className="v-screen flags-screen">
-      <div className="intro-kicker">All five fakes caught</div>
+      <Confetti milestone />
+      <div className="fakes-victory" role="status">
+        <span className="fakes-victory-check" aria-hidden="true">✓</span>
+        <span><strong>5/5</strong> · All five fakes caught</span>
+      </div>
       <h2 className="v-h1">Here's what should have raised suspicion</h2>
       <p className="v-lead flags-lead">
         You've identified VIKI's five messages. Review the warning signs, then examine
