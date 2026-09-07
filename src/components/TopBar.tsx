@@ -30,7 +30,7 @@ export function TopBar({ progress, teamName, timer, timerStopped }: Props) {
             ⏱ {timer}
           </span>
         )}
-        {teamName && <span className="topbar-team">Team {teamName}</span>}
+        {teamName && <span className="topbar-team">{teamName}</span>}
       </div>
     </header>
   )

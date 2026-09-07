@@ -167,7 +167,7 @@ body {
   font-size: 0.95rem;
   color: var(--ink-soft);
   font-weight: 600;
-  max-width: 11rem;
+  max-width: 16rem;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
@@ -414,7 +414,31 @@ body {
   transition: opacity 0.6s ease;
 }
 .brief-join-ready { opacity: 1; }
-.brief-join .team-input { width: min(22rem, 70vw); font-size: 1.3rem; padding: 0.9rem 1.4rem; }
+.brief-join .team-input { width: min(24rem, 74vw); font-size: 1.3rem; padding: 0.9rem 1.4rem; }
+.team-select {
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%),
+    linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+  background-position: right 1.3rem center, right 1.05rem center;
+  background-size: 0.4rem 0.4rem, 0.4rem 0.4rem;
+  background-repeat: no-repeat;
+  padding-right: 2.6rem;
+}
+.team-select option { color: #0a2436; background: #dfeef7; }
+.brief-manual-toggle {
+  background: none;
+  border: none;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  margin-top: -0.3rem;
+}
+.brief-manual-toggle:hover { color: var(--ink); }
 
 /* ---- the Turing test grid -------------------------------------------------- */
 .test-lead { margin-top: -0.4rem; }

@@ -38,6 +38,10 @@ export default function App() {
   const [phase, setPhase] = useState<Phase>('brief')
   const [clips, setClips] = useState<GridClip[]>(() => gridClips())
   const [teamName, setTeamName] = useState('')
+  const [teamId, setTeamId] = useState<string | null>(null)
+  // Override digit issued by the central escape room on completion (fallback
+  // to the local placeholder when there's no roster/server).
+  const [overrideDigit, setOverrideDigit] = useState<string | null>(null)
   // Solve timer: runs from "Begin the test" until the challenge is cracked.
   const [startedAt, setStartedAt] = useState<number | null>(null)
   const [finishedAt, setFinishedAt] = useState<number | null>(null)
@@ -77,9 +81,26 @@ export default function App() {
     player.stop()
     setClips(gridClips())
     setTeamName('')
+    setTeamId(null)
+    setOverrideDigit(null)
     setStartedAt(null)
     setFinishedAt(null)
     setPhase('brief')
+  }
+
+  // Report completion to the central escape room and capture the override
+  // digit it returns. Best-effort: on any failure we keep the placeholder.
+  const reportCompletion = () => {
+    if (!teamId) return
+    const ms = startedAt !== null ? (finishedAt ?? Date.now()) - startedAt : 0
+    fetch('/api/complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ teamId, timeSeconds: Math.round(ms / 1000), durationMs: ms }),
+    })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((d) => { if (d && typeof d.digit === 'string') setOverrideDigit(d.digit) })
+      .catch((err) => console.error('Completion report failed:', err.message))
   }
 
   const skip = () => {
@@ -118,7 +139,7 @@ export default function App() {
 
       <Stage stepKey={phase}>
         {phase === 'brief' && (
-          <BriefScreen onStart={(n) => { setTeamName(n); setStartedAt(Date.now()); go('test') }} />
+          <BriefScreen onStart={(n, id) => { setTeamName(n); setTeamId(id); setStartedAt(Date.now()); go('test') }} />
         )}
         {phase === 'test' && (
           <TestScreen
@@ -132,10 +153,19 @@ export default function App() {
           <FlagsScreen player={player} fakeClips={fakeClips} onNext={() => go('riddle')} />
         )}
         {phase === 'riddle' && (
-          <RiddleScreen player={player} realClips={realClips} onSolved={() => go('override')} />
+          <RiddleScreen
+            player={player}
+            realClips={realClips}
+            onSolved={() => { reportCompletion(); go('override') }}
+          />
         )}
         {phase === 'override' && (
-          <OverrideScreen teamName={teamName} solveTime={timerLabel} onNext={() => go('debrief')} />
+          <OverrideScreen
+            teamName={teamName}
+            solveTime={timerLabel}
+            digit={overrideDigit}
+            onNext={() => go('debrief')}
+          />
         )}
         {phase === 'debrief' && <DebriefScreen onRestart={restart} />}
       </Stage>

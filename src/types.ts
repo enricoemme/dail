@@ -2,6 +2,12 @@
 
 export type Phase = 'brief' | 'test' | 'flags' | 'riddle' | 'override' | 'debrief'
 
+/** A registered team from the VIKI escape-room roster. */
+export interface Team {
+  id: string
+  name: string
+}
+
 export interface AppConfig {
   model: string
   voiceFemale: string

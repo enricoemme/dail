@@ -8,7 +8,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { ClipPlayer } from '../lib/audio/clipPlayer'
-import type { GridClip } from '../types'
+import type { GridClip, Team } from '../types'
 import { RIDDLE, ESCAPE, REAL_CLIPS } from '../game/content'
 import { sfx } from '../lib/audio/sfx'
 import { ClipCard } from './ClipCard'
@@ -44,11 +44,14 @@ function renderTransmission(shown: string) {
   )
 }
 
-export function BriefScreen({ onStart }: { onStart: (teamName: string) => void }) {
+export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: string | null) => void }) {
   const [chars, setChars] = useState(0)
-  const [name, setName] = useState('')
   const done = chars >= TRANSMISSION.length
-  const inputRef = useRef<HTMLInputElement>(null)
+
+  const [teams, setTeams] = useState<Team[] | null>(null) // null = still loading
+  const [manual, setManual] = useState(false) // typed-name fallback
+  const [selectedId, setSelectedId] = useState('')
+  const [typedName, setTypedName] = useState('')
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -60,9 +63,29 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string) => void }
     return () => window.clearInterval(id)
   }, [])
 
-  useEffect(() => { if (done) inputRef.current?.focus() }, [done])
+  // Load the registered teams from the relay; fall back to typing on failure.
+  useEffect(() => {
+    let ok = true
+    fetch('/api/teams', { headers: { Accept: 'application/json' } })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((data: Team[]) => {
+        if (!ok) return
+        if (Array.isArray(data) && data.length) setTeams(data)
+        else { setTeams([]); setManual(true) }
+      })
+      .catch(() => { if (ok) { setTeams([]); setManual(true) } })
+    return () => { ok = false }
+  }, [])
 
-  const submit = () => { const t = name.trim(); if (t && done) onStart(t) }
+  const chosen = manual
+    ? { name: typedName.trim(), id: null as string | null }
+    : (() => {
+        const t = teams?.find((x) => x.id === selectedId)
+        return { name: t?.name ?? '', id: t?.id ?? null }
+      })()
+
+  const canStart = done && chosen.name.length > 0
+  const submit = () => { if (canStart) onStart(chosen.name, chosen.id) }
 
   return (
     <div className="v-screen brief-screen">
@@ -85,19 +108,39 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string) => void }
         </pre>
       </div>
       <div className={'brief-join' + (done ? ' brief-join-ready' : '')}>
-        <input
-          ref={inputRef}
-          className="team-input"
-          value={name}
-          maxLength={22}
-          placeholder="Team name"
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && submit()}
-        />
-        <button className="btn-primary btn-lg" onClick={submit} disabled={!name.trim() || !done}>
+        {manual ? (
+          <input
+            className="team-input"
+            value={typedName}
+            maxLength={40}
+            placeholder="Team name"
+            autoFocus
+            onChange={(e) => setTypedName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && submit()}
+          />
+        ) : (
+          <select
+            className="team-input team-select"
+            value={selectedId}
+            onChange={(e) => setSelectedId(e.target.value)}
+          >
+            <option value="" disabled>
+              {teams === null ? 'Loading teams…' : 'Select your team'}
+            </option>
+            {(teams ?? []).map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
+        )}
+        <button className="btn-primary btn-lg" onClick={submit} disabled={!canStart}>
           Begin the test
         </button>
       </div>
+      {teams !== null && teams.length > 0 && (
+        <button className="brief-manual-toggle" onClick={() => setManual((m) => !m)}>
+          {manual ? '← Choose from the team list' : "Team not listed? Type it instead"}
+        </button>
+      )}
     </div>
   )
 }
@@ -297,7 +340,13 @@ export function RiddleScreen({ player, realClips, onSolved }: {
 }
 
 // ---------------------------------------------------------------------------
-export function OverrideScreen({ teamName, solveTime, onNext }: { teamName: string; solveTime?: string; onNext: () => void }) {
+export function OverrideScreen({ teamName, solveTime, digit, onNext }: {
+  teamName: string
+  solveTime?: string
+  /** Digit issued by the central escape room; falls back to the placeholder. */
+  digit?: string | null
+  onNext: () => void
+}) {
   useEffect(() => {
     sfx.sonar()
     const t = window.setTimeout(() => sfx.win(), 750)
@@ -308,7 +357,7 @@ export function OverrideScreen({ teamName, solveTime, onNext }: { teamName: stri
     <div className="v-screen override-screen">
       <Confetti />
       <div className="intro-kicker">
-        Access granted{teamName ? ` · Team ${teamName}` : ''}{solveTime ? ` · solved in ${solveTime}` : ''}
+        Access granted{teamName ? ` · ${teamName}` : ''}{solveTime ? ` · solved in ${solveTime}` : ''}
       </div>
       <p className="v-lead insight-line">{ESCAPE.insight}</p>
       <p className="v-lead escape-letter-label">The second override digit</p>
@@ -317,7 +366,7 @@ export function OverrideScreen({ teamName, solveTime, onNext }: { teamName: stri
         <span className="sonar-ring" />
         <span className="sonar-ring" />
         <div className="escape-halo" />
-        <div className="escape-letter">{ESCAPE.digit}</div>
+        <div className="escape-letter">{digit ?? ESCAPE.digit}</div>
       </div>
       <p className="v-lead v-flavour">{ESCAPE.flavour}</p>
       <button className="btn-primary btn-lg" onClick={onNext}>What just happened?</button>
