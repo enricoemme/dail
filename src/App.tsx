@@ -43,6 +43,8 @@ export default function App() {
   // Override digit issued by the central escape room on completion (fallback
   // to the local placeholder when there's no roster/server).
   const [overrideDigit, setOverrideDigit] = useState<string | null>(null)
+  // Write-back status, surfaced on the final screen so staff can see it logged.
+  const [reportStatus, setReportStatus] = useState<'idle' | 'sending' | 'ok' | 'failed' | 'no-team'>('idle')
   // Solve timer: runs from "Begin the test" until the challenge is cracked.
   const [startedAt, setStartedAt] = useState<number | null>(null)
   const [finishedAt, setFinishedAt] = useState<number | null>(null)
@@ -84,6 +86,7 @@ export default function App() {
     setTeamName('')
     setTeamId(null)
     setOverrideDigit(null)
+    setReportStatus('idle')
     setStartedAt(null)
     setFinishedAt(null)
     setPhase('brief')
@@ -92,16 +95,21 @@ export default function App() {
   // Report completion to the central escape room and capture the override
   // digit it returns. Best-effort: on any failure we keep the placeholder.
   const reportCompletion = () => {
-    if (!teamId) return
+    if (!teamId) { setReportStatus('no-team'); return }
     const ms = startedAt !== null ? (finishedAt ?? Date.now()) - startedAt : 0
+    const score = clips.filter((c) => !c.isReal).length // all fakes caught to finish
+    setReportStatus('sending')
     apiFetch('/api/complete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ teamId, timeSeconds: Math.round(ms / 1000), durationMs: ms }),
+      body: JSON.stringify({ teamId, score, timeSeconds: Math.round(ms / 1000), durationMs: ms }),
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((d) => { if (d && typeof d.digit === 'string') setOverrideDigit(d.digit) })
-      .catch((err) => console.error('Completion report failed:', err.message))
+      .then((d) => {
+        if (d && typeof d.digit === 'string') setOverrideDigit(d.digit)
+        setReportStatus('ok')
+      })
+      .catch((err) => { console.error('Completion report failed:', err.message); setReportStatus('failed') })
   }
 
   const skip = () => {
@@ -165,6 +173,7 @@ export default function App() {
             teamName={teamName}
             solveTime={timerLabel}
             digit={overrideDigit}
+            reportStatus={reportStatus}
             onNext={() => go('debrief')}
           />
         )}

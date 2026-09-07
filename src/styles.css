@@ -568,6 +568,18 @@ body {
 
 .insight-line { font-size: clamp(1.25rem, 2.6vw, 1.7rem); color: var(--ink); font-weight: 600; max-width: 46ch; }
 
+/* Write-back status badge on the override screen. */
+.report-badge {
+  font-size: 0.98rem;
+  font-weight: 600;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+.report-ok { color: #4ade80; background: rgba(74, 222, 128, 0.12); border-color: rgba(74, 222, 128, 0.4); }
+.report-pending { color: var(--aqua); background: rgba(127, 224, 255, 0.1); border-color: rgba(127, 224, 255, 0.35); }
+.report-fail { color: #ff8a5c; background: rgba(255, 110, 90, 0.12); border-color: rgba(255, 138, 92, 0.45); }
+
 /* ---- lock screen ---------------------------------------------------------- */
 .lock-screen { padding-top: 3rem; padding-bottom: 6rem; }
 .lock-panel {
