@@ -22,7 +22,7 @@ const TRANSMISSION = [
   '>> CENTRAL OPERATIONS — PRIORITY TRANSMISSION',
   '>> ⚠ SECURITY ALERT',
   '>> VIKI has discovered voice cloning.',
-  '>> It now sounds exactly like our Head of Automation DAIL,',
+  '>> It now sounds exactly like our Head of Automation Dale,',
   '>> and has been using those voices to push',
   '>> its own recommendations.',
   '>> Ten voice messages have been intercepted.',
