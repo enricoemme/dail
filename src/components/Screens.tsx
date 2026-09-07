@@ -15,6 +15,7 @@ import { apiFetch } from '../lib/api'
 import { ClipCard } from './ClipCard'
 import { TeamPicker } from './TeamPicker'
 import { Confetti } from './Confetti'
+import { ChannelIsolation } from './ChannelIsolation'
 import { useReducedMotion } from '../lib/useReducedMotion'
 
 // ---------------------------------------------------------------------------
@@ -226,7 +227,6 @@ export function TestScreen({ player, clips, onMark, onPass }: {
     setLocked(next)
 
     if (next.size === fakeTotal) {
-      sfx.win()
       player.stop()
       onPass()
       return
@@ -287,14 +287,9 @@ export function FlagsScreen({ player, fakeClips, onNext }: {
   fakeClips: GridClip[]
   onNext: () => void
 }) {
-  useEffect(() => { sfx.win() }, [])
   return (
     <div className="v-screen flags-screen">
-      <Confetti milestone />
-      <div className="fakes-victory" role="status">
-        <span className="fakes-victory-check" aria-hidden="true">✓</span>
-        <span><strong>5/5</strong> · All five fakes caught</span>
-      </div>
+      <ChannelIsolation />
       <h2 className="v-h1">Here's what should have raised suspicion</h2>
       <p className="v-lead flags-lead">
         You've identified VIKI's five messages. Review the warning signs, then examine
