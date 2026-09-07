@@ -5,6 +5,7 @@ import { ALL_CLIPS } from './game/content'
 import { Backdrop } from './components/Backdrop'
 import { Bubbles } from './components/Bubbles'
 import { Stage } from './components/Stage'
+import { InterceptScreen } from './components/InterceptScreen'
 import { TopBar } from './components/TopBar'
 import { FacilitatorMenu } from './components/FacilitatorMenu'
 import {
@@ -18,7 +19,7 @@ import {
 } from './components/Screens'
 import type { GridClip, Phase } from './types'
 
-const PHASE_ORDER: Phase[] = ['brief', 'test', 'flags', 'riddle', 'override', 'debrief']
+const PHASE_ORDER: Phase[] = ['brief', 'test', 'isolation', 'flags', 'riddle', 'override', 'debrief']
 
 // Fixed display order (= content.ts order, already scrambled real/fake):
 // facilitators get a stable answer key — the REAL clips are always
@@ -88,7 +89,7 @@ export default function App() {
   const progress = PHASE_ORDER.indexOf(phase) / (PHASE_ORDER.length - 1)
 
   return (
-    <div className="v-app">
+    <div className={'v-app' + (phase === 'isolation' || phase === 'override' ? ' cinematic-active' : '')}>
       <Backdrop depth={progress} />
       <Bubbles quiet={phase === 'brief'} />
       <TopBar
@@ -107,9 +108,10 @@ export default function App() {
             player={player}
             clips={clips}
             onMark={mark}
-            onPass={() => go('flags')}
+            onPass={() => go('isolation')}
           />
         )}
+        {phase === 'isolation' && <InterceptScreen onComplete={() => go('flags')} />}
         {phase === 'flags' && (
           <FlagsScreen player={player} fakeClips={fakeClips} onNext={() => go('riddle')} />
         )}

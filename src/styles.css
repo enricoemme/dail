@@ -998,3 +998,87 @@ button:focus-visible { outline: 3px solid var(--aqua); outline-offset: 4px; }
 .channels-secured .isolation-check { opacity: 1; }
 @media (max-width: 700px) { .channel-isolation { padding: 0.9rem; } .isolation-topline { font-size: 0.58rem; } }
 @media (prefers-reduced-motion: reduce) { .isolation-scan { display: none; } }
+
+/* Story breakthroughs take over the whole stage. */
+.cinematic-active .topbar { background: rgba(3,15,27,0.7); border-color: rgba(127,224,255,0.18); }
+.cinematic-active .islington-logo { opacity: 0.5; }
+.channels-settled *, .channels-settled { animation: none !important; }
+.channels-settled .isolation-scan { display: none; }
+.intercept-screen { position: relative; isolation: isolate; max-width: none; min-height: 100svh; overflow: hidden; background: #051421; color: white; padding: 7.5rem 2rem 4rem; }
+.intercept-grid { position: absolute; inset: 0; z-index: -2; background: linear-gradient(rgba(127,224,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(127,224,255,0.04) 1px, transparent 1px), radial-gradient(ellipse at 50% 40%, #243442, #030c16 75%); background-size: 64px 64px, 64px 64px, auto; }
+.intercept-portrait { position: absolute; inset: 0; z-index: -1; opacity: 0.2; overflow: hidden; }
+.intercept-slice { position: absolute; right: -3%; top: 0; width: 65%; height: 100%; object-fit: contain; filter: grayscale(1) contrast(1.2); mask-image: linear-gradient(90deg, transparent, black 55%); transition: opacity 1s, transform 1s; }
+.intercept-slice-0 { clip-path: inset(0 0 67%); }
+.intercept-slice-1 { clip-path: inset(33% 0 34%); }
+.intercept-slice-2 { clip-path: inset(66% 0 0); }
+.intercept-beat-1 .intercept-slice-0, .intercept-beat-2 .intercept-slice-0 { transform: translateX(70px); opacity: 0; }
+.intercept-beat-1 .intercept-slice-1, .intercept-beat-2 .intercept-slice-1 { transform: translateX(-100px); opacity: 0; }
+.intercept-beat-1 .intercept-slice-2, .intercept-beat-2 .intercept-slice-2 { transform: translateX(100px); opacity: 0; }
+.intercept-orbit { position: absolute; width: min(84vw, 740px); aspect-ratio: 1; top: 48%; left: 50%; transform: translate(-50%, -50%); z-index: -1; opacity: 0.22; }
+.intercept-orbit span { position: absolute; inset: 0; border: 1px solid rgba(255,138,92,0.5); border-radius: 50%; transition: border-color 0.7s, transform 1.2s; }
+.intercept-orbit span:nth-child(2) { inset: 12%; border-style: dashed; animation: orbit-turn 24s linear infinite; }
+.intercept-orbit span:nth-child(3) { inset: -9%; border-top: 3px solid var(--coral); border-bottom: 3px solid var(--coral); border-left-color: transparent; border-right-color: transparent; animation: orbit-turn 18s linear infinite reverse; }
+@keyframes orbit-turn { to { transform: rotate(360deg); } }
+.intercept-beat-2 .intercept-orbit span { border-color: rgba(134,239,172,0.7); }
+.intercept-beat-2 .intercept-orbit > :first-child { transform: scale(1.35); opacity: 0; transition: transform 1.5s, opacity 1.5s; }
+.intercept-sweep { position: absolute; top: 0; bottom: 0; left: -20%; width: 15%; background: linear-gradient(90deg, transparent, rgba(127,224,255,0.08), transparent); pointer-events: none; animation: intercept-sweep 1.7s 0.5s ease-in-out both; }
+@keyframes intercept-sweep { to { left: 105%; } }
+.intercept-content { width: min(100%, 1040px); display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+.intercept-kicker { display: flex; align-items: center; gap: 0.6rem; color: var(--ink-dim); font: 0.7rem ui-monospace, monospace; text-transform: uppercase; letter-spacing: 0.14em; }
+.intercept-kicker > span { width: 6px; height: 6px; border-radius: 50%; background: var(--coral); }
+.intercept-score { font: 0.8rem ui-monospace, monospace; color: var(--aqua); letter-spacing: 0.24em; }
+.intercept-title { font-size: clamp(2.8rem, 7.7vw, 7.2rem); font-weight: 800; line-height: 0.98; letter-spacing: -0.055em; outline: none; margin: 0.1rem 0 0.6rem; }
+.intercept-title em { font-style: normal; color: var(--coral); text-shadow: 0 0 45px rgba(255,94,134,0.2); transition: color 0.5s; }
+.intercept-beat-2 .intercept-title { animation: signal-victory 0.65s var(--ease) both; }
+.intercept-beat-2 .intercept-title em { color: #86efac; text-shadow: 0 0 55px rgba(134,239,172,0.25); }
+@keyframes signal-victory { from { opacity: 0; transform: translateY(12px) scale(0.96); } to { opacity: 1; transform: none; } }
+.intercept-channels { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.7rem; width: min(100%, 660px); }
+.intercept-channel { display: flex; flex-direction: column; align-items: center; gap: 0.55rem; padding: 1rem 0.5rem; border: 1px solid rgba(255,138,92,0.4); border-radius: 12px; background: rgba(255,138,92,0.05); color: var(--coral); animation: disconnect-channel 0.25s ease-out forwards; }
+.intercept-channel span { color: var(--ink-dim); font: 0.64rem ui-monospace, monospace; letter-spacing: 0.1em; }
+.intercept-channel b { font: 300 2rem ui-monospace, monospace; line-height: 1; }
+.intercept-channel i { font: normal 0.58rem ui-monospace, monospace; letter-spacing: 0.1em; opacity: 0; animation: channel-check-in 0.25s forwards; animation-delay: inherit; }
+@keyframes disconnect-channel { to { color: #86efac; border-color: rgba(134,239,172,0.6); background: rgba(134,239,172,0.08); } }
+.intercept-caption { min-height: 3em; max-width: 55ch; font-size: 1rem; color: var(--ink-soft); line-height: 1.5; }
+.intercept-continue { font-size: 0.9rem; padding: 0.7rem 1.3rem; }
+.intercept-continue span { margin-left: 1rem; color: var(--aqua); }
+
+/* The recovered digit becomes the centre of a system-wide unlock. */
+.override-screen { position: relative; isolation: isolate; overflow: hidden; max-width: none; min-height: 100svh; gap: 1rem; padding-top: 7rem; background: #041725; }
+.override-atmosphere { position: absolute; inset: 0; z-index: -2; background: radial-gradient(ellipse at 50% 52%, rgba(30,112,128,0.48), transparent 58%), linear-gradient(155deg, #041422, #071b2d 60%, #04101c); }
+.override-headline { font-size: clamp(2.5rem, 5.8vw, 5rem); line-height: 0.98; letter-spacing: -0.045em; font-weight: 800; }
+.override-headline em { font-style: normal; color: var(--aqua); }
+.override-revealed .override-headline em { color: #86efac; }
+.override-screen .intro-kicker { font-size: 0.7rem; letter-spacing: 0.16em; }
+.override-screen .override-status { color: var(--ink-dim); font-size: 0.7rem; margin-top: 0.5rem; }
+.override-screen .escape-letter-label { font-size: 0.95rem; margin-top: 0.6rem; }
+.override-screen .letter-stage { margin: 0.4rem 0 1rem; }
+.override-screen .escape-letter { width: 1.4em; height: 1.2em; font-size: clamp(8rem, 19vw, 13rem); background: transparent; border: none; border-radius: 0; box-shadow: none; backdrop-filter: none; color: #dbfff4; text-shadow: 0 0 35px rgba(134,239,172,0.5), 0 0 90px rgba(127,224,255,0.25); }
+.override-revealed .escape-letter { animation: digit-unlock 0.9s var(--ease) both; }
+@keyframes digit-unlock { from { opacity: 0; transform: scale(0.7); filter: blur(10px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
+.override-orbit { position: absolute; inset: -6%; border: 1px solid rgba(127,224,255,0.25); border-radius: 50%; pointer-events: none; }
+.override-orbit-a { border-top: 2px solid var(--aqua); border-bottom: 2px solid var(--aqua); animation: orbit-turn 5s linear infinite; }
+.override-orbit-b { inset: -16%; border-style: dashed; animation: orbit-turn 20s linear infinite reverse; opacity: 0.5; }
+.override-revealed .override-orbit { border-color: rgba(134,239,172,0.4); animation-play-state: paused; }
+.override-screen .sonar-ring { border-radius: 50%; border-color: #86efac; }
+.override-impact { position: absolute; width: 50vmin; height: 50vmin; top: 50%; left: 50%; border: 1px solid rgba(134,239,172,0.4); border-radius: 50%; z-index: -1; opacity: 0; pointer-events: none; }
+.override-revealed .override-impact { animation: override-wave 1.8s ease-out both; }
+@keyframes override-wave { from { transform: translate(-50%, -50%) scale(0.5); opacity: 0.7; } to { transform: translate(-50%, -50%) scale(4); opacity: 0; } }
+.override-screen .insight-line { font-size: clamp(1.05rem, 2vw, 1.3rem); }
+.override-screen .v-flavour { font-size: 0.95rem; max-width: 55ch; }
+@media (max-width: 700px) {
+  .intercept-screen { padding: 7rem 1rem 5rem; }
+  .intercept-content { gap: 1.2rem; }
+  .intercept-kicker { font-size: 0.56rem; letter-spacing: 0.06em; }
+  .intercept-score { font-size: 0.65rem; }
+  .intercept-channels { gap: 0.35rem; }
+  .intercept-channel { padding: 0.7rem 0.25rem; }
+  .intercept-channel span { font-size: 0.5rem; }
+  .intercept-channel i { font-size: 0.45rem; letter-spacing: 0; }
+  .intercept-caption { font-size: 0.9rem; }
+  .override-screen { padding: 7rem 1rem 6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intercept-sweep, .intercept-orbit, .override-impact { display: none; }
+  .intercept-channel { color: #86efac; border-color: rgba(134,239,172,0.6); background: rgba(134,239,172,0.08); }
+  .intercept-channel i { opacity: 1; }
+}

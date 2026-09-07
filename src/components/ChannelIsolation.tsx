@@ -3,18 +3,18 @@ import { useReducedMotion } from '../lib/useReducedMotion'
 import { sfx } from '../lib/audio/sfx'
 
 /** A short system recovery sequence after all five clones are identified. */
-export function ChannelIsolation() {
+export function ChannelIsolation({ settled = false }: { settled?: boolean }) {
   const reduced = useReducedMotion()
-  const [isolated, setIsolated] = useState(reduced)
+  const [isolated, setIsolated] = useState(reduced || settled)
   useEffect(() => {
-    if (reduced) { setIsolated(true); return }
+    if (reduced || settled) { setIsolated(true); return }
     sfx.sonar()
     const timer = window.setTimeout(() => { setIsolated(true); sfx.win() }, 1500)
     return () => window.clearTimeout(timer)
-  }, [reduced])
+  }, [reduced, settled])
 
   return (
-    <div className={'channel-isolation' + (isolated ? ' channels-secured' : '')}>
+    <div className={'channel-isolation' + (isolated ? ' channels-secured' : '') + (settled ? ' channels-settled' : '')}>
       <div className="isolation-topline"><span>Central operations / Voice integrity</span><span>05 / 05</span></div>
       <div className="isolation-channels" aria-hidden="true">
         <span className="isolation-track" />

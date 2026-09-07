@@ -14,7 +14,6 @@ import { sfx } from '../lib/audio/sfx'
 import { apiFetch } from '../lib/api'
 import { ClipCard } from './ClipCard'
 import { TeamPicker } from './TeamPicker'
-import { Confetti } from './Confetti'
 import { ChannelIsolation } from './ChannelIsolation'
 import { useReducedMotion } from '../lib/useReducedMotion'
 
@@ -289,7 +288,7 @@ export function FlagsScreen({ player, fakeClips, onNext }: {
 }) {
   return (
     <div className="v-screen flags-screen">
-      <ChannelIsolation />
+      <ChannelIsolation settled />
       <h2 className="v-h1">Here's what should have raised suspicion</h2>
       <p className="v-lead flags-lead">
         You've identified VIKI's five messages. Review the warning signs, then examine
@@ -386,30 +385,34 @@ export function OverrideScreen({ teamName, solveTime, onNext }: {
   const reduced = useReducedMotion()
   const [revealed, setRevealed] = useState(reduced)
   useEffect(() => {
-    const t = window.setTimeout(() => setRevealed(true), reduced ? 0 : 700)
+    const t = window.setTimeout(() => setRevealed(true), reduced ? 0 : 1500)
     return () => window.clearTimeout(t)
   }, [reduced])
   useEffect(() => {
     sfx.sonar()
-    const t = window.setTimeout(() => sfx.win(), 750)
+    const t = window.setTimeout(() => sfx.win(), reduced ? 0 : 1500)
     return () => window.clearTimeout(t)
-  }, [])
+  }, [reduced])
 
   return (
     <div className={"v-screen override-screen" + (revealed ? " override-revealed" : "")} >
-      {revealed && <Confetti />}
+      <div className="override-atmosphere" aria-hidden="true" />
+      <div className="override-impact" aria-hidden="true" />
       <div className="intro-kicker">
         Access granted{teamName ? ` · ${teamName}` : ''}{solveTime ? ` · solved in ${solveTime}` : ''}
       </div>
-      <div className="override-status" role="status">{revealed ? "Override recovered" : "Releasing override…"}</div>
-      <p className="v-lead insight-line">{ESCAPE.insight}</p>
+      <h1 className="override-headline" role="status">{revealed ? <>THE OVERRIDE<br /><em>IS YOURS.</em></> : <>BREAKING<br /><em>THE LOCK.</em></>}</h1>
+      <div className="override-status">{revealed ? 'DAIL MODULE · ACCESS RESTORED' : 'DECRYPTING OVERRIDE DIGIT'}</div>
       <p className="v-lead escape-letter-label">The second override digit</p>
       <div className="letter-stage">
+        <span className="override-orbit override-orbit-a" aria-hidden="true" />
+        <span className="override-orbit override-orbit-b" aria-hidden="true" />
         <span className="sonar-ring" />
         <div className="escape-halo" />
         {!revealed && <span className="override-lock" aria-label="Unlocking"><span /></span>}
         <div className="escape-letter" aria-hidden={!revealed}>{ESCAPE.digit}</div>
       </div>
+      <p className="v-lead insight-line">{ESCAPE.insight}</p>
       <p className="v-lead v-flavour">{ESCAPE.flavour}</p>
       <button className="btn-primary btn-lg" onClick={onNext} disabled={!revealed}>What just happened?</button>
     </div>

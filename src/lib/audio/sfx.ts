@@ -108,6 +108,13 @@ export const sfx = {
     tone(1175, { t: 1.0, dur: 0.55, vol: 0.045, glide: 1100 })
   },
 
+  /** Low signal drop, followed by five quiet channel-disconnect ticks. */
+  intercept(): void {
+    tone(150, { dur: 0.65, vol: 0.26, type: 'triangle', glide: 50 })
+    tone(440, { dur: 0.35, vol: 0.12, glide: 100 })
+    for (let i = 0; i < 5; i++) tone(360 + i * 90, { t: 0.75 + i * 0.24, dur: 0.1, vol: 0.18, type: 'triangle' })
+  },
+
   /** Rising arpeggio for the big win. */
   win(): void {
     ;[523, 659, 784, 1047].forEach((f, i) => tone(f, { t: i * 0.09, dur: 0.38, vol: 0.24 }))

@@ -1,6 +1,6 @@
 // Shared types for DAIL.
 
-export type Phase = 'brief' | 'test' | 'flags' | 'riddle' | 'override' | 'debrief'
+export type Phase = 'brief' | 'test' | 'isolation' | 'flags' | 'riddle' | 'override' | 'debrief'
 
 /** A registered team from the VIKI escape-room roster. */
 export interface Team {
