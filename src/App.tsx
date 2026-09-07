@@ -89,7 +89,7 @@ export default function App() {
   const progress = PHASE_ORDER.indexOf(phase) / (PHASE_ORDER.length - 1)
 
   return (
-    <div className={'v-app' + (phase === 'isolation' || phase === 'override' ? ' cinematic-active' : '')}>
+    <div className={'v-app' + (phase === 'override' ? ' cinematic-active' : '')}>
       <Backdrop depth={progress} />
       <Bubbles quiet={phase === 'brief'} />
       <TopBar

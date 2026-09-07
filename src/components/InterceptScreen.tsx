@@ -2,14 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { useReducedMotion } from '../lib/useReducedMotion'
 import { sfx } from '../lib/audio/sfx'
 
-/** A one-off story beat between identifying the clones and reviewing evidence. */
+/** A brief visual unlock simulation; advances automatically without a reading step. */
 export function InterceptScreen({ onComplete }: { onComplete: () => void }) {
   const reduced = useReducedMotion()
-  const [beat, setBeat] = useState(reduced ? 2 : 0)
+  const [progress, setProgress] = useState(reduced ? 100 : 0)
   const complete = useRef(onComplete)
   const finished = useRef(false)
-  const title = useRef<HTMLHeadingElement>(null)
+  const screen = useRef<HTMLDivElement>(null)
   complete.current = onComplete
+  const unlocked = progress === 100
   const finish = () => {
     if (finished.current) return
     finished.current = true
@@ -17,37 +18,46 @@ export function InterceptScreen({ onComplete }: { onComplete: () => void }) {
   }
 
   useEffect(() => {
-    title.current?.focus({ preventScroll: true })
-    const stopSound = sfx.intercept(reduced)
-    if (reduced) { setBeat(2); return stopSound }
-    const timers = [
-      window.setTimeout(() => setBeat(1), 700),
-      window.setTimeout(() => setBeat(2), 2250),
-      window.setTimeout(finish, 4400),
-    ]
-    return () => { timers.forEach(window.clearTimeout); stopSound() }
+    screen.current?.focus({ preventScroll: true })
+    const stopSound = sfx.unlock(reduced)
+    let frame = 0
+    if (reduced) setProgress(100)
+    else {
+      setProgress(0)
+      const start = performance.now()
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / 1500)
+        setProgress(Math.floor(t * 100))
+        if (t < 1) frame = requestAnimationFrame(tick)
+      }
+      frame = requestAnimationFrame(tick)
+    }
+    const timer = window.setTimeout(finish, reduced ? 1300 : 2800)
+    return () => { cancelAnimationFrame(frame); window.clearTimeout(timer); stopSound() }
   }, [reduced])
 
   return (
-    <div className={`v-screen intercept-screen intercept-beat-${beat}`}>
-      <div className="intercept-grid" aria-hidden="true" />
-      <div className="intercept-portrait" aria-hidden="true">
-        {[0, 1, 2].map((slice) => <img key={slice} className={`intercept-slice intercept-slice-${slice}`} src={`${import.meta.env.BASE_URL}dail-portrait.jpg`} alt="" />)}
+    <div ref={screen} tabIndex={-1} className={'v-screen unlock-simulation' + (unlocked ? ' simulation-unlocked' : '')}>
+      <div className="simulation-grid" aria-hidden="true" />
+      <div className="simulation-device" role="progressbar" aria-label="Unlocking" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
+        <span className="simulation-wave" aria-hidden="true" />
+        <svg className="simulation-dial" viewBox="0 0 320 320" aria-hidden="true">
+          <defs><linearGradient id="unlock-ring" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#ffb98a" /><stop offset="1" stopColor="#ff5e86" /></linearGradient></defs>
+          <circle className="simulation-ticks" cx="160" cy="160" r="152" pathLength="100" />
+          <circle className="simulation-track" cx="160" cy="160" r="135" />
+          <circle className="simulation-progress" cx="160" cy="160" r="135" pathLength="100" strokeDasharray="100" strokeDashoffset={100 - progress} />
+          <circle className="simulation-inner" cx="160" cy="160" r="112" />
+        </svg>
+        <svg className="simulation-lock" viewBox="0 0 100 110" fill="none" aria-hidden="true">
+          <path className="simulation-shackle" d="M28 48V30a22 22 0 0 1 44 0v18" />
+          <rect className="simulation-lock-body" x="17" y="46" width="66" height="55" rx="12" />
+          <circle className="simulation-keyhole" cx="50" cy="68" r="5" />
+          <path className="simulation-keyhole" d="M50 72v10" />
+        </svg>
+        <span className="simulation-percent" aria-hidden="true">{progress}<small>%</small></span>
       </div>
-      <div className="intercept-orbit" aria-hidden="true"><span /><span /><span /></div>
-      <div className="intercept-sweep" aria-hidden="true" />
-      <div className="intercept-content">
-        <div className="intercept-kicker"><span />Central operations · Countermeasure active</div>
-        <p className="intercept-score">5 / 5 IMPOSTERS IDENTIFIED</p>
-        <h1 ref={title} tabIndex={-1} className="intercept-title" aria-live="polite">
-          {beat === 0 ? <>VIKI SIGNAL<br /><em>DETECTED.</em></> : beat === 1 ? <>CUTTING THE<br /><em>CONNECTION.</em></> : <>YOU BROKE<br /><em>THE SIGNAL.</em></>}
-        </h1>
-        <div className="intercept-channels" aria-hidden="true">
-          {[0, 1, 2, 3, 4].map((i) => <div key={i} className="intercept-channel" style={{ animationDelay: `${750 + i * 240}ms` }}><span>VOICE 0{i + 1}</span><b>×</b><i>ISOLATED</i></div>)}
-        </div>
-        <p className="intercept-caption" role="status">{beat < 2 ? 'Disconnecting VIKI’s five impersonation channels…' : 'VIKI’s cloned voices are isolated. The genuine recordings are yours.'}</p>
-        <button className="btn-ghost intercept-continue" onClick={finish}>{beat < 2 ? 'Skip sequence' : 'Review the evidence'} <span aria-hidden="true">→</span></button>
-      </div>
+      <h1 className="simulation-status" aria-live="polite">{unlocked ? 'UNLOCKED' : 'UNLOCKING'}</h1>
+      <button className="simulation-skip" onClick={finish}>Skip <span aria-hidden="true">→</span></button>
     </div>
   )
 }
