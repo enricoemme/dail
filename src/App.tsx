@@ -47,6 +47,7 @@ export default function App() {
 
   useEffect(() => {
     ALL_CLIPS.forEach((c) => void player.preload(c.file).catch(() => {}))
+    void sfx.preload()
     return () => player.destroy()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
