@@ -15,6 +15,7 @@ import { apiFetch } from '../lib/api'
 import { ClipCard } from './ClipCard'
 import { TeamPicker } from './TeamPicker'
 import { DailPortrait } from './DailPortrait'
+import { Confetti } from './Confetti'
 import { useReducedMotion } from '../lib/useReducedMotion'
 
 // ---------------------------------------------------------------------------
@@ -363,6 +364,7 @@ export function RiddleScreen({ player, realClips, onSolved }: {
 
 // ---------------------------------------------------------------------------
 export function OverrideScreen({ onNext }: { onNext: () => void }) {
+  const digitRef = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
   const [revealed, setRevealed] = useState(reduced)
   useEffect(() => {
@@ -373,11 +375,12 @@ export function OverrideScreen({ onNext }: { onNext: () => void }) {
 
   return (
     <div className={"v-screen override-screen" + (revealed ? " override-revealed" : "")} >
+      {revealed && <Confetti originRef={digitRef} />}
       <div className="override-atmosphere" aria-hidden="true" />
       <div className="override-impact" aria-hidden="true" />
       <h1 className="override-headline" role="status">{revealed ? 'Challenge complete' : 'Recovering your digit'}</h1>
       <p className="escape-letter-label">Your second override digit</p>
-      <div className="letter-stage">
+      <div ref={digitRef} className="letter-stage">
         <svg className="finale-ring" viewBox="0 0 400 400" fill="none" aria-hidden="true">
           <circle className="finale-ring-track" cx="200" cy="200" r="187" />
           <circle className="finale-ring-charge" cx="200" cy="200" r="187" pathLength="100" />
