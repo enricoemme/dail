@@ -50,9 +50,8 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
   const done = chars >= TRANSMISSION.length
 
   const [teams, setTeams] = useState<Team[] | null>(null) // null = still loading
-  const [manual, setManual] = useState(false) // typed-name fallback
+  const [loadFailed, setLoadFailed] = useState(false)
   const [selectedId, setSelectedId] = useState('')
-  const [typedName, setTypedName] = useState('')
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -64,29 +63,29 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
     return () => window.clearInterval(id)
   }, [])
 
-  // Load the registered teams from the relay; fall back to typing on failure.
-  useEffect(() => {
-    let ok = true
+  // Load the registered teams. Only registered teams can play — there is no
+  // manual fallback; a failure shows a retry, not a way around the roster.
+  const loadTeams = () => {
+    setLoadFailed(false)
+    setTeams(null)
     apiFetch('/api/teams', { headers: { Accept: 'application/json' } })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((data: Team[]) => {
-        if (!ok) return
-        if (Array.isArray(data) && data.length) setTeams(data)
-        else { setTeams([]); setManual(true) }
-      })
-      .catch(() => { if (ok) { setTeams([]); setManual(true) } })
-    return () => { ok = false }
-  }, [])
+      .then((data: Team[]) => setTeams(Array.isArray(data) ? data : []))
+      .catch(() => { setTeams([]); setLoadFailed(true) })
+  }
+  useEffect(() => { loadTeams() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const chosen = manual
-    ? { name: typedName.trim(), id: null as string | null }
-    : (() => {
-        const t = teams?.find((x) => x.id === selectedId)
-        return { name: t?.name ?? '', id: t?.id ?? null }
-      })()
+  const chosen = teams?.find((t) => t.id === selectedId) ?? null
+  const canStart = done && !!chosen
+  const submit = () => { if (chosen && done) onStart(chosen.name, chosen.id) }
 
-  const canStart = done && chosen.name.length > 0
-  const submit = () => { if (canStart) onStart(chosen.name, chosen.id) }
+  const placeholder = loadFailed
+    ? "Couldn't load the team list"
+    : teams === null
+      ? 'Loading teams…'
+      : teams.length === 0
+        ? 'No teams registered yet'
+        : 'Select your team'
 
   return (
     <div className="v-screen brief-screen">
@@ -109,37 +108,24 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
         </pre>
       </div>
       <div className={'brief-join' + (done ? ' brief-join-ready' : '')}>
-        {manual ? (
-          <input
-            className="team-input"
-            value={typedName}
-            maxLength={40}
-            placeholder="Team name"
-            autoFocus
-            onChange={(e) => setTypedName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && submit()}
-          />
-        ) : (
-          <select
-            className="team-input team-select"
-            value={selectedId}
-            onChange={(e) => setSelectedId(e.target.value)}
-          >
-            <option value="" disabled>
-              {teams === null ? 'Loading teams…' : 'Select your team'}
-            </option>
-            {(teams ?? []).map((t) => (
-              <option key={t.id} value={t.id}>{t.name}</option>
-            ))}
-          </select>
-        )}
+        <select
+          className="team-input team-select"
+          value={selectedId}
+          disabled={!teams || teams.length === 0}
+          onChange={(e) => setSelectedId(e.target.value)}
+        >
+          <option value="" disabled>{placeholder}</option>
+          {(teams ?? []).map((t) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
         <button className="btn-primary btn-lg" onClick={submit} disabled={!canStart}>
           Begin the test
         </button>
       </div>
-      {teams !== null && teams.length > 0 && (
-        <button className="brief-manual-toggle" onClick={() => setManual((m) => !m)}>
-          {manual ? '← Choose from the team list' : "Team not listed? Type it instead"}
+      {loadFailed && (
+        <button className="brief-manual-toggle" onClick={loadTeams}>
+          ⟳ Retry loading teams
         </button>
       )}
     </div>
