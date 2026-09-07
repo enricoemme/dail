@@ -975,35 +975,27 @@ button:focus-visible { outline: 3px solid var(--aqua); outline-offset: 4px; }
 .cinematic-active .islington-logo { opacity: 0.5; }
 @keyframes orbit-turn { to { transform: rotate(360deg); } }
 
-/* The recovered digit becomes the centre of a system-wide unlock. */
-.override-screen { position: relative; isolation: isolate; overflow: hidden; max-width: none; min-height: 100svh; gap: 1rem; padding-top: 7rem; background: #041725; }
-.override-atmosphere { position: absolute; inset: 0; z-index: -2; background: radial-gradient(ellipse at 50% 52%, rgba(30,112,128,0.48), transparent 58%), linear-gradient(155deg, #041422, #071b2d 60%, #04101c); }
-.override-headline { font-size: clamp(2.5rem, 5.8vw, 5rem); line-height: 0.98; letter-spacing: -0.045em; font-weight: 800; }
-.override-headline em { font-style: normal; color: var(--aqua); }
-.override-revealed .override-headline em { color: #86efac; }
-.override-screen .intro-kicker { font-size: 0.7rem; letter-spacing: 0.16em; }
-.override-screen .override-status { color: var(--ink-dim); font-size: 0.7rem; margin-top: 0.5rem; }
-.override-screen .escape-letter-label { font-size: 0.95rem; margin-top: 0.6rem; }
-.override-screen .letter-stage { margin: 0.4rem 0 1rem; }
-.override-screen .escape-letter { width: 1.4em; height: 1.2em; font-size: clamp(8rem, 19vw, 13rem); background: transparent; border: none; border-radius: 0; box-shadow: none; backdrop-filter: none; color: #dbfff4; text-shadow: 0 0 35px rgba(134,239,172,0.5), 0 0 90px rgba(127,224,255,0.25); }
-.override-revealed .escape-letter { animation: digit-unlock 0.9s var(--ease) both; }
-@keyframes digit-unlock { from { opacity: 0; transform: scale(0.7); filter: blur(10px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
-.override-orbit { position: absolute; inset: -6%; border: 1px solid rgba(127,224,255,0.25); border-radius: 50%; pointer-events: none; }
+/* The code is the reward: a compact heading, a large digit, one instruction. */
+.override-screen { position: relative; isolation: isolate; overflow: hidden; max-width: none; min-height: 100svh; gap: 1.4rem; padding: 7rem 1.5rem 4rem; background: linear-gradient(178deg, var(--ocean-top), var(--ocean-mid) 46%, var(--ocean-deep)); }
+.override-atmosphere { position: absolute; inset: 0; z-index: -2; background: radial-gradient(ellipse at 50% 45%, rgba(127,224,255,0.2), transparent 60%); }
+.override-headline { font: 600 clamp(1.05rem, 3vw, 1.5rem) ui-monospace, monospace; text-transform: uppercase; letter-spacing: 0.16em; color: white; }
+.override-screen .escape-letter-label { font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin: 0; }
+.override-screen .letter-stage { margin: 1.5rem 0 2rem; }
+.override-screen .escape-letter { width: 1.2em; height: 1.15em; font-size: clamp(9rem, 21vw, 15rem); background: transparent; border: none; border-radius: 0; box-shadow: none; backdrop-filter: none; color: #ffd0ad; text-shadow: 0 0 26px rgba(255,138,92,0.32); }
+.override-revealed .escape-letter { animation: digit-unlock 0.65s var(--ease) both; }
+@keyframes digit-unlock { from { opacity: 0; transform: scale(0.85); filter: blur(6px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
+.override-orbit { position: absolute; inset: -6%; border: 1px solid rgba(127,224,255,0.35); border-radius: 50%; pointer-events: none; }
 .override-orbit-a { border-top: 2px solid var(--aqua); border-bottom: 2px solid var(--aqua); animation: orbit-turn 5s linear infinite; }
-.override-orbit-b { inset: -16%; border-style: dashed; animation: orbit-turn 20s linear infinite reverse; opacity: 0.5; }
-.override-revealed .override-orbit { border-color: rgba(134,239,172,0.4); animation-play-state: paused; }
-.override-screen .sonar-ring { border-radius: 50%; border-color: #86efac; }
-.override-impact { position: absolute; width: 50vmin; height: 50vmin; top: 50%; left: 50%; border: 1px solid rgba(134,239,172,0.4); border-radius: 50%; z-index: -1; opacity: 0; pointer-events: none; }
-.override-revealed .override-impact { animation: override-wave 1.8s ease-out both; }
+.override-orbit-b { inset: -15%; border-style: dashed; animation: orbit-turn 20s linear infinite reverse; opacity: 0.5; }
+.override-revealed .override-orbit { border-color: rgba(255,138,92,0.6); animation-play-state: paused; }
+.override-screen .sonar-ring { border-radius: 50%; border-color: var(--coral); }
+.override-impact { position: absolute; width: 50vmin; height: 50vmin; top: 50%; left: 50%; border: 1px solid rgba(255,138,92,0.4); border-radius: 50%; z-index: -1; opacity: 0; pointer-events: none; }
+.override-revealed .override-impact { animation: override-wave 1.4s ease-out both; }
 @keyframes override-wave { from { transform: translate(-50%, -50%) scale(0.5); opacity: 0.7; } to { transform: translate(-50%, -50%) scale(4); opacity: 0; } }
-.override-screen .insight-line { font-size: clamp(1.05rem, 2vw, 1.3rem); }
-.override-screen .v-flavour { font-size: 0.95rem; max-width: 55ch; }
-@media (max-width: 700px) {
-  .override-screen { padding: 7rem 1rem 6rem; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .override-impact { display: none; }
-}
+.override-screen .v-flavour { font-size: 1rem; max-width: 42ch; color: var(--ink-soft); }
+.debrief-insight { color: var(--aqua); font-weight: 600; margin-bottom: 1rem; }
+@media (max-width: 700px) { .override-screen { padding: 7rem 1rem 6rem; } }
+@media (prefers-reduced-motion: reduce) { .override-impact { display: none; } }
 
 /* Unlock simulation: one icon, a charging ring, then a clean release. */
 .unlock-simulation { position: relative; isolation: isolate; max-width: none; min-height: 100svh; overflow: hidden; background: linear-gradient(178deg, var(--ocean-top) 0%, var(--ocean-mid) 46%, var(--ocean-deep) 100%); gap: 2rem; outline: none; }

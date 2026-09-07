@@ -84,14 +84,56 @@ function signalNoise(t: number, dur: number, from: number, to: number, vol: numb
   }
 }
 
-function recoveryChord(at: number): StopSound[] {
-  return [
-    tone(98, { t: at, dur: 0.7, vol: 0.42, glide: 49 }),
-    ...[392, 494, 587, 784].map((freq, i) => tone(freq, { t: at + i * 0.065, dur: 1.15, vol: 0.2 })),
-    tone(1568, { t: at + 0.32, dur: 1.1, vol: 0.06 }),
-  ]
+/** A filtered, pulsing motor winds up without turning into a musical riser. */
+function servo(dur: number): StopSound {
+  const c = ensure()
+  if (!c || !master) return () => {}
+  const at = c.currentTime
+  const motor = c.createOscillator()
+  motor.type = 'sawtooth'
+  motor.frequency.setValueAtTime(48, at)
+  motor.frequency.exponentialRampToValueAtTime(83, at + dur)
+  const filter = c.createBiquadFilter()
+  filter.type = 'lowpass'
+  filter.Q.value = 1.2
+  filter.frequency.setValueAtTime(220, at)
+  filter.frequency.exponentialRampToValueAtTime(650, at + dur)
+  const tremolo = c.createOscillator()
+  tremolo.frequency.setValueAtTime(7, at)
+  tremolo.frequency.linearRampToValueAtTime(19, at + dur)
+  const depth = c.createGain()
+  depth.gain.value = 0.25
+  const pulse = c.createGain()
+  pulse.gain.value = 0.7
+  tremolo.connect(depth); depth.connect(pulse.gain)
+  const envelope = c.createGain()
+  envelope.gain.setValueAtTime(0, at)
+  envelope.gain.linearRampToValueAtTime(0.18, at + 0.12)
+  envelope.gain.linearRampToValueAtTime(0.25, at + dur - 0.1)
+  envelope.gain.linearRampToValueAtTime(0, at + dur)
+  motor.connect(filter); filter.connect(pulse); pulse.connect(envelope); envelope.connect(master)
+  motor.start(at); tremolo.start(at)
+  motor.stop(at + dur + 0.04); tremolo.stop(at + dur + 0.04)
+  motor.onended = () => { motor.disconnect(); filter.disconnect(); pulse.disconnect(); envelope.disconnect() }
+  tremolo.onended = () => { tremolo.disconnect(); depth.disconnect() }
+  return () => {
+    envelope.gain.cancelAndHoldAtTime(c.currentTime)
+    envelope.gain.setTargetAtTime(0, c.currentTime, 0.008)
+    try { motor.stop(c.currentTime + 0.04); tremolo.stop(c.currentTime + 0.04) } catch { /* already ended */ }
+  }
 }
 
+/** Non-musical impact: bass weight, metal resonance, and a short air release. */
+function lockRelease(at: number): StopSound[] {
+  return [
+    tone(88, { t: at, dur: 0.55, vol: 0.55, glide: 38 }),
+    tone(146, { t: at, dur: 0.24, vol: 0.2, type: 'triangle', glide: 119 }),
+    signalNoise(at, 0.09, 1600, 380, 0.38),
+    tone(213, { t: at + 0.02, dur: 0.23, vol: 0.11 }),
+    tone(347, { t: at + 0.02, dur: 0.16, vol: 0.07 }),
+    signalNoise(at + 0.08, 0.58, 800, 150, 0.16),
+  ]
+}
 
 export const sfx = {
   get muted(): boolean { return muted },
@@ -101,90 +143,49 @@ export const sfx = {
     try { localStorage.setItem('victorai-muted', m ? '1' : '0') } catch { /* ok */ }
   },
 
-  /** Generic soft tap for small confirmations. */
+  /** A dry relay click, with a low mechanical body. */
   tap(): void {
-    tone(560, { dur: 0.09, vol: 0.3 })
-    tone(740, { t: 0.04, dur: 0.1, vol: 0.22 })
+    signalNoise(0, 0.045, 1300, 500, 0.2)
+    tone(115, { dur: 0.07, vol: 0.18, type: 'triangle' })
   },
 
-  /** Filtered-noise sweep for screen transitions — an underwater push. */
   whoosh(): void {
-    const c = ensure()
-    if (!c || !master) return
-    const len = 0.38
-    const buf = c.createBuffer(1, Math.floor(len * c.sampleRate), c.sampleRate)
-    const d = buf.getChannelData(0)
-    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length)
-    const src = c.createBufferSource()
-    src.buffer = buf
-    const f = c.createBiquadFilter()
-    f.type = 'bandpass'
-    f.Q.value = 1.2
-    const now = c.currentTime
-    f.frequency.setValueAtTime(280, now)
-    f.frequency.exponentialRampToValueAtTime(1500, now + len)
-    const g = c.createGain()
-    g.gain.setValueAtTime(0.14, now)
-    g.gain.exponentialRampToValueAtTime(0.001, now + len)
-    src.connect(f); f.connect(g); g.connect(master)
-    src.start(now)
+    signalNoise(0, 0.32, 220, 750, 0.16)
   },
 
-  /** Bright rising pair — "it's really Dale". */
   chooseReal(): void {
-    tone(659, { dur: 0.12, vol: 0.3 })
-    tone(988, { t: 0.07, dur: 0.16, vol: 0.26 })
+    signalNoise(0, 0.04, 1600, 650, 0.2)
+    tone(160, { dur: 0.08, vol: 0.18, type: 'triangle' })
   },
 
-  /** Falling triangle pair — "it's a clone". */
   chooseAI(): void {
-    tone(494, { dur: 0.12, vol: 0.3, type: 'triangle' })
-    tone(330, { t: 0.07, dur: 0.18, vol: 0.26, type: 'triangle' })
+    signalNoise(0, 0.05, 1100, 350, 0.22)
+    tone(93, { dur: 0.1, vol: 0.22, type: 'triangle' })
   },
 
-  /** Low double-thud for a wrong riddle answer. */
+  /** A restrained mechanical double knock. */
   deny(): void {
-    tone(220, { dur: 0.16, vol: 0.3, type: 'triangle' })
-    tone(196, { t: 0.09, dur: 0.22, vol: 0.26, type: 'triangle' })
+    tone(76, { dur: 0.13, vol: 0.25, type: 'triangle' })
+    signalNoise(0, 0.05, 650, 220, 0.16)
+    tone(76, { t: 0.16, dur: 0.13, vol: 0.2, type: 'triangle' })
   },
 
-  /** Submarine sonar ping with two fading echoes. */
-  sonar(): void {
-    tone(1175, { dur: 0.7, vol: 0.24, glide: 1100 })
-    tone(1175, { t: 0.5, dur: 0.6, vol: 0.1, glide: 1100 })
-    tone(1175, { t: 1.0, dur: 0.55, vol: 0.045, glide: 1100 })
-  },
-
-  /** Signal collapse, five synchronized disconnects, then a recovery chord. */
-  intercept(reduced = false): StopSound {
-    const stops: StopSound[] = reduced ? recoveryChord(0) : [
-      tone(110, { dur: 0.75, vol: 0.48, type: 'triangle', glide: 42 }),
-      tone(220, { dur: 0.4, vol: 0.18, glide: 65 }),
-      signalNoise(0, 0.38, 1800, 180, 0.25),
-      signalNoise(0.65, 0.8, 300, 1500, 0.12),
-      ...Array.from({ length: 5 }, (_, i) => [
-        signalNoise(0.75 + i * 0.24, 0.065, 2000, 500, 0.26),
-        tone(600 + i * 110, { t: 0.75 + i * 0.24, dur: 0.12, vol: 0.3, type: 'triangle', glide: 300 + i * 55 }),
-      ]).flat(),
-      ...recoveryChord(2.25),
-    ]
-    return () => stops.forEach((stop) => stop())
-  },
-
-  /** Rising mechanism and accelerating ticks land on the digit's light burst. */
+  /** Servo tension and mechanical latches resolve at the 1.5-second reveal. */
   unlock(reduced = false): StopSound {
-    const stops: StopSound[] = reduced ? recoveryChord(0) : [
-      tone(130, { dur: 1.4, vol: 0.16, type: 'triangle', glide: 390 }),
-      signalNoise(0, 1.45, 280, 2400, 0.2),
-      ...[0, 0.4, 0.72, 0.96, 1.14, 1.28].map((t, i) => tone(440 + i * 90, { t, dur: 0.06, vol: 0.16 })),
-      signalNoise(1.5, 0.7, 1800, 300, 0.2),
-      ...recoveryChord(1.5),
+    const stops: StopSound[] = reduced ? lockRelease(0) : [
+      servo(1.48),
+      signalNoise(0, 0.18, 480, 160, 0.16),
+      ...[0.15, 0.55, 0.91, 1.18, 1.36].flatMap((t) => [
+        signalNoise(t, 0.035, 1500, 500, 0.22),
+        tone(127, { t, dur: 0.055, vol: 0.11, type: 'triangle' }),
+      ]),
+      ...lockRelease(1.5),
     ]
     return () => stops.forEach((stop) => stop())
   },
 
-  /** Rising arpeggio for the big win. */
+  /** Confirmation lands as a latch engaging, without a melody. */
   win(): void {
-    ;[523, 659, 784, 1047].forEach((f, i) => tone(f, { t: i * 0.09, dur: 0.38, vol: 0.24 }))
+    lockRelease(0)
   },
 }

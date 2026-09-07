@@ -376,11 +376,7 @@ export function RiddleScreen({ player, realClips, onSolved }: {
 }
 
 // ---------------------------------------------------------------------------
-export function OverrideScreen({ teamName, solveTime, onNext }: {
-  teamName: string
-  solveTime?: string
-  onNext: () => void
-}) {
+export function OverrideScreen({ onNext }: { onNext: () => void }) {
   const reduced = useReducedMotion()
   const [revealed, setRevealed] = useState(reduced)
   useEffect(() => {
@@ -393,12 +389,8 @@ export function OverrideScreen({ teamName, solveTime, onNext }: {
     <div className={"v-screen override-screen" + (revealed ? " override-revealed" : "")} >
       <div className="override-atmosphere" aria-hidden="true" />
       <div className="override-impact" aria-hidden="true" />
-      <div className="intro-kicker">
-        Access granted{teamName ? ` · ${teamName}` : ''}{solveTime ? ` · solved in ${solveTime}` : ''}
-      </div>
-      <h1 className="override-headline" role="status">{revealed ? <>THE OVERRIDE<br /><em>IS YOURS.</em></> : <>BREAKING<br /><em>THE LOCK.</em></>}</h1>
-      <div className="override-status">{revealed ? 'DAIL MODULE · ACCESS RESTORED' : 'DECRYPTING OVERRIDE DIGIT'}</div>
-      <p className="v-lead escape-letter-label">The second override digit</p>
+      <h1 className="override-headline" role="status">{revealed ? 'Override recovered' : 'Recovering override'}</h1>
+      <p className="escape-letter-label">Second override digit</p>
       <div className="letter-stage">
         <span className="override-orbit override-orbit-a" aria-hidden="true" />
         <span className="override-orbit override-orbit-b" aria-hidden="true" />
@@ -407,9 +399,8 @@ export function OverrideScreen({ teamName, solveTime, onNext }: {
         {!revealed && <span className="override-lock" aria-label="Unlocking"><span /></span>}
         <div className="escape-letter" aria-hidden={!revealed}>{ESCAPE.digit}</div>
       </div>
-      <p className="v-lead insight-line">{ESCAPE.insight}</p>
-      <p className="v-lead v-flavour">{ESCAPE.flavour}</p>
-      <button className="btn-primary btn-lg" onClick={onNext} disabled={!revealed}>What just happened?</button>
+      <p className="v-lead v-flavour">Enter this digit with the others at the override console.</p>
+      <button className="btn-primary btn-lg" onClick={onNext} disabled={!revealed}>Continue</button>
     </div>
   )
 }
@@ -420,6 +411,7 @@ export function DebriefScreen({ onRestart }: { onRestart: () => void }) {
     <div className="v-screen debrief-screen">
       <h2 className="v-h1">Could you tell the difference?</h2>
       <div className="debrief-body">
+        <p className="v-body debrief-insight">{ESCAPE.insight}</p>
         <p className="v-body">
           AI voice-cloning technology can study recordings of a person speaking
           and learn the patterns in their voice — their accent, rhythm, tone and

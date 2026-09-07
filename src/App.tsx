@@ -89,7 +89,7 @@ export default function App() {
   const progress = PHASE_ORDER.indexOf(phase) / (PHASE_ORDER.length - 1)
 
   return (
-    <div className={'v-app' + (phase === 'override' ? ' cinematic-active' : '')}>
+    <div className="v-app">
       <Backdrop depth={progress} />
       <Bubbles quiet={phase === 'brief'} />
       <TopBar
@@ -119,7 +119,7 @@ export default function App() {
           <RiddleScreen player={player} realClips={realClips} onSolved={() => { setFinishedAt((f) => f ?? Date.now()); go('override') }} />
         )}
         {phase === 'override' && (
-          <OverrideScreen teamName={teamName} solveTime={timerLabel} onNext={() => go('debrief')} />
+          <OverrideScreen onNext={() => go('debrief')} />
         )}
         {phase === 'debrief' && <DebriefScreen onRestart={restart} />}
       </Stage>
