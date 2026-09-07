@@ -14,6 +14,7 @@ import { sfx } from '../lib/audio/sfx'
 import { apiFetch } from '../lib/api'
 import { ClipCard } from './ClipCard'
 import { TeamPicker } from './TeamPicker'
+import { DailPortrait } from './DailPortrait'
 import { useReducedMotion } from '../lib/useReducedMotion'
 
 // ---------------------------------------------------------------------------
@@ -108,22 +109,7 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
 
   return (
     <div className={'v-screen brief-screen' + (connecting ? ' brief-connecting' : '')}>
-      <div className={'brief-portrait' + (cloneArrived ? ' identity-disrupted' : '')} aria-hidden="true">
-        <img className="portrait-base" src={`${import.meta.env.BASE_URL}dail-portrait.jpg`} alt="" />
-        <svg className="portrait-eye" viewBox="0 0 760 1013" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-          <defs>
-            <radialGradient id="eye-blue-glow">
-              <stop offset="0" stopColor="#b8f5ff" stopOpacity="0.85" />
-              <stop offset="0.28" stopColor="#36caff" stopOpacity="0.65" />
-              <stop offset="0.6" stopColor="#008dff" stopOpacity="0.25" />
-              <stop offset="1" stopColor="#008dff" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-          <ellipse cx="450" cy="275" rx="30" ry="21" fill="url(#eye-blue-glow)" />
-        </svg>
-        <img className="portrait-echo portrait-echo-cyan" src={`${import.meta.env.BASE_URL}dail-portrait.jpg`} alt="" />
-        <img className="portrait-echo portrait-echo-coral" src={`${import.meta.env.BASE_URL}dail-portrait.jpg`} alt="" />
-      </div>
+      <DailPortrait disrupted={cloneArrived} />
       <div className="intro-kicker">The Turing Test Challenge</div>
       <h1 className="v-title">D<span className="name-ai">AI</span>L</h1>
       <div

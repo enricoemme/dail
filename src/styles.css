@@ -1056,3 +1056,9 @@ button:focus-visible { outline: 3px solid var(--aqua); outline-offset: 4px; }
 .override-screen:not(.override-revealed) .override-lock span { animation: none; }
 .override-screen:not(.override-revealed) .override-lock { animation: final-lock-tension 4.2s ease-in-out both; }
 @keyframes final-lock-tension { 0% { opacity: 0.5; } 35%, 65% { opacity: 1; box-shadow: 0 0 32px rgba(127,224,255,0.35); } 76%, 96% { opacity: 0.4; box-shadow: none; } 100% { opacity: 0; } }
+
+/* Cursor-responsive portrait: entrance, tracking and glitch use separate layers. */
+.brief-portrait { perspective: 1100px; perspective-origin: 59% 27%; }
+.portrait-tilt { position: relative; width: 100%; height: 100%; transform-origin: 59% 27%; backface-visibility: hidden; will-change: transform; }
+.portrait-light { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 30% 28% at var(--portrait-light-x, 50%) var(--portrait-light-y, 30%), rgba(127,224,255,0.1), transparent 80%); mix-blend-mode: screen; }
+@media (prefers-reduced-motion: reduce) { .portrait-tilt { transform: none !important; will-change: auto; } .portrait-light { display: none; } }
