@@ -32,6 +32,7 @@ function gridClips(): GridClip[] {
 
 export default function App() {
   const [phase, setPhase] = useState<Phase>('brief')
+  const [round, setRound] = useState(0)
   const [clips, setClips] = useState<GridClip[]>(() => gridClips())
   const [teamName, setTeamName] = useState('')
   // Solve timer: runs from "Begin the test" until the challenge is cracked.
@@ -71,6 +72,7 @@ export default function App() {
 
   const restart = () => {
     player.stop()
+    setRound((n) => n + 1)
     setClips(gridClips())
     setTeamName('')
     setStartedAt(null)
@@ -88,7 +90,7 @@ export default function App() {
   return (
     <div className="v-app">
       <Backdrop depth={progress} />
-      <Bubbles />
+      <Bubbles quiet={phase === 'brief'} />
       <TopBar
         progress={progress}
         teamName={teamName || undefined}
@@ -96,7 +98,7 @@ export default function App() {
         timerStopped={finishedAt !== null}
       />
 
-      <Stage stepKey={phase}>
+      <Stage stepKey={`${round}:${phase}`}>
         {phase === 'brief' && (
           <BriefScreen onStart={(n) => { setTeamName(n); setStartedAt(Date.now()); go('test') }} />
         )}
@@ -105,14 +107,14 @@ export default function App() {
             player={player}
             clips={clips}
             onMark={mark}
-            onPass={() => { setFinishedAt((f) => f ?? Date.now()); go('flags') }}
+            onPass={() => go('flags')}
           />
         )}
         {phase === 'flags' && (
           <FlagsScreen player={player} fakeClips={fakeClips} onNext={() => go('riddle')} />
         )}
         {phase === 'riddle' && (
-          <RiddleScreen player={player} realClips={realClips} onSolved={() => go('override')} />
+          <RiddleScreen player={player} realClips={realClips} onSolved={() => { setFinishedAt((f) => f ?? Date.now()); go('override') }} />
         )}
         {phase === 'override' && (
           <OverrideScreen teamName={teamName} solveTime={timerLabel} onNext={() => go('debrief')} />

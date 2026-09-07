@@ -13,7 +13,7 @@ interface Props {
   readOnly?: boolean
   /** Whether the team has listened to this clip (shows the ✓ on the player). */
   heard?: boolean
-  /** Confirmed-correct genuine clip: glows green, controls disabled. */
+  /** Confirmed fake: glows green, controls disabled. */
   locked?: boolean
 }
 
@@ -56,7 +56,7 @@ export function ClipCard({ player, clip, index, onMark, readOnly, heard, locked 
             disabled={locked}
             onClick={() => { sfx.chooseAI(); onMark(false) }}
           >
-            {locked ? 'AI ✓' : 'AI'}
+            {locked ? 'AI identified ✓' : 'AI'}
           </button>
         </div>
       )}

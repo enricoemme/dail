@@ -1,10 +1,13 @@
 import { useEffect, useRef } from 'react'
+import { useReducedMotion } from '../lib/useReducedMotion'
 
 /** Ambient rising bubbles — a slow, soft ocean backdrop behind every screen. */
-export function Bubbles() {
+export function Bubbles({ quiet = false }: { quiet?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null)
+  const reduced = useReducedMotion()
 
   useEffect(() => {
+    if (reduced) return
     const canvas = ref.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')!
@@ -24,7 +27,7 @@ export function Bubbles() {
     window.addEventListener('resize', resize)
 
     interface B { x: number; y: number; r: number; speed: number; drift: number; alpha: number; phase: number }
-    const COUNT = 46
+    const COUNT = quiet ? 14 : 46
     const rand = (a: number, b: number) => a + Math.random() * (b - a)
     const make = (atBottom: boolean): B => ({
       x: rand(0, w),
@@ -32,7 +35,7 @@ export function Bubbles() {
       r: rand(1.5, 7),
       speed: rand(8, 30),
       drift: rand(-10, 10),
-      alpha: rand(0.05, 0.28),
+      alpha: rand(0.05, quiet ? 0.12 : 0.28),
       phase: rand(0, Math.PI * 2),
     })
     const bubbles: B[] = Array.from({ length: COUNT }, () => make(true))
@@ -66,7 +69,8 @@ export function Bubbles() {
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', resize)
     }
-  }, [])
+  }, [reduced, quiet])
 
+  if (reduced) return null
   return <canvas ref={ref} className="bubbles-canvas" aria-hidden="true" />
 }

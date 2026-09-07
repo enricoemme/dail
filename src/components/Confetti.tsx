@@ -1,12 +1,15 @@
 import { useEffect, useRef } from 'react'
+import { useReducedMotion } from '../lib/useReducedMotion'
 
 const COLORS = ['#ff8a5c', '#ff5e86', '#ffb38a', '#7fe0ff', '#ffd0ad', '#ffffff']
 
 /** Lightweight canvas confetti burst, plays once on mount (~2.5s). */
 export function Confetti() {
   const ref = useRef<HTMLCanvasElement>(null)
+  const reduced = useReducedMotion()
 
   useEffect(() => {
+    if (reduced) return
     const canvas = ref.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -15,15 +18,15 @@ export function Confetti() {
     canvas.height = window.innerHeight
 
     interface P { x: number; y: number; vx: number; vy: number; rot: number; vrot: number; w: number; h: number; color: string }
-    const parts: P[] = Array.from({ length: 160 }, () => ({
-      x: canvas.width / 2 + (Math.random() - 0.5) * canvas.width * 0.4,
-      y: canvas.height * 0.35,
+    const parts: P[] = Array.from({ length: 100 }, () => ({
+      x: (Math.random() < 0.5 ? 0.08 : 0.92) * canvas.width + (Math.random() - 0.5) * canvas.width * 0.12,
+      y: canvas.height * 0.65,
       vx: (Math.random() - 0.5) * 16,
       vy: -6 - Math.random() * 12,
       rot: Math.random() * Math.PI,
       vrot: (Math.random() - 0.5) * 0.35,
-      w: 8 + Math.random() * 8,
-      h: 5 + Math.random() * 6,
+      w: 5 + Math.random() * 5,
+      h: 3 + Math.random() * 4,
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
     }))
 
@@ -51,7 +54,8 @@ export function Confetti() {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [])
+  }, [reduced])
 
+  if (reduced) return null
   return <canvas ref={ref} className="confetti-canvas" />
 }

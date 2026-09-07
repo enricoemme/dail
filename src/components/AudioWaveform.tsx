@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useReducedMotion } from '../lib/useReducedMotion'
 import type { ClipPlayer } from '../lib/audio/clipPlayer'
 
 interface Props {
@@ -55,6 +56,7 @@ function buildSilhouette(seed: string, bins: number): number[] {
 
 export function AudioWaveform({ player, clipId, seed, bins = 56, height = 96 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const reduced = useReducedMotion()
   const silhouette = useRef<number[]>(buildSilhouette(seed, bins))
   const heights = useRef<number[]>(new Array(bins).fill(0))
 
@@ -67,7 +69,7 @@ export function AudioWaveform({ player, clipId, seed, bins = 56, height = 96 }: 
     if (!canvas) return
     const ctx = canvas.getContext('2d')!
     let raf = 0
-    let phase = 0
+    let disposed = false
 
     const resize = () => {
       const dpr = Math.min(2, window.devicePixelRatio || 1)
@@ -76,22 +78,17 @@ export function AudioWaveform({ player, clipId, seed, bins = 56, height = 96 }: 
       canvas.height = Math.floor(height * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
-    resize()
-    const ro = new ResizeObserver(resize)
-    ro.observe(canvas)
 
     const draw = () => {
       const w = canvas.clientWidth
       const h = height
       const active = player.currentId === clipId
-      phase += 0.05
 
-      const live = active ? player.spectrum(bins) : null
-      const progress = active ? player.progress : 0
+      const live = active && !reduced ? player.spectrum(bins) : null
+      const progress = active && !reduced ? player.progress : 0
 
       // Target heights: live spectrum (blended with silhouette so bars keep
-      // shape through quiet moments) when playing; gently breathing silhouette
-      // when idle.
+      // shape through quiet moments) when playing; a still silhouette when idle.
       const target = heights.current
       for (let i = 0; i < bins; i++) {
         const sil = silhouette.current[i]
@@ -99,12 +96,11 @@ export function AudioWaveform({ player, clipId, seed, bins = 56, height = 96 }: 
         if (live) {
           t = Math.max(live[i] * 1.15, sil * 0.25)
         } else {
-          const breathe = 0.9 + 0.1 * Math.sin(phase + i * 0.35)
-          t = sil * 0.5 * breathe
+          t = sil * 0.5
         }
         // Smooth toward target — fast attack, slower release.
         const cur = target[i]
-        target[i] = t > cur ? cur + (t - cur) * 0.5 : cur + (t - cur) * 0.22
+        target[i] = !active || reduced ? t : t > cur ? cur + (t - cur) * 0.5 : cur + (t - cur) * 0.22
       }
 
       ctx.clearRect(0, 0, w, h)
@@ -146,15 +142,25 @@ export function AudioWaveform({ player, clipId, seed, bins = 56, height = 96 }: 
       }
       ctx.shadowBlur = 0
 
-      raf = requestAnimationFrame(draw)
+      if (active && !reduced && !disposed) raf = requestAnimationFrame(draw)
     }
-    raf = requestAnimationFrame(draw)
+    const redraw = () => {
+      cancelAnimationFrame(raf)
+      draw()
+    }
+    resize()
+    const ro = new ResizeObserver(() => { resize(); redraw() })
+    ro.observe(canvas)
+    const unsubscribe = player.onChange(redraw)
+    redraw()
 
     return () => {
+      disposed = true
       cancelAnimationFrame(raf)
+      unsubscribe()
       ro.disconnect()
     }
-  }, [player, clipId, bins, height])
+  }, [player, clipId, bins, height, reduced, seed])
 
   return <canvas ref={canvasRef} className="waveform-canvas" style={{ height }} />
 }

@@ -133,22 +133,22 @@ export const RIDDLE = {
   options: [
     {
       id: 'A',
-      label: 'VIKI was producing large numbers of obvious errors across council services.',
+      label: 'Staff were finding widespread calculation errors that made the automated reports unusable.',
       correct: false,
     },
     {
       id: 'B',
-      label: 'Staff kept spotting concerns and inconsistencies — but everyone was starting to rely on summaries, dashboards and recommendations without fully investigating them.',
+      label: 'Staff were relying on automated recommendations despite unresolved concerns in the underlying information.',
       correct: true,
     },
     {
       id: 'C',
-      label: 'Council systems were already compromised by an external cyber attack.',
+      label: 'Staff were noticing unauthorised changes that pointed to an external attack on council systems.',
       correct: false,
     },
     {
       id: 'D',
-      label: 'Senior management had instructed staff to stop reviewing information.',
+      label: 'Staff were following a formal management decision to replace detailed reviews with automated summaries.',
       correct: false,
     },
   ] as RiddleOption[],

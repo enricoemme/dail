@@ -13,14 +13,16 @@ import { RIDDLE, ESCAPE, REAL_CLIPS } from '../game/content'
 import { sfx } from '../lib/audio/sfx'
 import { apiFetch } from '../lib/api'
 import { ClipCard } from './ClipCard'
+import { TeamPicker } from './TeamPicker'
 import { Confetti } from './Confetti'
+import { useReducedMotion } from '../lib/useReducedMotion'
 
 // ---------------------------------------------------------------------------
 const TRANSMISSION = [
   '>> CENTRAL OPERATIONS — PRIORITY TRANSMISSION',
   '>> ⚠ SECURITY ALERT',
   '>> VIKI has discovered voice cloning.',
-  '>> It now sounds exactly like council staff,',
+  '>> It now sounds exactly like our Head of Automation DAIL,',
   '>> and has been using those voices to push',
   '>> its own recommendations.',
   '>> Ten voice messages have been intercepted.',
@@ -30,6 +32,7 @@ const TRANSMISSION = [
 ].join('\n')
 
 const ALERT_LINE = '⚠ SECURITY ALERT'
+const CLONE_LINE = 'VIKI has discovered voice cloning.'
 
 /** Reveal the transmission as plain text, but flag the alert line coral-red
  *  once it has fully typed out — like a system breach warning. */
@@ -46,14 +49,25 @@ function renderTransmission(shown: string) {
 }
 
 export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: string | null) => void }) {
-  const [chars, setChars] = useState(0)
+  const reduced = useReducedMotion()
+  const [chars, setChars] = useState(() => reduced ? TRANSMISSION.length : 0)
+  const [skipped, setSkipped] = useState(false)
+  const [connecting, setConnecting] = useState(false)
+  const starting = useRef(false)
+  const startTimer = useRef<number>()
   const done = chars >= TRANSMISSION.length
+  const alertArrived = !skipped && chars >= TRANSMISSION.indexOf(ALERT_LINE) + ALERT_LINE.length
+  const cloneArrived = chars >= TRANSMISSION.indexOf(CLONE_LINE) + CLONE_LINE.length
+  const skipTransmission = () => { setSkipped(true); setChars(TRANSMISSION.length) }
+  useEffect(() => () => window.clearTimeout(startTimer.current), [])
 
   const [teams, setTeams] = useState<Team[] | null>(null) // null = still loading
   const [loadFailed, setLoadFailed] = useState(false)
   const [selectedId, setSelectedId] = useState('')
 
   useEffect(() => {
+    if (reduced) { setChars(TRANSMISSION.length); return }
+    if (done) return
     const id = window.setInterval(() => {
       setChars((c) => {
         if (c + 2 >= TRANSMISSION.length) { window.clearInterval(id); return TRANSMISSION.length }
@@ -61,7 +75,7 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
       })
     }, 24)
     return () => window.clearInterval(id)
-  }, [])
+  }, [reduced, done])
 
   // Load the registered teams. Only registered teams can play — there is no
   // manual fallback; a failure shows a retry, not a way around the roster.
@@ -76,8 +90,14 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
   useEffect(() => { loadTeams() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const chosen = teams?.find((t) => t.id === selectedId) ?? null
-  const canStart = done && !!chosen
-  const submit = () => { if (chosen && done) onStart(chosen.name, chosen.id) }
+  const canStart = done && !!chosen && !connecting
+  const submit = () => {
+    if (!chosen || !done || starting.current) return
+    starting.current = true
+    setConnecting(true)
+    sfx.tap()
+    startTimer.current = window.setTimeout(() => onStart(chosen.name, chosen.id), reduced ? 0 : 850)
+  }
 
   const placeholder = loadFailed
     ? "Couldn't load the team list"
@@ -88,39 +108,59 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
         : 'Select your team'
 
   return (
-    <div className="v-screen brief-screen">
-      <img
-        className="brief-portrait"
-        src={`${import.meta.env.BASE_URL}dail-portrait.jpg`}
-        alt=""
-        aria-hidden="true"
-      />
+    <div className={'v-screen brief-screen' + (connecting ? ' brief-connecting' : '')}>
+      <div className={'brief-portrait' + (cloneArrived ? ' identity-disrupted' : '')} aria-hidden="true">
+        <img className="portrait-base" src={`${import.meta.env.BASE_URL}dail-portrait.jpg`} alt="" />
+        <svg className="portrait-eye" viewBox="0 0 760 1013" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <defs>
+            <radialGradient id="eye-blue-glow">
+              <stop offset="0" stopColor="#b8f5ff" stopOpacity="0.85" />
+              <stop offset="0.28" stopColor="#36caff" stopOpacity="0.65" />
+              <stop offset="0.6" stopColor="#008dff" stopOpacity="0.25" />
+              <stop offset="1" stopColor="#008dff" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <ellipse cx="450" cy="275" rx="30" ry="21" fill="url(#eye-blue-glow)" />
+        </svg>
+        <img className="portrait-echo portrait-echo-cyan" src={`${import.meta.env.BASE_URL}dail-portrait.jpg`} alt="" />
+        <img className="portrait-echo portrait-echo-coral" src={`${import.meta.env.BASE_URL}dail-portrait.jpg`} alt="" />
+      </div>
       <div className="intro-kicker">The Turing Test Challenge</div>
       <h1 className="v-title">D<span className="name-ai">AI</span>L</h1>
       <div
-        className="transmission"
-        onClick={() => setChars(TRANSMISSION.length)}
-        title={done ? undefined : 'Tap to skip'}
+        className={'transmission' + (alertArrived ? ' transmission-alert' : '') + (done ? ' transmission-complete' : '')}
       >
-        <pre className="transmission-text">
-          {renderTransmission(TRANSMISSION.slice(0, chars))}
-          <span className="cursor" />
+        <div className="transmission-header">
+          <span className={'signal-status' + (done ? ' signal-complete' : '')} role="status">
+            <span className="signal-dot" aria-hidden="true" />
+            {connecting ? 'Connection secured' : done ? 'Transmission received' : 'Incoming transmission'}
+          </span>
+          <span className="signal-channel" aria-hidden="true">DAIL / 02</span>
+        </div>
+        <pre className="transmission-text" aria-hidden="true">
+          <span className="transmission-spacer">{TRANSMISSION}</span>
+          <span className="transmission-typed">
+            {renderTransmission(TRANSMISSION.slice(0, chars))}
+            {!done && <span className="cursor" />}
+          </span>
         </pre>
+        <p className="sr-only">{TRANSMISSION}</p>
+        <div className="transmission-footer">
+          <span>{done ? '10 recordings · 5 imposters · 1 override digit' : 'Receiving intercepted briefing…'}</span>
+          {!done && <button className="transmission-skip" onClick={skipTransmission}>Skip briefing animation →</button>}
+        </div>
       </div>
       <div className={'brief-join' + (done ? ' brief-join-ready' : '')}>
-        <select
-          className="team-input team-select"
+        <TeamPicker
+          teams={teams ?? []}
           value={selectedId}
-          disabled={!teams || teams.length === 0}
-          onChange={(e) => setSelectedId(e.target.value)}
-        >
-          <option value="" disabled>{placeholder}</option>
-          {(teams ?? []).map((t) => (
-            <option key={t.id} value={t.id}>{t.name}</option>
-          ))}
-        </select>
-        <button className="btn-primary btn-lg" onClick={submit} disabled={!canStart}>
-          Begin the test
+          placeholder={placeholder}
+          disabled={connecting || !teams || teams.length === 0}
+          onChange={setSelectedId}
+        />
+        <button className={'btn-primary btn-lg brief-start' + (connecting ? ' brief-start-secured' : '')} onClick={submit} disabled={!canStart}>
+          <span>{connecting ? 'Connection secured' : 'Enter the challenge'}</span>
+          <span className="brief-start-icon" aria-hidden="true">{connecting ? '✓' : '→'}</span>
         </button>
       </div>
       {loadFailed && (
@@ -142,7 +182,7 @@ export function TestScreen({ player, clips, onMark, onPass }: {
   const [attempts, setAttempts] = useState(0)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [heard, setHeard] = useState<Set<string>>(() => new Set())
-  // Genuine clips the team has correctly caught — locked green, can't change.
+  // Confirmed fakes stay locked between attempts.
   const [locked, setLocked] = useState<Set<string>>(() => new Set())
 
   // Remember every clip the team has pressed play on (✓ on the player).
@@ -210,6 +250,12 @@ export function TestScreen({ player, clips, onMark, onPass }: {
         oversight. Five recordings are genuine. Five are AI-generated imposters.
         Listen carefully and decide which are <strong>Real</strong> and which are <strong>AI</strong>.
       </p>
+      <div className="catch-progress" role="status" aria-live="polite">
+        <span className="catch-dots" aria-hidden="true">
+          {Array.from({ length: fakeTotal }, (_, i) => <span key={i} className={i < locked.size ? 'caught' : ''} />)}
+        </span>
+        <span><strong>{locked.size}/{fakeTotal}</strong> fakes caught</span>
+      </div>
       <div className="test-grid">
         {clips.map((c, i) => (
           <ClipCard
@@ -224,7 +270,7 @@ export function TestScreen({ player, clips, onMark, onPass }: {
         ))}
       </div>
       {feedback && (
-        <p key={attempts} className="test-feedback">{feedback}</p>
+        <p key={attempts} className="test-feedback" role="status">{feedback}</p>
       )}
       <div className="test-actions">
         <button className="btn-primary btn-lg" onClick={submit}>
@@ -244,13 +290,11 @@ export function FlagsScreen({ player, fakeClips, onNext }: {
   useEffect(() => { sfx.win() }, [])
   return (
     <div className="v-screen flags-screen">
-      <Confetti />
       <div className="intro-kicker">All five fakes caught</div>
       <h2 className="v-h1">Here's what should have raised suspicion</h2>
       <p className="v-lead flags-lead">
-        VIKI's messages weren't obviously wrong — they sounded faster, easier and more
-        efficient. Each fake tried to persuade staff to skip a check, bypass a safeguard,
-        or act without verification. That's exactly what VIKI wanted. These were the warning signs:
+        You've identified VIKI's five messages. Review the warning signs, then examine
+        Dale's genuine recordings to work out what was happening before the incident.
       </p>
       <div className="flags-list">
         {fakeClips.map((c, i) => (
@@ -280,14 +324,21 @@ export function RiddleScreen({ player, realClips, onSolved }: {
 }) {
   const [picked, setPicked] = useState<string | null>(null)
   const [wrong, setWrong] = useState(false)
+  const solvedRef = useRef(false)
+  const nextTimer = useRef<number>()
+  const reduced = useReducedMotion()
+  useEffect(() => () => window.clearTimeout(nextTimer.current), [])
 
   const choose = (id: string) => {
+    if (solvedRef.current) return
+    setWrong(false)
     setPicked(id)
     const opt = RIDDLE.options.find((o) => o.id === id)
     if (opt?.correct) {
       sfx.tap()
       player.stop()
-      window.setTimeout(onSolved, 550)
+      solvedRef.current = true
+      nextTimer.current = window.setTimeout(onSolved, reduced ? 0 : 550)
     } else {
       sfx.deny()
       setWrong(true)
@@ -313,13 +364,14 @@ export function RiddleScreen({ player, realClips, onSolved }: {
                 'riddle-opt' +
                 (picked === o.id ? (o.correct ? ' riddle-opt-right' : ' riddle-opt-wrong') : '')
               }
+              disabled={solvedRef.current}
               onClick={() => choose(o.id)}
             >
               <span className="riddle-letter">{o.id}</span>
               <span>{o.label}</span>
             </button>
           ))}
-          {wrong && <p className="riddle-wrong-note">Not quite — listen again. In every genuine message, what is Dale asking people to do?</p>}
+          {wrong && <p className="riddle-wrong-note">Not quite — compare the concerns in the genuine messages. What pattern was developing across services?</p>}
         </div>
       </div>
     </div>
@@ -332,6 +384,12 @@ export function OverrideScreen({ teamName, solveTime, onNext }: {
   solveTime?: string
   onNext: () => void
 }) {
+  const reduced = useReducedMotion()
+  const [revealed, setRevealed] = useState(reduced)
+  useEffect(() => {
+    const t = window.setTimeout(() => setRevealed(true), reduced ? 0 : 700)
+    return () => window.clearTimeout(t)
+  }, [reduced])
   useEffect(() => {
     sfx.sonar()
     const t = window.setTimeout(() => sfx.win(), 750)
@@ -339,22 +397,22 @@ export function OverrideScreen({ teamName, solveTime, onNext }: {
   }, [])
 
   return (
-    <div className="v-screen override-screen">
-      <Confetti />
+    <div className={"v-screen override-screen" + (revealed ? " override-revealed" : "")} >
+      {revealed && <Confetti />}
       <div className="intro-kicker">
         Access granted{teamName ? ` · ${teamName}` : ''}{solveTime ? ` · solved in ${solveTime}` : ''}
       </div>
+      <div className="override-status" role="status">{revealed ? "Override recovered" : "Releasing override…"}</div>
       <p className="v-lead insight-line">{ESCAPE.insight}</p>
       <p className="v-lead escape-letter-label">The second override digit</p>
       <div className="letter-stage">
         <span className="sonar-ring" />
-        <span className="sonar-ring" />
-        <span className="sonar-ring" />
         <div className="escape-halo" />
-        <div className="escape-letter">{ESCAPE.digit}</div>
+        {!revealed && <span className="override-lock" aria-label="Unlocking"><span /></span>}
+        <div className="escape-letter" aria-hidden={!revealed}>{ESCAPE.digit}</div>
       </div>
       <p className="v-lead v-flavour">{ESCAPE.flavour}</p>
-      <button className="btn-primary btn-lg" onClick={onNext}>What just happened?</button>
+      <button className="btn-primary btn-lg" onClick={onNext} disabled={!revealed}>What just happened?</button>
     </div>
   )
 }
@@ -393,7 +451,7 @@ export function DebriefScreen({ onRestart }: { onRestart: () => void }) {
   )
 }
 
-/** The riddle needs the genuine clips in their scripted (acrostic) order. */
+/** Keep genuine clips in their scripted order for the comparison. */
 export function riddleOrder(clips: GridClip[]): GridClip[] {
   return REAL_CLIPS.map((rc) => clips.find((c) => c.id === rc.id)).filter(Boolean) as GridClip[]
 }
