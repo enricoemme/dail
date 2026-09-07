@@ -970,40 +970,9 @@ button:focus-visible { outline: 3px solid var(--aqua); outline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) { .portrait-eye { animation: none; opacity: 0.25; } }
 
 
-/* Five intercepted channels are isolated in sequence, then the console settles. */
-.channel-isolation { width: min(100%, 660px); padding: 1rem 1.4rem; border: 1px solid rgba(255,138,92,0.5); border-radius: 18px; background: rgba(3,25,42,0.8); box-shadow: 0 14px 40px rgba(0,10,25,0.2); transition: border-color 0.45s, box-shadow 0.45s; }
-.isolation-topline { display: flex; justify-content: space-between; gap: 1rem; color: var(--ink-dim); font: 0.65rem ui-monospace, monospace; text-transform: uppercase; letter-spacing: 0.1em; }
-.isolation-topline > :last-child { color: var(--aqua); white-space: nowrap; }
-.isolation-channels { position: relative; display: flex; justify-content: space-between; width: min(100%, 400px); margin: 1rem auto 1.65rem; }
-.isolation-track { position: absolute; left: 20px; right: 20px; height: 1px; top: 21px; background: rgba(255,138,92,0.28); }
-.isolation-scan { position: absolute; inset: -8px 0; background: linear-gradient(90deg, transparent, rgba(127,224,255,0.26), transparent); width: 15%; filter: blur(3px); animation: channel-scan 1.4s ease-in-out both; }
-@keyframes channel-scan { from { left: 0; opacity: 0; } 15%, 85% { opacity: 1; } to { left: 85%; opacity: 0; } }
-.isolation-node { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid rgba(255,138,92,0.65); border-radius: 12px; color: var(--coral); background: #203346; animation: channel-secure 0.3s ease-out forwards; }
-@keyframes channel-secure { to { color: #86efac; border-color: #86efac; background: #123d3b; box-shadow: 0 0 18px rgba(74,222,128,0.22); } }
-.isolation-signal { display: flex; align-items: center; gap: 3px; height: 20px; animation: channel-signal-off 0.3s steps(1,end) forwards; animation-delay: inherit; }
-.isolation-signal i { width: 2px; height: 6px; background: currentColor; border-radius: 2px; }
-.isolation-signal i:nth-child(2), .isolation-signal i:nth-child(4) { height: 12px; }
-.isolation-signal i:nth-child(3) { height: 20px; }
-@keyframes channel-signal-off { to { opacity: 0; } }
-.isolation-check { position: absolute; width: 26px; height: 26px; opacity: 0; animation: channel-check-in 0.3s ease-out forwards; }
-@keyframes channel-check-in { to { opacity: 1; } }
-.isolation-channel-number { position: absolute; top: calc(100% + 5px); font: 0.6rem ui-monospace, monospace; color: var(--ink-dim); }
-.isolation-status { color: var(--coral); font: 600 clamp(0.95rem, 2.5vw, 1.2rem) ui-monospace, monospace; text-transform: uppercase; letter-spacing: 0.07em; }
-.isolation-caption { color: var(--ink-soft); font-size: 0.82rem; line-height: 1.5; margin-top: 0.5rem; }
-.channels-secured { border-color: rgba(134,239,172,0.6); box-shadow: 0 0 28px rgba(74,222,128,0.12); }
-.channels-secured .isolation-status { color: #86efac; }
-.channels-secured .isolation-track { background: rgba(134,239,172,0.4); }
-.channels-secured .isolation-node { color: #86efac; border-color: #86efac; background: #123d3b; }
-.channels-secured .isolation-signal { opacity: 0; }
-.channels-secured .isolation-check { opacity: 1; }
-@media (max-width: 700px) { .channel-isolation { padding: 0.9rem; } .isolation-topline { font-size: 0.58rem; } }
-@media (prefers-reduced-motion: reduce) { .isolation-scan { display: none; } }
-
 /* Story breakthroughs take over the whole stage. */
 .cinematic-active .topbar { background: rgba(3,15,27,0.7); border-color: rgba(127,224,255,0.18); }
 .cinematic-active .islington-logo { opacity: 0.5; }
-.channels-settled *, .channels-settled { animation: none !important; }
-.channels-settled .isolation-scan { display: none; }
 @keyframes orbit-turn { to { transform: rotate(360deg); } }
 
 /* The recovered digit becomes the centre of a system-wide unlock. */

@@ -14,7 +14,6 @@ import { sfx } from '../lib/audio/sfx'
 import { apiFetch } from '../lib/api'
 import { ClipCard } from './ClipCard'
 import { TeamPicker } from './TeamPicker'
-import { ChannelIsolation } from './ChannelIsolation'
 import { useReducedMotion } from '../lib/useReducedMotion'
 
 // ---------------------------------------------------------------------------
@@ -288,7 +287,7 @@ export function FlagsScreen({ player, fakeClips, onNext }: {
 }) {
   return (
     <div className="v-screen flags-screen">
-      <ChannelIsolation settled />
+      <div className="intro-kicker">All five fakes caught</div>
       <h2 className="v-h1">Here's what should have raised suspicion</h2>
       <p className="v-lead flags-lead">
         You've identified VIKI's five messages. Review the warning signs, then examine
