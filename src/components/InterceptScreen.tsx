@@ -18,14 +18,14 @@ export function InterceptScreen({ onComplete }: { onComplete: () => void }) {
 
   useEffect(() => {
     title.current?.focus({ preventScroll: true })
-    if (reduced) { setBeat(2); return }
-    sfx.intercept()
+    const stopSound = sfx.intercept(reduced)
+    if (reduced) { setBeat(2); return stopSound }
     const timers = [
       window.setTimeout(() => setBeat(1), 700),
-      window.setTimeout(() => { setBeat(2); sfx.win() }, 2250),
+      window.setTimeout(() => setBeat(2), 2250),
       window.setTimeout(finish, 4400),
     ]
-    return () => timers.forEach(window.clearTimeout)
+    return () => { timers.forEach(window.clearTimeout); stopSound() }
   }, [reduced])
 
   return (

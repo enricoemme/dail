@@ -388,11 +388,7 @@ export function OverrideScreen({ teamName, solveTime, onNext }: {
     const t = window.setTimeout(() => setRevealed(true), reduced ? 0 : 1500)
     return () => window.clearTimeout(t)
   }, [reduced])
-  useEffect(() => {
-    sfx.sonar()
-    const t = window.setTimeout(() => sfx.win(), reduced ? 0 : 1500)
-    return () => window.clearTimeout(t)
-  }, [reduced])
+  useEffect(() => sfx.unlock(reduced), [reduced])
 
   return (
     <div className={"v-screen override-screen" + (revealed ? " override-revealed" : "")} >
