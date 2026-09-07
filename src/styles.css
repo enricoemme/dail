@@ -1023,3 +1023,36 @@ button:focus-visible { outline: 3px solid var(--aqua); outline-offset: 4px; }
 .simulation-skip span { margin-left: 0.8rem; }
 .simulation-skip:hover { color: white; }
 @media (prefers-reduced-motion: reduce) { .simulation-wave { display: none; } }
+
+/* Finale: the digit fills the charged core and stays prominent until acknowledged. */
+.override-screen { gap: 1rem; }
+.override-screen .letter-stage { width: min(62vw, 48svh, 470px); height: min(62vw, 48svh, 470px); margin: 1rem 0 1.3rem; border-radius: 24px; background: radial-gradient(circle, rgba(5,35,58,0.35), transparent 68%); }
+.override-screen .escape-letter { width: 100%; height: 100%; font-size: min(53vw, 42svh, 410px); line-height: 1; color: #ffe2c5; text-shadow: 0 0 25px rgba(255,138,92,0.5), 0 0 75px rgba(255,94,134,0.25); }
+.override-revealed .escape-letter { animation: finale-digit-land 0.85s var(--ease) both; }
+@keyframes finale-digit-land { from { opacity: 0; transform: scale(1.45); filter: blur(16px); } 45% { opacity: 1; filter: blur(0); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
+.override-screen .override-orbit { display: none; }
+.finale-ring { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.finale-ring-track { stroke: rgba(127,224,255,0.2); stroke-width: 1; }
+.finale-ring-charge { stroke: var(--aqua); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; transform: rotate(-90deg); transform-origin: 200px 200px; animation: finale-charge 4.2s linear forwards; filter: drop-shadow(0 0 6px rgba(127,224,255,0.65)); }
+@keyframes finale-charge { 0% { stroke-dashoffset: 100; } 35% { stroke-dashoffset: 45; } 65% { stroke-dashoffset: 8; } 75%, 95% { stroke-dashoffset: 2; } 100% { stroke-dashoffset: 0; } }
+.override-revealed .finale-ring-charge { stroke: var(--coral); stroke-dashoffset: 0; filter: drop-shadow(0 0 10px rgba(255,138,92,0.55)); }
+.finale-rays { position: absolute; inset: 0; pointer-events: none; }
+.finale-rays > span { position: absolute; inset: 0; }
+.finale-rays i { position: absolute; width: 2px; height: 12%; left: calc(50% - 1px); top: 0; background: linear-gradient(var(--coral), transparent); opacity: 0; }
+.override-revealed .finale-rays i { animation: finale-rays-out 1.1s ease-out both; }
+@keyframes finale-rays-out { from { opacity: 0.7; transform: translateY(0) scaleY(0.3); } to { opacity: 0; transform: translateY(-140%) scaleY(1.3); } }
+.finale-corner { position: absolute; width: 24px; height: 24px; border-color: rgba(127,224,255,0.5); border-style: solid; border-width: 0; transition: border-color 0.3s; }
+.finale-corner-tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
+.finale-corner-tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
+.finale-corner-bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; }
+.finale-corner-br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; }
+.override-revealed .finale-corner { border-color: var(--coral); }
+.override-revealed .override-headline { color: #ffd0ad; }
+.override-screen .btn-primary { font-size: 1rem; padding: 0.9rem 1.8rem; }
+@media (max-width: 700px) { .override-screen .letter-stage { width: min(72vw, 42svh); height: min(72vw, 42svh); } .override-screen .escape-letter { font-size: min(62vw, 37svh); } }
+@media (prefers-reduced-motion: reduce) { .finale-rays { display: none; } .finale-ring-charge { stroke-dashoffset: 0; } }
+
+/* Suspense: the charged lock holds just short of completion before the reveal. */
+.override-screen:not(.override-revealed) .override-lock span { animation: none; }
+.override-screen:not(.override-revealed) .override-lock { animation: final-lock-tension 4.2s ease-in-out both; }
+@keyframes final-lock-tension { 0% { opacity: 0.5; } 35%, 65% { opacity: 1; box-shadow: 0 0 32px rgba(127,224,255,0.35); } 76%, 96% { opacity: 0.4; box-shadow: none; } 100% { opacity: 0; } }

@@ -170,16 +170,22 @@ export const sfx = {
     tone(76, { t: 0.16, dur: 0.13, vol: 0.2, type: 'triangle' })
   },
 
-  /** Servo tension and mechanical latches resolve at the 1.5-second reveal. */
-  unlock(reduced = false): StopSound {
+  /** The finale gets a longer charge and a heavier release than the short unlock. */
+  unlock(reduced = false, finale = false): StopSound {
+    const revealAt = finale ? 4.2 : 1.5
+    const chargeUntil = finale ? 3.1 : 1.5
     const stops: StopSound[] = reduced ? lockRelease(0) : [
-      servo(1.48),
+      servo(chargeUntil - 0.02),
       signalNoise(0, 0.18, 480, 160, 0.16),
       ...[0.15, 0.55, 0.91, 1.18, 1.36].flatMap((t) => [
-        signalNoise(t, 0.035, 1500, 500, 0.22),
-        tone(127, { t, dur: 0.055, vol: 0.11, type: 'triangle' }),
+        signalNoise(t * chargeUntil / 1.5, 0.035, 1500, 500, 0.22),
+        tone(127, { t: t * chargeUntil / 1.5, dur: 0.055, vol: 0.11, type: 'triangle' }),
       ]),
-      ...lockRelease(1.5),
+      ...lockRelease(revealAt),
+      ...(finale ? [
+        tone(58, { t: revealAt + 0.06, dur: 1.1, vol: 0.25, glide: 34 }),
+        signalNoise(revealAt + 0.12, 0.9, 650, 130, 0.2),
+      ] : []),
     ]
     return () => stops.forEach((stop) => stop())
   },

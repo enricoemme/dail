@@ -380,18 +380,29 @@ export function OverrideScreen({ onNext }: { onNext: () => void }) {
   const reduced = useReducedMotion()
   const [revealed, setRevealed] = useState(reduced)
   useEffect(() => {
-    const t = window.setTimeout(() => setRevealed(true), reduced ? 0 : 1500)
+    const t = window.setTimeout(() => setRevealed(true), reduced ? 0 : 4200)
     return () => window.clearTimeout(t)
   }, [reduced])
-  useEffect(() => sfx.unlock(reduced), [reduced])
+  useEffect(() => sfx.unlock(reduced, true), [reduced])
 
   return (
     <div className={"v-screen override-screen" + (revealed ? " override-revealed" : "")} >
       <div className="override-atmosphere" aria-hidden="true" />
       <div className="override-impact" aria-hidden="true" />
-      <h1 className="override-headline" role="status">{revealed ? 'Override recovered' : 'Recovering override'}</h1>
-      <p className="escape-letter-label">Second override digit</p>
+      <h1 className="override-headline" role="status">{revealed ? 'Challenge complete' : 'Recovering your digit'}</h1>
+      <p className="escape-letter-label">Your second override digit</p>
       <div className="letter-stage">
+        <svg className="finale-ring" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+          <circle className="finale-ring-track" cx="200" cy="200" r="187" />
+          <circle className="finale-ring-charge" cx="200" cy="200" r="187" pathLength="100" />
+        </svg>
+        <div className="finale-rays" aria-hidden="true">
+          {Array.from({ length: 16 }, (_, i) => <span key={i} style={{ transform: `rotate(${i * 22.5}deg)` }}><i /></span>)}
+        </div>
+        <span className="finale-corner finale-corner-tl" aria-hidden="true" />
+        <span className="finale-corner finale-corner-tr" aria-hidden="true" />
+        <span className="finale-corner finale-corner-bl" aria-hidden="true" />
+        <span className="finale-corner finale-corner-br" aria-hidden="true" />
         <span className="override-orbit override-orbit-a" aria-hidden="true" />
         <span className="override-orbit override-orbit-b" aria-hidden="true" />
         <span className="sonar-ring" />
@@ -399,8 +410,8 @@ export function OverrideScreen({ onNext }: { onNext: () => void }) {
         {!revealed && <span className="override-lock" aria-label="Unlocking"><span /></span>}
         <div className="escape-letter" aria-hidden={!revealed}>{ESCAPE.digit}</div>
       </div>
-      <p className="v-lead v-flavour">Enter this digit with the others at the override console.</p>
-      <button className="btn-primary btn-lg" onClick={onNext} disabled={!revealed}>Continue</button>
+      <p className="v-lead v-flavour">Keep this digit for the override console.</p>
+      <button className="btn-primary btn-lg" onClick={onNext} disabled={!revealed}>I’ve got the digit</button>
     </div>
   )
 }
