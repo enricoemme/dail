@@ -158,7 +158,7 @@ export const RIDDLE = {
 export const ESCAPE = {
   /** The one-line insight the genuine clips add up to. */
   insight: 'The warning sign: people were beginning to stop checking.',
-  /** The override digit this challenge contributes to the escape room. */
-  digit: '7',
+  /** The DAIL module's override digit (fixed — set to match the escape room). */
+  digit: '2',
   flavour: 'Enter this digit into the override console along with the digits from the other challenges.',
 }

@@ -327,20 +327,11 @@ export function RiddleScreen({ player, realClips, onSolved }: {
 }
 
 // ---------------------------------------------------------------------------
-export function OverrideScreen({ teamName, solveTime, digit, reportStatus, onNext }: {
+export function OverrideScreen({ teamName, solveTime, onNext }: {
   teamName: string
   solveTime?: string
-  /** Digit issued by the central escape room; falls back to the placeholder. */
-  digit?: string | null
-  /** Write-back status so staff can see whether Central Ops logged the run. */
-  reportStatus?: 'idle' | 'sending' | 'ok' | 'failed' | 'no-team'
   onNext: () => void
 }) {
-  const report =
-    reportStatus === 'ok' ? { cls: 'report-ok', text: '✓ Result reported to Central Ops' }
-    : reportStatus === 'sending' ? { cls: 'report-pending', text: 'Reporting to Central Ops…' }
-    : reportStatus === 'failed' ? { cls: 'report-fail', text: "⚠ Couldn't reach Central Ops — tell a facilitator" }
-    : null
   useEffect(() => {
     sfx.sonar()
     const t = window.setTimeout(() => sfx.win(), 750)
@@ -360,10 +351,9 @@ export function OverrideScreen({ teamName, solveTime, digit, reportStatus, onNex
         <span className="sonar-ring" />
         <span className="sonar-ring" />
         <div className="escape-halo" />
-        <div className="escape-letter">{digit ?? ESCAPE.digit}</div>
+        <div className="escape-letter">{ESCAPE.digit}</div>
       </div>
       <p className="v-lead v-flavour">{ESCAPE.flavour}</p>
-      {report && <div className={'report-badge ' + report.cls}>{report.text}</div>}
       <button className="btn-primary btn-lg" onClick={onNext}>What just happened?</button>
     </div>
   )
