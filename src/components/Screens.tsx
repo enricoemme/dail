@@ -58,9 +58,37 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
   const startTimer = useRef<number>()
   const done = chars >= TRANSMISSION.length
   const alertArrived = !skipped && chars >= TRANSMISSION.indexOf(ALERT_LINE) + ALERT_LINE.length
+  const [takeover, setTakeover] = useState(0)
   const cloneArrived = chars >= TRANSMISSION.indexOf(CLONE_LINE) + CLONE_LINE.length
   const skipTransmission = () => { setSkipped(true); setChars(TRANSMISSION.length) }
   useEffect(() => () => window.clearTimeout(startTimer.current), [])
+
+  useEffect(() => {
+    if (reduced || !cloneArrived || connecting) { setTakeover(0); return }
+    let timer = 0
+    let finish = 0
+    let burst = 0
+    const schedule = () => {
+      timer = window.setTimeout(() => {
+        setTakeover(++burst)
+        finish = window.setTimeout(() => setTakeover(0), 1100)
+        schedule()
+      }, 6000 + Math.random() * 3000)
+    }
+    const visibility = () => {
+      window.clearTimeout(timer)
+      window.clearTimeout(finish)
+      setTakeover(0)
+      if (!document.hidden) schedule()
+    }
+    if (!document.hidden) schedule()
+    document.addEventListener('visibilitychange', visibility)
+    return () => {
+      window.clearTimeout(timer)
+      window.clearTimeout(finish)
+      document.removeEventListener('visibilitychange', visibility)
+    }
+  }, [reduced, cloneArrived, connecting])
 
   const [teams, setTeams] = useState<Team[] | null>(null) // null = still loading
   const [loadFailed, setLoadFailed] = useState(false)
@@ -109,8 +137,10 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
         : 'Select your team'
 
   return (
-    <div className={'v-screen brief-screen' + (connecting ? ' brief-connecting' : '')}>
-      <DailPortrait disrupted={cloneArrived} />
+    <div className={'v-screen brief-screen' + (connecting ? ' brief-connecting' : '') + (takeover ? ' takeover-active' : '')}>
+      <DailPortrait disrupted={takeover > 0} />
+      {takeover > 0 && <div className="takeover-scan" aria-hidden="true" />}
+      <div className={'takeover-warning' + (takeover % 2 === 1 ? ' takeover-warning-visible' : '')} aria-hidden="true">SIGNAL COMPROMISED</div>
       <div className="intro-kicker">The Turing Test Challenge</div>
       <h1 className="v-title">D<span className="name-ai">AI</span>L</h1>
       <div

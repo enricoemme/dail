@@ -887,22 +887,19 @@ button:focus-visible { outline: 3px solid var(--aqua); outline-offset: 4px; }
 .portrait-echo { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
 .portrait-echo-cyan { filter: sepia(1) saturate(3) hue-rotate(135deg); mix-blend-mode: screen; }
 .portrait-echo-coral { filter: sepia(1) saturate(4) hue-rotate(310deg); mix-blend-mode: screen; }
-.identity-disrupted .portrait-echo-cyan { animation: identity-echo 5.5s linear infinite; }
-.identity-disrupted .portrait-echo-coral { animation: identity-echo-coral 5.5s linear infinite; }
-@keyframes identity-echo {
-  0%, 12%, 100% { opacity: 0; transform: translateX(0); clip-path: inset(0); }
-  2% { opacity: 0.38; transform: translateX(9px); clip-path: inset(15% 0 52%); }
-  5% { opacity: 0.24; transform: translateX(-6px); clip-path: inset(48% 0 15%); }
-  8% { opacity: 0.12; transform: translateX(3px); clip-path: inset(22% 0 30%); }
-}
-@keyframes identity-echo-coral {
-  0%, 12%, 100% { opacity: 0; transform: translateX(0); clip-path: inset(0); }
-  3% { opacity: 0.28; transform: translateX(-8px); clip-path: inset(30% 0 40%); }
-  6% { opacity: 0.2; transform: translateX(5px); clip-path: inset(12% 0 63%); }
-  9% { opacity: 0.1; transform: translateX(-3px); clip-path: inset(52% 0 12%); }
+/* One coordinated disruption, scheduled by the briefing screen. */
+.identity-disrupted .portrait-echo-cyan { animation: takeover-face 1.1s steps(1) both; }
+.identity-disrupted .portrait-echo-coral { animation: takeover-face 1.1s steps(1) reverse both; }
+@keyframes takeover-face {
+  0%, 100% { opacity: 0; transform: translateX(0); clip-path: inset(0); }
+  10% { opacity: 0.65; transform: translateX(18px); clip-path: inset(19% 0 64%); }
+  28% { opacity: 0.45; transform: translateX(-13px); clip-path: inset(40% 0 44%); }
+  46% { opacity: 0.5; transform: translateX(9px); clip-path: inset(24% 0 62%); }
+  68% { opacity: 0.24; transform: translateX(-5px); clip-path: inset(58% 0 30%); }
+  86% { opacity: 0; }
 }
 
-.brief-screen .transmission { overflow: hidden; padding: 1.3rem 2rem 1rem; cursor: default; }
+.brief-screen .transmission { overflow: clip; padding: 1.3rem 2rem 1rem; cursor: default; }
 .transmission::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(105deg, transparent 35%, rgba(127,224,255,0.09) 50%, transparent 65%); animation: transmission-sweep 1.4s ease-out both; }
 @keyframes transmission-sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 .transmission-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-bottom: 0.9rem; margin-bottom: 0.85rem; border-bottom: 1px solid rgba(127,224,255,0.16); }
@@ -1062,3 +1059,20 @@ button:focus-visible { outline: 3px solid var(--aqua); outline-offset: 4px; }
 .portrait-tilt { position: relative; width: 100%; height: 100%; transform-origin: 59% 27%; backface-visibility: hidden; will-change: transform; }
 .portrait-light { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 30% 28% at var(--portrait-light-x, 50%) var(--portrait-light-y, 30%), rgba(127,224,255,0.1), transparent 80%); mix-blend-mode: screen; }
 @media (prefers-reduced-motion: reduce) { .portrait-tilt { transform: none !important; will-change: auto; } .portrait-light { display: none; } }
+
+/* Takeover stays decorative: no layout shifts or interference with controls. */
+.brief-screen > .takeover-scan { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+.takeover-scan::after { content: ''; position: absolute; inset: 0 0 auto; height: 8%; border-bottom: 1px solid rgba(127,224,255,.55); background: linear-gradient(transparent, rgba(127,224,255,.07)); animation: takeover-sweep 1.1s ease-in-out both; }
+.brief-screen > .takeover-warning { position: absolute; top: 6.2rem; left: 50%; transform: translateX(-50%); color: var(--coral); font: 0.68rem ui-monospace, monospace; letter-spacing: .2em; white-space: nowrap; opacity: 0; pointer-events: none; }
+.takeover-warning-visible { animation: takeover-warning 1.1s ease both; }
+.takeover-active .v-title { animation: takeover-title 1.1s steps(1) both; }
+.takeover-active .portrait-eye { animation: takeover-eye 1.1s ease both; }
+@keyframes takeover-sweep { from { transform: translateY(-100%); opacity: 0; } 15% { opacity: 1; } 80% { opacity: .6; } to { transform: translateY(1250%); opacity: 0; } }
+@keyframes takeover-warning { 0%, 100% { opacity: 0; } 18%, 75% { opacity: .9; } }
+@keyframes takeover-title { 0%, 100% { transform: none; text-shadow: none; } 12% { transform: skewX(-3deg); text-shadow: 5px 0 rgba(127,224,255,.65), -5px 0 rgba(255,138,92,.6); } 30% { transform: skewX(2deg); text-shadow: -3px 0 rgba(127,224,255,.5), 3px 0 rgba(255,138,92,.5); } 48% { transform: none; text-shadow: 2px 0 rgba(127,224,255,.4); } 70% { text-shadow: none; } }
+@keyframes takeover-eye { 0%, 100% { opacity: .3; } 25%, 45% { opacity: 1; filter: brightness(1.7); } 75% { opacity: .65; } }
+@media (prefers-reduced-motion: reduce) {
+  .takeover-scan, .takeover-warning { display: none; }
+  .takeover-active .v-title { animation: none; }
+  .takeover-active .portrait-eye { animation: none; opacity: .25; }
+}
