@@ -69,8 +69,18 @@ npm run dev        # Vite on http://localhost:5173 (or next free port)
 
 - Chrome, fullscreen (⚙ bottom-left → Enter fullscreen), landscape display.
 - The ⚙ staff menu also has **Skip to next screen** and **Restart game**.
-- First interaction unlocks browser audio automatically (clicking a clip
-  counts), so there's no separate "enable audio" step.
+- **Background music / audio autoplay.** Browsers only let *audible* audio
+  start after a user interaction — normally the first **click** (a mouse-move
+  alone doesn't count). To have the briefing music kick off the instant the
+  player moves the mouse (or on load), launch Chrome with autoplay unblocked:
+
+  ```bash
+  # macOS — kiosk with audio autoplay allowed
+  open -a "Google Chrome" --args \
+    --kiosk --autoplay-policy=no-user-gesture-required http://localhost:8787
+  ```
+
+  Without the flag, the music starts unmuted on the first click instead.
 
 ## Architecture
 
