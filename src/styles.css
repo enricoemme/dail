@@ -1068,7 +1068,7 @@ body:has(.takeover-viewport) #root { filter: url(#takeover-wave); }
 .takeover-active .portrait-eye { animation: takeover-eye 1.9s ease both; }
 .identity-disrupted .portrait-echo-cyan { animation: takeover-face-smooth 1.9s ease-in-out both; }
 .identity-disrupted .portrait-echo-coral { animation: takeover-face-smooth 1.9s ease-in-out reverse both; }
-@keyframes takeover-face-smooth { 0%, 100% { opacity: 0; transform: translateX(0); clip-path: inset(12% 0 75%); } 45% { opacity: .3; transform: translateX(8px); clip-path: inset(40% 0 42%); } 75% { opacity: .1; transform: translateX(-3px); clip-path: inset(70% 0 18%); } }
+@keyframes takeover-face-smooth { 0%, 100% { opacity: 0; transform: translateX(0); clip-path: inset(12% 0 75%); } 45% { opacity: .7; transform: translateX(22px); clip-path: inset(40% 0 42%); } 75% { opacity: .3; transform: translateX(-12px); clip-path: inset(70% 0 18%); } }
 @keyframes takeover-warning { 0%, 100% { opacity: 0; } 30%, 65% { opacity: .85; } }
 @keyframes takeover-title { 0%, 100% { text-shadow: none; } 45% { text-shadow: 3px 0 rgba(127,224,255,.45), -3px 0 rgba(255,138,92,.4); } }
 @keyframes takeover-eye { 0%, 100% { opacity: .3; } 40% { opacity: 1; filter: brightness(1.4); } }
@@ -1079,3 +1079,12 @@ body:has(.takeover-viewport) #root { filter: url(#takeover-wave); }
   .takeover-active .v-title { animation: none; }
   .takeover-active .portrait-eye { animation: none; opacity: .25; }
 }
+
+/* Dale visibly bends with the intrusion while the cursor-tracking layer stays independent. */
+.identity-disrupted .portrait-base { animation: takeover-portrait-warp 1.9s ease-in-out both; transform-origin: 59% 27%; }
+@keyframes takeover-portrait-warp {
+  0%, 100% { transform: none; filter: none; }
+  35% { transform: skewX(2deg) scaleX(1.025) translateX(-4px); filter: contrast(1.2) saturate(1.25); }
+  65% { transform: skewX(-1.5deg) scaleX(.985) translateX(4px); filter: contrast(1.1); }
+}
+@media (prefers-reduced-motion: reduce) { .identity-disrupted .portrait-base { animation: none; } }
