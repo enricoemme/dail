@@ -309,8 +309,8 @@ export function FlagsScreen({ player, fakeClips, onNext }: {
       <div className="intro-kicker">All five fakes caught</div>
       <h2 className="v-h1">Here's what should have raised suspicion</h2>
       <p className="v-lead flags-lead">
-        You've identified VIKI's five messages. Review the warning signs, then examine
-        Dale's genuine recordings to work out what was happening before the incident.
+        You've identified VIKI's five messages. Each one nudged staff to skip a check,
+        bypass a safeguard, or act without verifying — these were the warning signs.
       </p>
       <div className="flags-list">
         {fakeClips.map((c, i) => (
@@ -326,7 +326,7 @@ export function FlagsScreen({ player, fakeClips, onNext }: {
         ))}
       </div>
       <button className="btn-primary btn-lg" onClick={() => { player.stop(); onNext() }}>
-        Now — the genuine recordings
+        Reveal the override digit
       </button>
     </div>
   )

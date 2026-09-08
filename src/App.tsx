@@ -13,13 +13,11 @@ import {
   DebriefScreen,
   FlagsScreen,
   OverrideScreen,
-  RiddleScreen,
-  riddleOrder,
   TestScreen,
 } from './components/Screens'
 import type { GridClip, Phase } from './types'
 
-const PHASE_ORDER: Phase[] = ['brief', 'test', 'isolation', 'flags', 'riddle', 'override', 'debrief']
+const PHASE_ORDER: Phase[] = ['brief', 'test', 'isolation', 'flags', 'override', 'debrief']
 
 // Fixed display order (= content.ts order, already scrambled real/fake):
 // facilitators get a stable answer key — the REAL clips are always
@@ -64,7 +62,6 @@ export default function App() {
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
   })()
 
-  const realClips = useMemo(() => riddleOrder(clips), [clips])
   const fakeClips = useMemo(() => clips.filter((c) => !c.isReal), [clips])
 
   const mark = (id: string, m: boolean) =>
@@ -109,15 +106,12 @@ export default function App() {
             player={player}
             clips={clips}
             onMark={mark}
-            onPass={() => go('isolation')}
+            onPass={() => { setFinishedAt((f) => f ?? Date.now()); go('isolation') }}
           />
         )}
         {phase === 'isolation' && <InterceptScreen onComplete={() => go('flags')} />}
         {phase === 'flags' && (
-          <FlagsScreen player={player} fakeClips={fakeClips} onNext={() => go('riddle')} />
-        )}
-        {phase === 'riddle' && (
-          <RiddleScreen player={player} realClips={realClips} onSolved={() => { setFinishedAt((f) => f ?? Date.now()); go('override') }} />
+          <FlagsScreen player={player} fakeClips={fakeClips} onNext={() => go('override')} />
         )}
         {phase === 'override' && (
           <OverrideScreen onNext={() => go('debrief')} />
