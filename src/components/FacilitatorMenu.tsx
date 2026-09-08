@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { sfx } from '../lib/audio/sfx'
 
 interface Props {
@@ -10,6 +10,12 @@ interface Props {
 export function FacilitatorMenu({ onRestart, onSkip }: Props) {
   const [open, setOpen] = useState(false)
   const [muted, setMuted] = useState(sfx.muted)
+
+  useEffect(() => {
+    const sync = () => setMuted(sfx.muted)
+    window.addEventListener('dail-mute-change', sync)
+    return () => window.removeEventListener('dail-mute-change', sync)
+  }, [])
 
   return (
     <div className="facilitator">
@@ -32,7 +38,7 @@ export function FacilitatorMenu({ onRestart, onSkip }: Props) {
             className="fac-btn"
             onClick={() => { sfx.setMuted(!muted); setMuted(!muted); if (muted) sfx.tap() }}
           >
-            {muted ? 'UI sounds: off' : 'UI sounds: on'}
+            {muted ? 'Sound: off' : 'Sound: on'}
           </button>
           <button className="fac-btn fac-close" onClick={() => setOpen(false)}>Close</button>
         </div>

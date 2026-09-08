@@ -14,6 +14,8 @@ import { sfx } from '../lib/audio/sfx'
 import { apiFetch } from '../lib/api'
 import { ClipCard } from './ClipCard'
 import { TeamPicker } from './TeamPicker'
+import { BriefAmbience } from './BriefAmbience'
+import { TakeoverWave } from './TakeoverWave'
 import { DailPortrait } from './DailPortrait'
 import { Confetti } from './Confetti'
 import { useReducedMotion } from '../lib/useReducedMotion'
@@ -71,7 +73,7 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
     const schedule = () => {
       timer = window.setTimeout(() => {
         setTakeover(++burst)
-        finish = window.setTimeout(() => setTakeover(0), 1100)
+        finish = window.setTimeout(() => setTakeover(0), 1900)
         schedule()
       }, 6000 + Math.random() * 3000)
     }
@@ -139,8 +141,8 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
   return (
     <div className={'v-screen brief-screen' + (connecting ? ' brief-connecting' : '') + (takeover ? ' takeover-active' : '')}>
       <DailPortrait disrupted={takeover > 0} />
-      {takeover > 0 && <div className="takeover-scan" aria-hidden="true" />}
-      <div className={'takeover-warning' + (takeover % 2 === 1 ? ' takeover-warning-visible' : '')} aria-hidden="true">SIGNAL COMPROMISED</div>
+      {takeover > 0 && <TakeoverWave warning={takeover % 2 === 1} />}
+      <BriefAmbience leaving={connecting} />
       <div className="intro-kicker">The Turing Test Challenge</div>
       <h1 className="v-title">D<span className="name-ai">AI</span>L</h1>
       <div

@@ -92,6 +92,7 @@ export const sfx = {
   get muted(): boolean { return muted },
   setMuted(m: boolean): void {
     muted = m
+    window.dispatchEvent(new Event('dail-mute-change'))
     if (ctx && master) {
       master.gain.cancelAndHoldAtTime(ctx.currentTime)
       master.gain.setTargetAtTime(m ? 0 : 0.8, ctx.currentTime, 0.015)
