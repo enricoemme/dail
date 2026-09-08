@@ -5,3 +5,4 @@ dist/
 
 # Playwright browser binaries are large and machine-specific
 .vercel
+dist-gh/
