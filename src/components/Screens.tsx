@@ -73,9 +73,9 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
     const schedule = () => {
       timer = window.setTimeout(() => {
         setTakeover(++burst)
-        finish = window.setTimeout(() => setTakeover(0), 1900)
+        finish = window.setTimeout(() => setTakeover(0), 500)
         schedule()
-      }, 4000 + Math.random() * 2000)
+      }, 2200 + Math.random() * 5300)
     }
     const visibility = () => {
       window.clearTimeout(timer)

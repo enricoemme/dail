@@ -1061,7 +1061,7 @@ button:focus-visible { outline: 3px solid var(--aqua); outline-offset: 4px; }
 /* Smooth, viewport-wide interference; the filter never moves hit targets. */
 body:has(.takeover-viewport) #root { filter: url(#takeover-wave); }
 .takeover-viewport { position: fixed; inset: 0; z-index: 90; pointer-events: none; overflow: hidden; }
-.takeover-warning { position: absolute; top: 6.2rem; left: 50%; transform: translateX(-50%); color: var(--coral); font: 0.68rem ui-monospace, monospace; letter-spacing: .2em; white-space: nowrap; animation: takeover-warning 1.9s ease both; }
+.takeover-warning { position: absolute; top: 6.2rem; left: 50%; transform: translateX(-50%); color: var(--coral); font: 0.68rem ui-monospace, monospace; letter-spacing: .2em; white-space: nowrap; animation: takeover-warning .5s ease both; }
 @keyframes takeover-warning { 0%, 100% { opacity: 0; } 30%, 65% { opacity: .85; } }
 @media (max-width: 700px) { .takeover-warning { top: 8.4rem; font-size: .6rem; } }
 @media (prefers-reduced-motion: reduce) {

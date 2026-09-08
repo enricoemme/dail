@@ -19,6 +19,7 @@ export function BriefAmbience({ leaving }: { leaving: boolean }) {
     const onPause = () => { if (alive) { setPlaying(false); start() } }
     track.muted = sfx.muted
     track.volume = .45
+    track.addEventListener('canplay', start)
     track.addEventListener('play', onPlay)
     track.addEventListener('pause', onPause)
     window.addEventListener('click', start, true)
@@ -32,6 +33,7 @@ export function BriefAmbience({ leaving }: { leaving: boolean }) {
     return () => {
       alive = false
       track.pause()
+      track.removeEventListener('canplay', start)
       track.removeEventListener('play', onPlay)
       track.removeEventListener('pause', onPause)
       window.removeEventListener('click', start, true)
@@ -58,5 +60,5 @@ export function BriefAmbience({ leaving }: { leaving: boolean }) {
     frame = requestAnimationFrame(fade)
     return () => cancelAnimationFrame(frame)
   }, [playing, leaving])
-  return <audio ref={audio} src={`${import.meta.env.BASE_URL}sfx/brief-ambience.mp3`} loop preload="auto" />
+  return <audio ref={audio} src={`${import.meta.env.BASE_URL}sfx/brief-music.mp3`} autoPlay muted={sfx.muted} loop preload="auto" />
 }
