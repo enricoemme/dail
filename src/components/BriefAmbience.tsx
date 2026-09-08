@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { sfx } from '../lib/audio/sfx'
+import { musicStatus } from '../lib/audio/musicStatus'
 
 export function BriefAmbience({ leaving }: { leaving: boolean }) {
   const audio = useRef<HTMLAudioElement>(null)
@@ -10,17 +11,34 @@ export function BriefAmbience({ leaving }: { leaving: boolean }) {
     const track = audio.current!
     let alive = true
     const start = () => {
-      if (sfx.muted || departing.current || !track.paused) return
-      void track.play().catch(() => { /* Retry on interaction when autoplay is blocked. */ })
+      if (!alive || departing.current) return
+      if (sfx.muted) { musicStatus.set('muted'); return }
+      if (!track.paused) return
+      void track.play().catch((error: unknown) => {
+        if (!alive || departing.current || !track.paused) return
+        if (error instanceof DOMException && error.name === 'AbortError') return
+        musicStatus.set(error instanceof DOMException && error.name === 'NotAllowedError' ? 'blocked' : 'error')
+      })
     }
-    const sync = () => { track.muted = sfx.muted; if (!sfx.muted) start() }
+    const sync = () => { track.muted = sfx.muted; musicStatus.set(sfx.muted ? 'muted' : track.paused ? 'loading' : 'playing'); if (!sfx.muted) start() }
     const visibility = () => { if (!document.hidden) start() }
-    const onPlay = () => { if (alive) setPlaying(true) }
+    const onPlay = () => { if (alive) { setPlaying(true); musicStatus.set(sfx.muted ? 'muted' : 'playing') } }
+    const onError = () => musicStatus.set('error')
+    const onWaiting = () => { if (!track.paused && !sfx.muted) musicStatus.set('loading') }
+    const retry = () => {
+      if (track.error) { musicStatus.set('loading'); track.load() }
+      sfx.setMuted(false)
+      start()
+    }
+    musicStatus.set(sfx.muted ? 'muted' : 'loading')
     const onPause = () => { if (alive) { setPlaying(false); start() } }
     track.muted = sfx.muted
     track.volume = .45
     track.addEventListener('canplay', start)
-    track.addEventListener('play', onPlay)
+    track.addEventListener('playing', onPlay)
+    track.addEventListener('error', onError)
+    track.addEventListener('waiting', onWaiting)
+    window.addEventListener('dail-music-retry', retry)
     track.addEventListener('pause', onPause)
     window.addEventListener('click', start, true)
     window.addEventListener('touchend', start, true)
@@ -34,7 +52,11 @@ export function BriefAmbience({ leaving }: { leaving: boolean }) {
       alive = false
       track.pause()
       track.removeEventListener('canplay', start)
-      track.removeEventListener('play', onPlay)
+      track.removeEventListener('playing', onPlay)
+      track.removeEventListener('error', onError)
+      track.removeEventListener('waiting', onWaiting)
+      window.removeEventListener('dail-music-retry', retry)
+      musicStatus.set('inactive')
       track.removeEventListener('pause', onPause)
       window.removeEventListener('click', start, true)
       window.removeEventListener('touchend', start, true)

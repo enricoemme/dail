@@ -1074,3 +1074,5 @@ body:has(.takeover-viewport) #root { filter: url(#takeover-wave); }
 /* Keep the briefing free of visible browser scrollbars, while preserving touch/keyboard scrolling. */
 html:has(.brief-screen) { scrollbar-width: none; }
 html:has(.brief-screen)::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+.fac-music-status { max-width: 16rem; padding: .5rem .6rem; font-size: .75rem; color: var(--ink-soft); }
