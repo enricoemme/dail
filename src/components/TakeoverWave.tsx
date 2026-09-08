@@ -11,7 +11,6 @@ export function TakeoverWave({ warning }: { warning: boolean }) {
         </feDisplacementMap>
       </filter>
     </defs></svg>
-    <div className="takeover-scan" />
     {warning && <div className="takeover-warning">SIGNAL COMPROMISED</div>}
   </div>, document.body)
 }
