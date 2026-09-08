@@ -1070,3 +1070,7 @@ body:has(.takeover-viewport) #root { filter: url(#takeover-wave); }
   .takeover-active .v-title { animation: none; }
   .takeover-active .portrait-eye { animation: none; opacity: .25; }
 }
+
+/* Keep the briefing free of visible browser scrollbars, while preserving touch/keyboard scrolling. */
+html:has(.brief-screen) { scrollbar-width: none; }
+html:has(.brief-screen)::-webkit-scrollbar { display: none; width: 0; height: 0; }

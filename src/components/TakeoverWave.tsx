@@ -25,7 +25,7 @@ export function TakeoverWave({ warning }: { warning: boolean }) {
   }, [])
   return createPortal(<div className="takeover-viewport" aria-hidden="true">
     <svg width="0" height="0"><defs>
-      <filter id="takeover-wave" x="-2%" y="-2%" width="104%" height="104%" colorInterpolationFilters="sRGB">
+      <filter id="takeover-wave" x="0%" y="0%" width="100%" height="100%" colorInterpolationFilters="sRGB">
         <feTurbulence ref={noise} type="fractalNoise" baseFrequency=".001 .055" numOctaves="1" seed="8" result="noise" />
         <feColorMatrix in="noise" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 0 0 .5  0 0 0 0 1" result="horizontal-noise" />
         <feDisplacementMap ref={displacement} in="SourceGraphic" in2="horizontal-noise" scale="0" xChannelSelector="R" yChannelSelector="B" />
