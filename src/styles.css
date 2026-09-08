@@ -1072,9 +1072,7 @@ body:has(.takeover-viewport) #root { filter: url(#takeover-wave); }
 @keyframes takeover-warning { 0%, 100% { opacity: 0; } 30%, 65% { opacity: .85; } }
 @keyframes takeover-title { 0%, 100% { text-shadow: none; } 45% { text-shadow: 3px 0 rgba(127,224,255,.45), -3px 0 rgba(255,138,92,.4); } }
 @keyframes takeover-eye { 0%, 100% { opacity: .3; } 40% { opacity: 1; filter: brightness(1.4); } }
-.brief-screen > .brief-ambience { position: absolute; top: 6.2rem; right: 2.4rem; border: 1px solid rgba(127,224,255,.25); border-radius: 999px; background: rgba(6,42,70,.35); color: var(--aqua); padding: .5rem .8rem; font: .72rem var(--sans); cursor: pointer; }
-.brief-ambience:hover { background: rgba(6,42,70,.65); }
-@media (max-width: 700px) { .brief-screen > .brief-ambience { right: 1rem; top: 5.6rem; } .takeover-warning { top: 8.4rem; font-size: .6rem; } }
+@media (max-width: 700px) { .takeover-warning { top: 8.4rem; font-size: .6rem; } }
 @media (prefers-reduced-motion: reduce) {
   body:has(.takeover-viewport) #root { filter: none; }
   .takeover-viewport { display: none; }

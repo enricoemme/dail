@@ -4,16 +4,14 @@ import { sfx } from '../lib/audio/sfx'
 export function BriefAmbience({ leaving }: { leaving: boolean }) {
   const audio = useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = useState(false)
-  const [muted, setMuted] = useState(sfx.muted)
   useEffect(() => {
     const track = audio.current!
     let alive = true
-    const start = (event?: Event) => {
-      if (event?.target instanceof Element && event.target.closest('.brief-ambience')) return
+    const start = () => {
       if (sfx.muted || document.hidden) return
-      void track.play().catch(() => { /* The visible button allows another attempt. */ })
+      void track.play().catch(() => { /* Retry on interaction when autoplay is blocked. */ })
     }
-    const sync = () => { setMuted(sfx.muted); track.muted = sfx.muted; if (!sfx.muted) start() }
+    const sync = () => { track.muted = sfx.muted; if (!sfx.muted) start() }
     const visibility = () => { if (document.hidden) track.pause(); else start() }
     const onPlay = () => { if (alive) setPlaying(true) }
     const onPause = () => { if (alive) setPlaying(false) }
@@ -22,15 +20,18 @@ export function BriefAmbience({ leaving }: { leaving: boolean }) {
     track.addEventListener('play', onPlay)
     track.addEventListener('pause', onPause)
     window.addEventListener('pointerdown', start)
+    window.addEventListener('pointerup', start)
     window.addEventListener('keydown', start)
     window.addEventListener('dail-mute-change', sync)
     document.addEventListener('visibilitychange', visibility)
+    start()
     return () => {
       alive = false
       track.pause()
       track.removeEventListener('play', onPlay)
       track.removeEventListener('pause', onPause)
       window.removeEventListener('pointerdown', start)
+      window.removeEventListener('pointerup', start)
       window.removeEventListener('keydown', start)
       window.removeEventListener('dail-mute-change', sync)
       document.removeEventListener('visibilitychange', visibility)
@@ -51,15 +52,5 @@ export function BriefAmbience({ leaving }: { leaving: boolean }) {
     frame = requestAnimationFrame(fade)
     return () => cancelAnimationFrame(frame)
   }, [playing, leaving])
-  return <>
-    <audio ref={audio} src={`${import.meta.env.BASE_URL}sfx/brief-ambience.mp3`} loop preload="none" />
-    <button className="brief-ambience" onClick={() => {
-      if (muted || !playing) {
-        sfx.setMuted(false)
-        void audio.current?.play().catch(() => {})
-      } else sfx.setMuted(true)
-    }} aria-pressed={playing && !muted}>
-      {playing && !muted ? '◖ Sound on' : '◖ Enable sound'}
-    </button>
-  </>
+  return <audio ref={audio} src={`${import.meta.env.BASE_URL}sfx/brief-ambience.mp3`} loop preload="none" />
 }
