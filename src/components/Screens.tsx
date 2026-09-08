@@ -26,7 +26,7 @@ const TRANSMISSION = [
   '>> ⚠ SECURITY ALERT',
   '>> VIKI has discovered voice cloning.',
   '>> It now sounds exactly like our Head of Automation Dale,',
-  '>> and has been using those voices to push',
+  '>> and has been using his voice to push',
   '>> its own recommendations.',
   '>> Ten voice messages have been intercepted.',
   '>> Five are genuine, five are VIKI in disguise.',
