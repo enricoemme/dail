@@ -140,7 +140,7 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
 
   return (
     <div className={'v-screen brief-screen' + (connecting ? ' brief-connecting' : '') + (takeover ? ' takeover-active' : '')}>
-      <DailPortrait disrupted={takeover > 0} />
+      <DailPortrait />
       {takeover > 0 && <TakeoverWave warning={takeover % 2 === 1} />}
       <BriefAmbience leaving={connecting} />
       <div className="intro-kicker">The Turing Test Challenge</div>

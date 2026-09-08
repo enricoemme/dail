@@ -3,22 +3,26 @@ import { sfx } from '../lib/audio/sfx'
 
 export function BriefAmbience({ leaving }: { leaving: boolean }) {
   const audio = useRef<HTMLAudioElement>(null)
+  const departing = useRef(leaving)
+  departing.current = leaving
   const [playing, setPlaying] = useState(false)
   useEffect(() => {
     const track = audio.current!
     let alive = true
     const start = () => {
-      if (sfx.muted || document.hidden) return
+      if (sfx.muted || departing.current || !track.paused) return
       void track.play().catch(() => { /* Retry on interaction when autoplay is blocked. */ })
     }
     const sync = () => { track.muted = sfx.muted; if (!sfx.muted) start() }
-    const visibility = () => { if (document.hidden) track.pause(); else start() }
+    const visibility = () => { if (!document.hidden) start() }
     const onPlay = () => { if (alive) setPlaying(true) }
-    const onPause = () => { if (alive) setPlaying(false) }
+    const onPause = () => { if (alive) { setPlaying(false); start() } }
     track.muted = sfx.muted
-    track.volume = 0
+    track.volume = .45
     track.addEventListener('play', onPlay)
     track.addEventListener('pause', onPause)
+    window.addEventListener('click', start, true)
+    window.addEventListener('touchend', start, true)
     window.addEventListener('pointerdown', start)
     window.addEventListener('pointerup', start)
     window.addEventListener('keydown', start)
@@ -30,6 +34,8 @@ export function BriefAmbience({ leaving }: { leaving: boolean }) {
       track.pause()
       track.removeEventListener('play', onPlay)
       track.removeEventListener('pause', onPause)
+      window.removeEventListener('click', start, true)
+      window.removeEventListener('touchend', start, true)
       window.removeEventListener('pointerdown', start)
       window.removeEventListener('pointerup', start)
       window.removeEventListener('keydown', start)
@@ -40,7 +46,7 @@ export function BriefAmbience({ leaving }: { leaving: boolean }) {
   useEffect(() => {
     const track = audio.current!
     const from = track.volume
-    const target = leaving ? 0 : .2
+    const target = leaving ? 0 : .45
     const start = performance.now()
     let frame = 0
     const fade = (now: number) => {
@@ -52,5 +58,5 @@ export function BriefAmbience({ leaving }: { leaving: boolean }) {
     frame = requestAnimationFrame(fade)
     return () => cancelAnimationFrame(frame)
   }, [playing, leaving])
-  return <audio ref={audio} src={`${import.meta.env.BASE_URL}sfx/brief-ambience.mp3`} loop preload="none" />
+  return <audio ref={audio} src={`${import.meta.env.BASE_URL}sfx/brief-ambience.mp3`} loop preload="auto" />
 }
