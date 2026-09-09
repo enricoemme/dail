@@ -8,12 +8,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { ClipPlayer } from '../lib/audio/clipPlayer'
-import type { GridClip, Team } from '../types'
+import type { GridClip } from '../types'
 import { RIDDLE, ESCAPE, REAL_CLIPS } from '../game/content'
 import { sfx } from '../lib/audio/sfx'
-import { apiFetch } from '../lib/api'
 import { ClipCard } from './ClipCard'
-import { TeamPicker } from './TeamPicker'
 import { BriefAmbience } from './BriefAmbience'
 import { TakeoverWave } from './TakeoverWave'
 import { DailPortrait } from './DailPortrait'
@@ -92,10 +90,6 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
     }
   }, [reduced, cloneArrived, connecting])
 
-  const [teams, setTeams] = useState<Team[] | null>(null) // null = still loading
-  const [loadFailed, setLoadFailed] = useState(false)
-  const [selectedId, setSelectedId] = useState('')
-
   useEffect(() => {
     if (reduced) { setChars(TRANSMISSION.length); return }
     if (done) return
@@ -108,35 +102,14 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
     return () => window.clearInterval(id)
   }, [reduced, done])
 
-  // Load the registered teams. Only registered teams can play — there is no
-  // manual fallback; a failure shows a retry, not a way around the roster.
-  const loadTeams = () => {
-    setLoadFailed(false)
-    setTeams(null)
-    apiFetch('/api/teams', { headers: { Accept: 'application/json' } })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((data: Team[]) => setTeams(Array.isArray(data) ? data : []))
-      .catch(() => { setTeams([]); setLoadFailed(true) })
-  }
-  useEffect(() => { loadTeams() }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const chosen = teams?.find((t) => t.id === selectedId) ?? null
-  const canStart = done && !!chosen && !connecting
+  const canStart = done && !connecting
   const submit = () => {
-    if (!chosen || !done || starting.current) return
+    if (!done || starting.current) return
     starting.current = true
     setConnecting(true)
     sfx.tap()
-    startTimer.current = window.setTimeout(() => onStart(chosen.name, chosen.id), reduced ? 0 : 850)
+    startTimer.current = window.setTimeout(() => onStart('', null), reduced ? 0 : 850)
   }
-
-  const placeholder = loadFailed
-    ? "Couldn't load the team list"
-    : teams === null
-      ? 'Loading teams…'
-      : teams.length === 0
-        ? 'No teams registered yet'
-        : 'Select your team'
 
   return (
     <div className={'v-screen brief-screen' + (connecting ? ' brief-connecting' : '') + (takeover ? ' takeover-active' : '')}>
@@ -169,23 +142,11 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
         </div>
       </div>
       <div className={'brief-join' + (done ? ' brief-join-ready' : '')}>
-        <TeamPicker
-          teams={teams ?? []}
-          value={selectedId}
-          placeholder={placeholder}
-          disabled={connecting || !teams || teams.length === 0}
-          onChange={setSelectedId}
-        />
         <button className={'btn-primary btn-lg brief-start' + (connecting ? ' brief-start-secured' : '')} onClick={submit} disabled={!canStart}>
           <span>{connecting ? 'Connection secured' : 'Enter the challenge'}</span>
           <span className="brief-start-icon" aria-hidden="true">{connecting ? '✓' : '→'}</span>
         </button>
       </div>
-      {loadFailed && (
-        <button className="brief-manual-toggle" onClick={loadTeams}>
-          ⟳ Retry loading teams
-        </button>
-      )}
     </div>
   )
 }
