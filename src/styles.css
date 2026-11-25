@@ -1076,3 +1076,130 @@ html:has(.brief-screen) { scrollbar-width: none; }
 html:has(.brief-screen)::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
 .fac-music-status { max-width: 16rem; padding: .5rem .6rem; font-size: .75rem; color: var(--ink-soft); }
+
+/* ==========================================================================
+   Layout pass for the six-clip game: screens sit centred in the viewport
+   instead of hugging the top bar, rows keep their width when a fake locks,
+   and the debrief reads as two columns.
+   ========================================================================== */
+
+/* ---- Turing test ---------------------------------------------------------- */
+.test-screen { justify-content: center; padding-top: 7rem; padding-bottom: 3rem; gap: 1.2rem; }
+.test-screen .test-lead { margin-bottom: 1rem; }
+.test-grid { gap: 1.15rem 2.6rem; width: min(86rem, 94vw); }
+.test-grid .clip-box { height: 96px; padding: 0 1.3rem; gap: 0.95rem; border-radius: 18px; }
+.test-grid .clip-play-icon { width: 2.1rem; height: 2.1rem; font-size: 0.9rem; }
+.catch-progress { font-size: 1.05rem; margin-bottom: 0.3rem; }
+.catch-dots span { width: 11px; height: 11px; }
+
+/* Clip number is a badge; it gains a tick once the clip has been played, so
+   the play button always stays a play button. */
+.clip-num {
+  position: relative;
+  width: 2.1rem; height: 2.1rem; min-width: 0;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 1rem;
+  text-align: center;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.clip-num-heard { color: var(--ink); border-color: rgba(127, 224, 255, 0.7); background: rgba(127, 224, 255, 0.14); }
+.clip-num-heard::after {
+  content: '✓';
+  position: absolute; top: -0.4rem; right: -0.45rem;
+  width: 1.05rem; height: 1.05rem;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  font-size: 0.62rem; font-weight: 800;
+  color: #06344a; background: var(--aqua);
+}
+
+/* Fixed-width verdict control: a locked row no longer shrinks its player. */
+.test-grid .verdict-toggle { width: 13rem; padding: 0.34rem; }
+.test-grid .vt-opt { flex: 1; font-size: 1.05rem; padding: 0.75rem 0; white-space: nowrap; }
+.verdict-locked .vt-real { display: none; }
+
+/* Feedback has a reserved slot, so the button never jumps. */
+.test-feedback-slot { min-height: 3rem; display: grid; place-items: center; }
+.test-feedback {
+  font-size: 1.05rem;
+  color: #ffd9c4;
+  background: rgba(255, 110, 90, 0.14);
+  border: 1px solid rgba(255, 138, 92, 0.45);
+  border-radius: 999px;
+  padding: 0.55rem 1.4rem;
+}
+.test-actions { margin-top: 0; }
+.btn-waiting { opacity: 0.62; box-shadow: none; }
+
+/* ---- red-flag reveal ------------------------------------------------------ */
+.flags-screen { justify-content: center; padding-top: 7rem; padding-bottom: 3rem; gap: 1.2rem; }
+.flags-screen .flags-lead { margin-bottom: 0.9rem; }
+.flags-list { gap: 1rem; width: min(74rem, 94vw); }
+.flag-row {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 1.6rem;
+  padding: 0.95rem 1.5rem 0.95rem 0.95rem;
+  border: 1px solid var(--glass-border);
+  border-left: 3px solid var(--coral);
+  border-radius: 20px;
+  background: rgba(4, 24, 40, 0.28);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.flag-clip .clip-box { height: 78px; padding: 0 1.2rem; gap: 0.9rem; }
+.flag-clip .clip-play-icon { width: 2rem; height: 2rem; font-size: 0.85rem; }
+.flag-meta { gap: 0.4rem; }
+.flag-subject { display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; }
+.flag-subject b { color: var(--ink); font-weight: 700; }
+.flag-subject i { font-style: normal; opacity: 0.6; }
+.flag-chip {
+  display: flex; align-items: baseline; gap: 0.65rem;
+  font-size: 1.22rem; line-height: 1.4;
+  color: var(--ink);
+  background: none; border: none; border-radius: 0; padding: 0;
+}
+.flag-icon { flex: none; color: var(--coral); font-size: 1.1em; }
+.flags-screen .btn-lg { margin-top: 1rem; }
+
+/* ---- debrief -------------------------------------------------------------- */
+.debrief-screen { justify-content: center; max-width: 1280px; padding-top: 7rem; padding-bottom: 3rem; gap: 1.2rem; }
+.debrief-insight {
+  font-size: clamp(1.1rem, 1.9vw, 1.35rem);
+  margin-bottom: 0.8rem;
+}
+.debrief-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+}
+.debrief-body { max-width: none; display: flex; flex-direction: column; gap: 1.1rem; }
+.debrief-body .v-body { max-width: none; }
+.debrief-card {
+  padding: 1.7rem 1.9rem 1.5rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+  background: rgba(4, 24, 40, 0.3);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+}
+.debrief-card .debrief-h { margin: 0 0 1rem; }
+.debrief-card .v-list li { margin-bottom: 0.7rem; }
+.debrief-card .v-list li:last-child { margin-bottom: 0; }
+.debrief-final { margin: 1.4rem 0 0.2rem; }
+
+@media (max-width: 900px) {
+  .debrief-grid { grid-template-columns: 1fr; gap: 1.6rem; }
+  .test-grid .verdict-toggle { width: 10.5rem; }
+}
+@media (max-width: 700px) {
+  .test-screen, .flags-screen, .debrief-screen { justify-content: flex-start; }
+  .test-grid .clip-box { height: 72px; padding: 0 0.8rem; gap: 0.6rem; }
+  .test-grid .verdict-toggle { width: 8.6rem; }
+  .test-grid .vt-opt { font-size: 0.85rem; padding: 0.5rem 0; }
+  .verdict-locked .vt-ai { font-size: 0.74rem; }
+  .flag-row { padding: 0.8rem; }
+  .flag-chip { font-size: 1.05rem; }
+}

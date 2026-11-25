@@ -251,11 +251,13 @@ export function TestScreen({ player, clips, onMark, onPass }: {
           />
         ))}
       </div>
-      {feedback && (
-        <p key={attempts} className="test-feedback" role="status">{feedback}</p>
-      )}
+      <div className="test-feedback-slot">
+        {feedback && (
+          <p key={attempts} className="test-feedback" role="status">{feedback}</p>
+        )}
+      </div>
       <div className="test-actions">
-        <button className="btn-primary btn-lg" onClick={submit}>
+        <button className={'btn-primary btn-lg' + (allMarked ? '' : ' btn-waiting')} onClick={submit}>
           Lock in answers
         </button>
       </div>
@@ -284,8 +286,12 @@ export function FlagsScreen({ player, fakeClips, onNext }: {
               <ClipCard player={player} clip={c} index={i} onMark={() => {}} readOnly />
             </div>
             <div className="flag-meta">
-              <span className="flag-subject">{c.subject}</span>
-              <span className="flag-chip">🚩 {c.redFlag}</span>
+              <span className="flag-subject">
+                <b>Clip {ALL_CLIPS.findIndex((a) => a.id === c.id) + 1}</b>
+                <i aria-hidden="true">·</i>
+                {c.subject}
+              </span>
+              <span className="flag-chip"><span className="flag-icon" aria-hidden="true">⚑</span>{c.redFlag}</span>
             </div>
           </div>
         ))}
@@ -407,8 +413,9 @@ export function DebriefScreen({ onRestart }: { onRestart: () => void }) {
   return (
     <div className="v-screen debrief-screen">
       <h2 className="v-h1">Could you tell the difference?</h2>
-      <div className="debrief-body">
-        <p className="v-body debrief-insight">{ESCAPE.insight}</p>
+      <p className="debrief-insight">{ESCAPE.insight}</p>
+      <div className="debrief-grid">
+        <div className="debrief-body">
         <p className="v-body">
           AI voice-cloning technology can study recordings of a person speaking
           and learn the patterns in their voice — their accent, rhythm, tone and
@@ -422,6 +429,8 @@ export function DebriefScreen({ onRestart }: { onRestart: () => void }) {
           confidential information or urgent action. A convincing voice is no
           longer proof that the caller is genuine.
         </p>
+        </div>
+        <div className="debrief-card">
         <h3 className="debrief-h">Stop. Check. Confirm.</h3>
         <ul className="v-list">
           <li>Do not share passwords, security codes or sensitive information.</li>
@@ -430,6 +439,7 @@ export function DebriefScreen({ onRestart }: { onRestart: () => void }) {
           <li>Ask a question or use a private phrase that an impersonator would not know.</li>
           <li>Report suspicious messages or calls through the correct security channel.</li>
         </ul>
+        </div>
       </div>
       <h3 className="debrief-final">Listen carefully — but always verify another way.</h3>
       <button className="btn-primary btn-lg" onClick={onRestart}>Play again</button>

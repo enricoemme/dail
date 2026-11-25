@@ -11,7 +11,7 @@ interface Props {
   onMark: (mark: boolean) => void
   /** Hide the verdict controls (used when replaying clips on later screens). */
   readOnly?: boolean
-  /** Whether the team has listened to this clip (shows the ✓ on the player). */
+  /** Whether the team has listened to this clip (ticks the clip number). */
   heard?: boolean
   /** Confirmed fake: glows green, controls disabled. */
   locked?: boolean
@@ -35,15 +35,17 @@ export function ClipCard({ player, clip, index, onMark, readOnly, heard, locked 
         onClick={() => player.toggle(clip.id, clip.file)}
         aria-label={playing ? 'Stop clip' : 'Play clip'}
       >
-        {!readOnly && <span className="clip-num">{index + 1}</span>}
-        <span className={'clip-play-icon' + (heard && !playing ? ' clip-heard' : '')}>
-          {playing ? '❚❚' : heard ? '✓' : '▶'}
-        </span>
+        {!readOnly && (
+          <span className={'clip-num' + (heard ? ' clip-num-heard' : '')} title={heard ? 'Listened' : undefined}>
+            {index + 1}
+          </span>
+        )}
+        <span className="clip-play-icon">{playing ? '❚❚' : '▶'}</span>
         <AudioWaveform player={player} clipId={clip.id} seed={clip.id + index} />
       </button>
 
       {!readOnly && (
-        <div className="verdict-toggle">
+        <div className={'verdict-toggle' + (locked ? ' verdict-locked' : '')}>
           <button
             className={'vt-opt vt-real' + (clip.mark === true ? ' vt-on' : '')}
             disabled={locked}
