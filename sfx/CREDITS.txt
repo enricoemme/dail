@@ -1,0 +1,7 @@
+Sound source assets: Kenney (https://kenney.nl), Creative Commons CC0.
+https://kenney.nl/assets/sci-fi-sounds
+https://kenney.nl/assets/impact-sounds
+https://kenney.nl/assets/interface-sounds
+https://creativecommons.org/publicdomain/zero/1.0/
+Edited and mixed for DAIL. Source licenses and reproducible mixing script are
+included in the repository under scripts/audio-sources and scripts/build-soundtrack.py.
