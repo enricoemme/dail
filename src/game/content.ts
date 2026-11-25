@@ -2,8 +2,10 @@
 // DAIL — GAME CONTENT (DAIL = the challenge; VIKI = the rogue AI villain). Single file to edit for scripts, clips and puzzle.
 //
 // THE STORY: VIKI, the council's AI assistant, has started imitating Chief
-// Exec Dale's voice. Ten intercepted voice messages: five genuinely
-// Dale (his own recordings), five synthesized by VIKI (ElevenLabs clone).
+// Exec Dale's voice. Six intercepted voice messages are in play: three
+// genuinely Dale (his own recordings), three synthesized by VIKI (ElevenLabs
+// clone). The pool below holds ten (five of each); ACTIVE_CLIP_IDS picks the
+// ones the game uses — swap ids there to change the line-up.
 // The pattern players must hear: the real Dale always asks people to
 // CHECK things; VIKI always talks people OUT of checking.
 //
@@ -30,7 +32,7 @@ export interface ClipContent {
 // is served from '/' (kiosk, Vercel) or '/dail/' (GitHub Pages).
 const asset = (p: string) => import.meta.env.BASE_URL + p.replace(/^\//, '')
 
-export const ALL_CLIPS: ClipContent[] = [
+const CLIP_POOL: ClipContent[] = [
   {
     id: 'clip-01',
     file: asset('/clips/clip-01.mp3'),
@@ -118,8 +120,27 @@ export const ALL_CLIPS: ClipContent[] = [
   },
 ]
 
+// The clips actually in the game, in on-screen order (clips 1–6 on the test
+// screen). Keep it balanced: three genuine, three VIKI.
+//   real: clip-01, clip-05, clip-10   ·   fake: clip-03, clip-06, clip-07
+//   benched: clip-04, clip-08 (real) · clip-02, clip-09 (fake)
+const ACTIVE_CLIP_IDS = ['clip-01', 'clip-03', 'clip-05', 'clip-06', 'clip-07', 'clip-10']
+
+export const ALL_CLIPS: ClipContent[] = ACTIVE_CLIP_IDS.map((id) => {
+  const clip = CLIP_POOL.find((c) => c.id === id)
+  if (!clip) throw new Error(`Unknown clip id in ACTIVE_CLIP_IDS: ${id}`)
+  return clip
+})
+
 export const REAL_CLIPS: ClipContent[] = ALL_CLIPS.filter((c) => c.isReal)
 export const FAKE_CLIPS: ClipContent[] = ALL_CLIPS.filter((c) => !c.isReal)
+
+/** Spell out a small count for on-screen copy ("three", "Six"). */
+const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']
+export function countWord(n: number, capital = false): string {
+  const w = NUMBER_WORDS[n] ?? String(n)
+  return capital ? w[0].toUpperCase() + w.slice(1) : w
+}
 
 // --- Stage 2: the question asked over the genuine recordings ----------------
 export interface RiddleOption {

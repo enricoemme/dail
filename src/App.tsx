@@ -19,9 +19,9 @@ import type { GridClip, Phase } from './types'
 
 const PHASE_ORDER: Phase[] = ['brief', 'test', 'isolation', 'flags', 'override', 'debrief']
 
-// Fixed display order (= content.ts order, already scrambled real/fake):
-// facilitators get a stable answer key — the REAL clips are always
-// numbers 1, 4, 5, 8 and 10 on the test screen.
+// Fixed display order (= ACTIVE_CLIP_IDS order in content.ts, already
+// scrambled real/fake): facilitators get a stable answer key — the REAL
+// clips are always numbers 1, 3 and 6 on the test screen.
 function gridClips(): GridClip[] {
   return ALL_CLIPS.map((c) => ({
     id: c.id, file: c.file, isReal: c.isReal, subject: c.subject,

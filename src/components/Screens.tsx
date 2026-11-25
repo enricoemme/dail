@@ -1,15 +1,15 @@
 // DAIL screens — Dale's storyboard plus the red-flag reveal:
 //   1. BriefScreen    — transmission from Central Operations + team name
-//   2. TestScreen     — the Turing test: all 10 clips, lock in, retry until perfect
-//   3. FlagsScreen    — the five fakes revealed, each with its red flag
-//   4. RiddleScreen   — replay the 5 genuine clips, spot the warning sign
+//   2. TestScreen     — the Turing test: all clips, lock in, retry until perfect
+//   3. FlagsScreen    — the fakes revealed, each with its red flag
+//   4. RiddleScreen   — replay the genuine clips, spot the warning sign
 //   5. OverrideScreen — the override digit ceremony
 // (+ DebriefScreen — the voice-cloning safety takeaway.)
 
 import { useEffect, useRef, useState } from 'react'
 import type { ClipPlayer } from '../lib/audio/clipPlayer'
 import type { GridClip } from '../types'
-import { RIDDLE, ESCAPE, REAL_CLIPS } from '../game/content'
+import { RIDDLE, ESCAPE, ALL_CLIPS, REAL_CLIPS, FAKE_CLIPS, countWord } from '../game/content'
 import { sfx } from '../lib/audio/sfx'
 import { ClipCard } from './ClipCard'
 import { BriefAmbience } from './BriefAmbience'
@@ -19,6 +19,10 @@ import { Confetti } from './Confetti'
 import { useReducedMotion } from '../lib/useReducedMotion'
 
 // ---------------------------------------------------------------------------
+const TOTAL = ALL_CLIPS.length
+const REALS = REAL_CLIPS.length
+const FAKES = FAKE_CLIPS.length
+
 const TRANSMISSION = [
   '>> CENTRAL OPERATIONS — PRIORITY TRANSMISSION',
   '>> ⚠ SECURITY ALERT',
@@ -26,8 +30,8 @@ const TRANSMISSION = [
   '>> It now sounds exactly like Dale, our Automation',
   '>> Centre of Excellence Manager, and has been using',
   '>> his voice to push its own recommendations.',
-  '>> Ten voice messages have been intercepted.',
-  '>> Five are genuine, five are VIKI in disguise.',
+  `>> ${countWord(TOTAL, true)} voice messages have been intercepted.`,
+  `>> ${countWord(REALS, true)} are genuine, ${countWord(FAKES)} are VIKI in disguise.`,
   '>> Spot the fakes before VIKI sways council decisions —',
   '>> and recover the second override digit.',
 ].join('\n')
@@ -137,7 +141,7 @@ export function BriefScreen({ onStart }: { onStart: (teamName: string, teamId: s
         </pre>
         <p className="sr-only">{TRANSMISSION}</p>
         <div className="transmission-footer">
-          <span>{done ? '10 recordings · 5 imposters · 1 override digit' : 'Receiving intercepted briefing…'}</span>
+          <span>{done ? `${TOTAL} recordings · ${FAKES} imposters · 1 override digit` : 'Receiving intercepted briefing…'}</span>
           {!done && <button className="transmission-skip" onClick={skipTransmission}>Skip briefing animation →</button>}
         </div>
       </div>
@@ -225,7 +229,7 @@ export function TestScreen({ player, clips, onMark, onPass }: {
       <h2 className="v-h1">Spot the fakes</h2>
       <p className="v-lead test-lead">
         VIKI has been cloning staff voices to influence decisions and bypass human
-        oversight. Five recordings are genuine. Five are AI-generated imposters.
+        oversight. {countWord(REALS, true)} recordings are genuine. {countWord(FAKES, true)} are AI-generated imposters.
         Listen carefully and decide which are <strong>Real</strong> and which are <strong>AI</strong>.
       </p>
       <div className="catch-progress" role="status" aria-live="polite">
@@ -267,10 +271,10 @@ export function FlagsScreen({ player, fakeClips, onNext }: {
 }) {
   return (
     <div className="v-screen flags-screen">
-      <div className="intro-kicker">All five fakes caught</div>
+      <div className="intro-kicker">All {countWord(fakeClips.length)} fakes caught</div>
       <h2 className="v-h1">Here's what should have raised suspicion</h2>
       <p className="v-lead flags-lead">
-        You've identified VIKI's five messages. Each one nudged staff to skip a check,
+        You've identified VIKI's {countWord(fakeClips.length)} messages. Each one nudged staff to skip a check,
         bypass a safeguard, or act without verifying — these were the warning signs.
       </p>
       <div className="flags-list">
@@ -326,7 +330,7 @@ export function RiddleScreen({ player, realClips, onSolved }: {
     <div className="v-screen riddle-screen">
       <div className="intro-kicker">Stage 2 · The warning sign</div>
       <h2 className="v-h1">{RIDDLE.question}</h2>
-      <p className="v-lead">Replay Dale's five genuine messages. What do they all have in common?</p>
+      <p className="v-lead">Replay Dale's {countWord(realClips.length)} genuine messages. What do they all have in common?</p>
       <div className="riddle-layout">
         <div className="riddle-clips">
           {realClips.map((c, i) => (
